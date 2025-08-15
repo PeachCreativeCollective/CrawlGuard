@@ -1214,9 +1214,9 @@ export default function Admin() {
                     selectedDate={selectedDateTime?.date}
                     selectedTime={selectedDateTime?.hour ? `${selectedDateTime.hour.toString().padStart(2, '0')}:00` : undefined}
                     selectedLead={selectedLeadForAppointment}
-                    trigger={<></>}
                     open={isAppointmentBookingOpen || selectedDateTime !== null}
                     onOpenChange={(open) => {
+                      console.log("Dialog onOpenChange called with:", open);
                       setIsAppointmentBookingOpen(open);
                       if (!open) {
                         setSelectedDateTime(null);
