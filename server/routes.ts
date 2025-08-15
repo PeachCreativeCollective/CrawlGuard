@@ -225,6 +225,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Calendar integration endpoints
+  app.post("/api/calendar/sync", requireAuth, async (req, res) => {
+    try {
+      // TODO: Implement Google Calendar OAuth integration
+      // For now, return a placeholder response
+      res.json({ 
+        success: true, 
+        message: "Google Calendar sync is not yet configured. Contact admin to set up OAuth credentials." 
+      });
+    } catch (error) {
+      console.error("Calendar sync error:", error);
+      res.status(500).json({ message: "Failed to sync with Google Calendar" });
+    }
+  });
+
+  app.post("/api/calendar/add-event/:leadId", requireAuth, async (req, res) => {
+    try {
+      const leadId = req.params.leadId;
+      const lead = await storage.getLeadById(leadId);
+      
+      if (!lead || !lead.scheduledDate) {
+        return res.status(400).json({ message: "Lead not found or no scheduled date" });
+      }
+
+      // TODO: Implement actual Google Calendar event creation
+      // For now, just update the lead with a placeholder event ID
+      const eventId = `placeholder_${leadId}_${Date.now()}`;
+      await storage.updateLead(leadId, { googleCalendarEventId: eventId });
+      
+      res.json({ 
+        success: true, 
+        message: "Event would be added to Google Calendar (integration not yet configured)",
+        eventId 
+      });
+    } catch (error) {
+      console.error("Add calendar event error:", error);
+      res.status(500).json({ message: "Failed to add event to calendar" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

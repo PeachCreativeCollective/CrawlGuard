@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle } from "lucide-react";
+import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle, CalendarDays, Clock, ExternalLink } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -434,6 +434,58 @@ export default function Admin() {
     }
   });
 
+  // Google Calendar mutations
+  const { toast } = useToast();
+  
+  const syncCalendarMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/calendar/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!response.ok) throw new Error("Failed to sync calendar");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Calendar Sync",
+        description: data.message,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Sync Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const addToGoogleCalendarMutation = useMutation({
+    mutationFn: async (leadId: string) => {
+      const response = await fetch(`/api/calendar/add-event/${leadId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!response.ok) throw new Error("Failed to add event to calendar");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Calendar Event",
+        description: data.message,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Add Event Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
   // Convert submission to lead
   const convertToLeadMutation = useMutation({
     mutationFn: async (submissionId: string) => {
@@ -601,7 +653,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="leads" className="w-full">
-            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-3' : 'grid-cols-2'} bg-white border border-crawlguard-primary/20`}>
+            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-4' : 'grid-cols-3'} bg-white border border-crawlguard-primary/20`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
@@ -609,6 +661,10 @@ export default function Admin() {
               <TabsTrigger value="submissions" data-testid="submissions-tab"
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Contact Submissions
+              </TabsTrigger>
+              <TabsTrigger value="calendar" data-testid="calendar-tab"
+                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                Calendar
               </TabsTrigger>
               {currentUser?.isAdmin && (
                 <TabsTrigger value="users" data-testid="users-tab"
@@ -780,6 +836,179 @@ export default function Admin() {
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="calendar" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-crawlguard-dark">Calendar & Scheduled Leads</h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => syncCalendarMutation.mutate()}
+                    disabled={syncCalendarMutation.isPending}
+                    className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                    data-testid="sync-google-calendar"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    {syncCalendarMutation.isPending ? "Syncing..." : "Sync with Google Calendar"}
+                  </Button>
+                </div>
+              </div>
+
+              {leadsLoading ? (
+                <div className="text-center py-8 text-crawlguard-dark/70">Loading scheduled leads...</div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Calendar View Options */}
+                  <div className="flex gap-2 mb-4">
+                    <Button
+                      variant="outline"
+                      className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                    >
+                      <CalendarDays className="w-4 h-4 mr-2" />
+                      Month View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                    >
+                      <Clock className="w-4 h-4 mr-2" />
+                      Week View
+                    </Button>
+                  </div>
+
+                  {/* Scheduled Leads */}
+                  <div className="grid gap-4">
+                    <h3 className="text-lg font-semibold text-crawlguard-dark">Upcoming Appointments</h3>
+                    {leads
+                      .filter((lead: Lead) => lead.scheduledDate && new Date(lead.scheduledDate) >= new Date())
+                      .sort((a: Lead, b: Lead) => new Date(a.scheduledDate!).getTime() - new Date(b.scheduledDate!).getTime())
+                      .map((lead: Lead) => (
+                        <Card key={lead.id} data-testid={`scheduled-lead-${lead.id}`}
+                              className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
+                          <CardContent className="p-4 sm:p-6">
+                            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h3 className="font-semibold text-lg text-crawlguard-dark truncate">{lead.name}</h3>
+                                  <Badge className={`text-xs ${statusColors[lead.status as keyof typeof statusColors]}`}>
+                                    {lead.status}
+                                  </Badge>
+                                  <Badge className={`text-xs ${priorityColors[lead.priority as keyof typeof priorityColors]}`}>
+                                    {lead.priority}
+                                  </Badge>
+                                </div>
+                                <div className="text-sm text-crawlguard-dark/70 space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
+                                    <span className="font-medium text-purple-700">
+                                      {new Date(lead.scheduledDate!).toLocaleDateString()} at {new Date(lead.scheduledDate!).toLocaleTimeString()}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
+                                    <span className="truncate">{lead.email}</span>
+                                  </div>
+                                  {lead.phone && (
+                                    <div className="flex items-center gap-2">
+                                      <Phone className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
+                                      <span>{lead.phone}</span>
+                                    </div>
+                                  )}
+                                  {lead.address && (
+                                    <div className="flex items-start gap-2">
+                                      <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0 mt-0.5" />
+                                      <span className="leading-tight break-words">{lead.address}</span>
+                                    </div>
+                                  )}
+                                  {lead.service && (
+                                    <div className="bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs inline-block">
+                                      Service: {lead.service}
+                                    </div>
+                                  )}
+                                </div>
+                                {lead.notes && (
+                                  <div className="mt-3 bg-gray-50 p-2 rounded text-gray-700 text-xs leading-relaxed">
+                                    {lead.notes.length > 100 ? `${lead.notes.substring(0, 100)}...` : lead.notes}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setSelectedLead(lead)}
+                                  className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                                  data-testid={`edit-scheduled-lead-${lead.id}`}
+                                >
+                                  <Edit2 className="w-4 h-4 mr-2" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => addToGoogleCalendarMutation.mutate(lead.id)}
+                                  disabled={addToGoogleCalendarMutation.isPending}
+                                  className="border-green-200 text-green-600 hover:bg-green-50"
+                                  data-testid={`add-to-google-calendar-${lead.id}`}
+                                >
+                                  <Calendar className="w-4 h-4 mr-2" />
+                                  {addToGoogleCalendarMutation.isPending ? "Adding..." : "Add to Google"}
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    
+                    {leads.filter((lead: Lead) => lead.scheduledDate && new Date(lead.scheduledDate) >= new Date()).length === 0 && (
+                      <Card className="border-crawlguard-primary/10">
+                        <CardContent className="text-center py-8">
+                          <Calendar className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
+                          <p className="text-crawlguard-dark/70 mb-2">No upcoming appointments scheduled</p>
+                          <p className="text-sm text-crawlguard-dark/50">Schedule appointments from the Lead Management tab</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+
+                  {/* Past Appointments */}
+                  <div className="grid gap-4 mt-8">
+                    <h3 className="text-lg font-semibold text-crawlguard-dark">Past Appointments</h3>
+                    {leads
+                      .filter((lead: Lead) => lead.scheduledDate && new Date(lead.scheduledDate) < new Date())
+                      .sort((a: Lead, b: Lead) => new Date(b.scheduledDate!).getTime() - new Date(a.scheduledDate!).getTime())
+                      .slice(0, 10) // Show only last 10 past appointments
+                      .map((lead: Lead) => (
+                        <Card key={lead.id} data-testid={`past-lead-${lead.id}`}
+                              className="border-gray-200 opacity-75">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="font-medium text-crawlguard-dark">{lead.name}</h4>
+                                <div className="text-sm text-gray-600 flex items-center gap-2 mt-1">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>{new Date(lead.scheduledDate!).toLocaleDateString()}</span>
+                                  <Badge className={`text-xs ${statusColors[lead.status as keyof typeof statusColors]}`}>
+                                    {lead.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setSelectedLead(lead)}
+                                className="text-gray-600 hover:text-crawlguard-primary"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
                 </div>
               )}
             </TabsContent>
