@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key } from "lucide-react";
+import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
