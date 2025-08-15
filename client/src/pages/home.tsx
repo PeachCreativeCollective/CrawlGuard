@@ -73,22 +73,34 @@ export default function Home() {
       <SEOHead structuredData={structuredData} />
       
       {/* Hero Section */}
-      <section className="relative bg-black py-20" data-testid="hero-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6" data-testid="hero-title">
+      <section 
+        className="relative min-h-screen bg-black p-4 sm:p-6 lg:p-8 flex items-center" 
+        data-testid="hero-section"
+        style={{
+          backgroundImage: `url(${heroImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/60"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="hero-content-slide-right">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight hero-title-fade" data-testid="hero-title">
                 Expert Crawl Space <span className="text-crawlguard-primary">Waterproofing</span> in Asheville, NC
               </h1>
-              <p className="text-xl text-white mb-8" data-testid="hero-description">
+              <p className="text-lg sm:text-xl text-white mb-6 sm:mb-8 leading-relaxed hero-description-fade" data-testid="hero-description">
                 Protect your home from water damage, mold, and moisture with our professional waterproofing solutions. 
                 Serving Asheville and surrounding areas with reliable, long-lasting results.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 hero-buttons-fade">
                 <Button 
                   asChild 
                   size="lg"
-                  className="bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold"
+                  className="bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold transform transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                   data-testid="hero-cta-primary"
                 >
                   <Link href="/contact">Get Free Estimate</Link>
@@ -97,34 +109,44 @@ export default function Home() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white font-semibold"
+                  className="border-2 border-crawlguard-primary text-crawlguard-primary bg-white/10 backdrop-blur-sm hover:bg-crawlguard-primary hover:text-white font-semibold transform transition-all duration-300 hover:scale-105"
                   data-testid="hero-cta-phone"
                 >
                   <a href={`tel:${BUSINESS_INFO.phone.replace(/\D/g, '')}`}>
+                    <Phone className="w-4 h-4 mr-2" />
                     {BUSINESS_INFO.phone}
                   </a>
                 </Button>
               </div>
-              <div className="mt-8 flex flex-wrap gap-6 text-sm text-white">
+              <div className="mt-6 sm:mt-8 flex flex-wrap gap-4 sm:gap-6 text-sm text-white hero-features-fade">
                 {[
                   "Free Consultations",
                   "Licensed & Insured", 
                   "Local Experts"
-                ].map((feature) => (
-                  <div key={feature} className="flex items-center" data-testid={`feature-${feature.toLowerCase().replace(/\s+/g, '-')}`}>
-                    <CheckCircle className="w-5 h-5 text-crawlguard-primary mr-2" />
+                ].map((feature, index) => (
+                  <div 
+                    key={feature} 
+                    className="flex items-center hero-feature-item"
+                    style={{ 
+                      animationDelay: `${1.0 + index * 0.1}s` 
+                    }}
+                    data-testid={`feature-${feature.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-crawlguard-primary mr-2 flex-shrink-0" />
                     {feature}
                   </div>
                 ))}
               </div>
             </div>
-            <div className="relative">
-              <img 
-                src={heroImage} 
-                alt="Professional CrawlGuard LLC crawl space encapsulation with vapor barrier installation" 
-                className="rounded-xl shadow-2xl w-full h-auto"
-                data-testid="hero-image"
-              />
+            
+            {/* Mobile-optimized content showcase */}
+            <div className="lg:flex justify-center hidden hero-stats-slide-left">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 transform transition-all duration-300 hover:scale-105">
+                <div className="text-white text-center">
+                  <div className="text-3xl font-bold text-crawlguard-primary mb-2">100%</div>
+                  <div className="text-sm">Customer Satisfaction</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

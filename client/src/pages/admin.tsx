@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { LeadForm } from "@/components/lead-form";
 import { CalendarIntegration } from "@/components/calendar-integration";
 import { SEOHead } from "@/components/seo-head";
@@ -200,6 +200,9 @@ export default function Admin() {
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>{selectedLead ? "Edit Lead" : "Add New Lead"}</DialogTitle>
+                      <DialogDescription>
+                        {selectedLead ? "Update lead information and status" : "Fill out the form below to add a new lead to the system"}
+                      </DialogDescription>
                     </DialogHeader>
                     <LeadForm
                       lead={selectedLead}
