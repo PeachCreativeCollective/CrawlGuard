@@ -138,16 +138,6 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            
-            {/* Mobile-optimized content showcase */}
-            <div className="lg:flex justify-center hidden hero-stats-slide-left">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 transform transition-all duration-300 hover:scale-105">
-                <div className="text-white text-center">
-                  <div className="text-3xl font-bold text-crawlguard-primary mb-2">100%</div>
-                  <div className="text-sm">Customer Satisfaction</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
