@@ -52,10 +52,11 @@ const priorityColors = {
 } as const;
 
 // Draggable Lead Card Component
-function DraggableLeadCard({ lead, onEdit, onDelete }: { 
+function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: { 
   lead: Lead; 
   onEdit: (lead: Lead) => void; 
   onDelete: (id: string) => void; 
+  onUpdateLead: (leadId: string, updates: Partial<Lead>) => void;
 }) {
   const {
     attributes,
@@ -72,23 +73,45 @@ function DraggableLeadCard({ lead, onEdit, onDelete }: {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handlePriorityChange = (newPriority: string) => {
+    onUpdateLead(lead.id, { priority: newPriority as 'low' | 'medium' | 'high' });
+  };
+
+  const handleEstimatedValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value) || 0;
+    onUpdateLead(lead.id, { estimatedValue: value });
+  };
+
   return (
-    <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={isDragging ? "z-50" : ""}
+      {...attributes}
+      {...listeners}
+    >
       <Card className="mb-4 hover:shadow-lg transition-all duration-200 cursor-move border-border/50 hover:border-crawlguard-primary/30">
         <CardHeader className="pb-3 px-3 sm:px-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-shrink-0">
-                <GripVertical className="h-4 w-4 text-crawlguard-primary/60" />
-              </div>
               <CardTitle className="text-base sm:text-lg font-semibold text-crawlguard-dark truncate">
                 {lead.name}
               </CardTitle>
             </div>
             <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
-              <Badge className={`text-xs ${priorityColors[lead.priority as keyof typeof priorityColors]}`}>
-                {lead.priority}
-              </Badge>
+              <Select value={lead.priority} onValueChange={handlePriorityChange}>
+                <SelectTrigger 
+                  className={`h-6 text-xs border-0 px-2 py-0 ${priorityColors[lead.priority as keyof typeof priorityColors]} hover:opacity-80`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
               <Badge className={`text-xs ${statusColors[lead.status as keyof typeof statusColors]}`}>
                 {lead.status}
               </Badge>
@@ -118,11 +141,18 @@ function DraggableLeadCard({ lead, onEdit, onDelete }: {
                 Service: {lead.service}
               </div>
             )}
-            {lead.estimatedValue && (
-              <div className="bg-green-50 px-2 py-1 rounded text-green-700 font-medium text-xs">
-                Value: ${lead.estimatedValue.toLocaleString()}
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-crawlguard-dark/70">Value: $</span>
+              <input
+                type="number"
+                value={(lead.estimatedValue || 0).toString()}
+                onChange={handleEstimatedValueChange}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-green-50 border border-green-200 px-2 py-1 rounded text-green-700 font-medium text-xs w-20 focus:outline-none focus:ring-1 focus:ring-crawlguard-primary"
+                min="0"
+                step="100"
+              />
+            </div>
             {lead.notes && (
               <div className="bg-gray-50 p-2 rounded text-gray-700 text-xs leading-relaxed">
                 {lead.notes.length > 100 ? `${lead.notes.substring(0, 100)}...` : lead.notes}
@@ -170,7 +200,8 @@ function StatusColumn({
   color, 
   leads, 
   onEditLead, 
-  onDeleteLead 
+  onDeleteLead,
+  onUpdateLead
 }: {
   status: string;
   title: string;
@@ -178,6 +209,7 @@ function StatusColumn({
   leads: Lead[];
   onEditLead: (lead: Lead) => void;
   onDeleteLead: (id: string) => void;
+  onUpdateLead: (leadId: string, updates: Partial<Lead>) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
@@ -200,6 +232,7 @@ function StatusColumn({
                 lead={lead}
                 onEdit={onEditLead}
                 onDelete={onDeleteLead}
+                onUpdateLead={onUpdateLead}
               />
             ))}
           </SortableContext>
@@ -259,7 +292,7 @@ export default function Admin() {
     }
   });
 
-  // Update lead status
+  // Update lead status and properties
   const updateLeadMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Lead> }) => {
       const response = await fetch(`/api/leads/${id}`, {
@@ -274,6 +307,11 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
     }
   });
+
+  // Handle updating lead properties inline
+  const handleUpdateLead = (leadId: string, updates: Partial<Lead>) => {
+    updateLeadMutation.mutate({ id: leadId, updates });
+  };
 
   // Delete lead
   const deleteLeadMutation = useMutation({
@@ -490,6 +528,7 @@ export default function Admin() {
                           setIsLeadFormOpen(true);
                         }}
                         onDeleteLead={(id) => deleteLeadMutation.mutate(id)}
+                        onUpdateLead={handleUpdateLead}
                       />
                     ))}
                   </div>
@@ -500,6 +539,7 @@ export default function Admin() {
                           lead={leads.find(l => l.id === activeId)!}
                           onEdit={() => {}}
                           onDelete={() => {}}
+                          onUpdateLead={() => {}}
                         />
                       </div>
                     ) : null}
