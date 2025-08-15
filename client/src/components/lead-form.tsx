@@ -65,7 +65,9 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
       };
       
       // Remove the separate time field before sending to backend
-      delete payload.scheduledTime;
+      delete (payload as any).scheduledTime;
+
+      console.log("Submitting lead form with payload:", payload);
 
       if (isEditing && lead) {
         const response = await fetch(`/api/leads/${lead.id}`, {
@@ -73,7 +75,11 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!response.ok) throw new Error("Failed to update lead");
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.error("Update lead error response:", errorData);
+          throw new Error(`Failed to update lead: ${errorData}`);
+        }
         return response.json();
       } else {
         const response = await fetch("/api/leads", {
@@ -81,12 +87,23 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        if (!response.ok) throw new Error("Failed to create lead");
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.error("Create lead error response:", errorData);
+          throw new Error(`Failed to create lead: ${errorData}`);
+        }
         return response.json();
       }
     },
     onSuccess: () => {
+      // Invalidate and refetch leads data
+      if (typeof window !== 'undefined' && (window as any).__queryClient) {
+        (window as any).__queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      }
       onSuccess();
+    },
+    onError: (error) => {
+      console.error("Lead save error:", error);
     },
   });
 

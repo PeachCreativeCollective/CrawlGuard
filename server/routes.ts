@@ -98,11 +98,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/leads/:id", requireAuth, async (req, res) => {
     try {
+      console.log("Updating lead with data:", JSON.stringify(req.body, null, 2));
       const validatedData = updateLeadSchema.parse(req.body);
       const lead = await storage.updateLead(req.params.id, validatedData);
       res.json(lead);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error("Lead validation error:", error.errors);
         res.status(400).json({ 
           message: "Validation error",
           errors: error.errors 

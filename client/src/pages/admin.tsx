@@ -32,7 +32,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { LeadForm } from "@/components/lead-form";
-import { CalendarIntegration } from "@/components/calendar-integration";
+import { MonthlyCalendar } from "@/components/monthly-calendar";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -357,6 +357,7 @@ export default function Admin() {
   const [isLeadFormOpen, setIsLeadFormOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "schedule">("month");
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -863,29 +864,89 @@ export default function Admin() {
               ) : (
                 <div className="space-y-6">
                   {/* Calendar View Options */}
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex gap-2 mb-6">
                     <Button
-                      variant="outline"
-                      className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                      variant={calendarView === "month" ? "default" : "outline"}
+                      onClick={() => setCalendarView("month")}
+                      className={calendarView === "month" ? 
+                        "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
+                        "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                      }
                     >
                       <CalendarDays className="w-4 h-4 mr-2" />
                       Month View
                     </Button>
                     <Button
-                      variant="outline"
-                      className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                      variant={calendarView === "week" ? "default" : "outline"}
+                      onClick={() => setCalendarView("week")}
+                      className={calendarView === "week" ? 
+                        "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
+                        "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                      }
                     >
                       <Clock className="w-4 h-4 mr-2" />
                       Week View
                     </Button>
+                    <Button
+                      variant={calendarView === "schedule" ? "default" : "outline"}
+                      onClick={() => setCalendarView("schedule")}
+                      className={calendarView === "schedule" ? 
+                        "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
+                        "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                      }
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Schedule View
+                    </Button>
                   </div>
+                  
+                  {/* Calendar Views */}
+                  {calendarView === "month" && (
+                    <div className="mb-8">
+                      <MonthlyCalendar
+                        leads={leads}
+                        onLeadClick={(lead) => setSelectedLead(lead)}
+                        onDateClick={(date) => {
+                          // Could add functionality to create new appointment on date click
+                          console.log("Date clicked:", date);
+                        }}
+                      />
+                    </div>
+                  )}
 
-                  {/* Scheduled Leads */}
+                  {calendarView === "week" && (
+                    <div className="mb-8">
+                      <Card className="border-crawlguard-primary/10">
+                        <CardContent className="text-center py-8">
+                          <Calendar className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
+                          <p className="text-crawlguard-dark/70 mb-2">Week View</p>
+                          <p className="text-sm text-crawlguard-dark/50">Coming soon - will show appointments in weekly format</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+
+                  {calendarView === "schedule" && (
+                    <div className="mb-8">
+                      <Card className="border-crawlguard-primary/10">
+                        <CardContent className="text-center py-8">
+                          <Calendar className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
+                          <p className="text-crawlguard-dark/70 mb-2">Schedule View</p>
+                          <p className="text-sm text-crawlguard-dark/50">Viewing all scheduled appointments in list format below</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+
+                  {/* Schedule List View */}
                   <div className="grid gap-4">
-                    <h3 className="text-lg font-semibold text-crawlguard-dark">Upcoming Appointments</h3>
+                    <h3 className="text-lg font-semibold text-crawlguard-dark">
+                      {calendarView === "schedule" ? "Upcoming Appointments" : "Recent Appointments"}
+                    </h3>
                     {leads
-                      .filter((lead: Lead) => lead.scheduledDate && new Date(lead.scheduledDate) >= new Date())
+                      .filter((lead: Lead) => lead.scheduledDate && (calendarView === "schedule" ? new Date(lead.scheduledDate) >= new Date() : true))
                       .sort((a: Lead, b: Lead) => new Date(a.scheduledDate!).getTime() - new Date(b.scheduledDate!).getTime())
+                      .slice(0, calendarView === "schedule" ? undefined : 5)
                       .map((lead: Lead) => (
                         <Card key={lead.id} data-testid={`scheduled-lead-${lead.id}`}
                               className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
@@ -964,7 +1025,7 @@ export default function Admin() {
                         </Card>
                       ))}
                     
-                    {leads.filter((lead: Lead) => lead.scheduledDate && new Date(lead.scheduledDate) >= new Date()).length === 0 && (
+                    {leads.filter((lead: Lead) => lead.scheduledDate && (calendarView === "schedule" ? new Date(lead.scheduledDate) >= new Date() : true)).length === 0 && (
                       <Card className="border-crawlguard-primary/10">
                         <CardContent className="text-center py-8">
                           <Calendar className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
