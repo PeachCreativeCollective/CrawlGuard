@@ -107,9 +107,17 @@ export class DatabaseStorage implements IStorage {
 
   // Lead management operations
   async createLead(insertLead: InsertLead): Promise<Lead> {
+    // Convert the data to match the database schema
+    const dbData: any = { ...insertLead };
+    
+    // Ensure scheduledDate is properly handled
+    if (dbData.scheduledDate && typeof dbData.scheduledDate === 'string') {
+      dbData.scheduledDate = new Date(dbData.scheduledDate);
+    }
+    
     const [lead] = await db
       .insert(leads)
-      .values(insertLead)
+      .values(dbData)
       .returning();
     return lead;
   }
@@ -127,9 +135,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateLead(id: string, updates: UpdateLead): Promise<Lead> {
+    // Convert the updates to match the database schema
+    const dbUpdates: any = { ...updates, updatedAt: new Date() };
+    
+    // Ensure scheduledDate is properly handled
+    if (dbUpdates.scheduledDate && typeof dbUpdates.scheduledDate === 'string') {
+      dbUpdates.scheduledDate = new Date(dbUpdates.scheduledDate);
+    }
+    
     const [lead] = await db
       .update(leads)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(dbUpdates)
       .where(eq(leads.id, id))
       .returning();
     return lead;

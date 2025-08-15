@@ -82,6 +82,8 @@ export const insertLeadSchema = createInsertSchema(leads).pick({
   notes: true,
   estimatedValue: true,
   scheduledDate: true,
+}).extend({
+  scheduledDate: z.union([z.date(), z.string().datetime(), z.null()]).optional(),
 });
 
 export const updateLeadSchema = createInsertSchema(leads).pick({
@@ -98,7 +100,9 @@ export const updateLeadSchema = createInsertSchema(leads).pick({
   estimatedValue: true,
   scheduledDate: true,
   googleCalendarEventId: true,
-}).partial();
+}).partial().extend({
+  scheduledDate: z.union([z.date(), z.string().datetime(), z.null()]).optional(),
+});
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type LoginUser = z.infer<typeof loginSchema>;

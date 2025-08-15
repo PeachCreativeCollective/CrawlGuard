@@ -81,6 +81,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/leads", requireAuth, async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
+      
+      // Convert string date to Date object if needed
+      if (validatedData.scheduledDate && typeof validatedData.scheduledDate === 'string') {
+        validatedData.scheduledDate = new Date(validatedData.scheduledDate);
+      }
+      
       const lead = await storage.createLead(validatedData);
       res.json(lead);
     } catch (error) {
@@ -100,6 +106,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Updating lead with data:", JSON.stringify(req.body, null, 2));
       const validatedData = updateLeadSchema.parse(req.body);
+      
+      // Convert string date to Date object if needed
+      if (validatedData.scheduledDate && typeof validatedData.scheduledDate === 'string') {
+        validatedData.scheduledDate = new Date(validatedData.scheduledDate);
+      }
+      
       const lead = await storage.updateLead(req.params.id, validatedData);
       res.json(lead);
     } catch (error) {
