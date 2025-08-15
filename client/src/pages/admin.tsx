@@ -106,7 +106,8 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
               <Select value={lead.priority} onValueChange={handlePriorityChange}>
                 <SelectTrigger 
                   className={`h-6 text-xs border-0 px-2 py-0 ${priorityColors[lead.priority as keyof typeof priorityColors]} hover:opacity-80`}
-                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -151,7 +152,9 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
                 type="number"
                 value={lead.estimatedValue?.toString() || "0"}
                 onChange={handleEstimatedValueChange}
-                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
                 className="bg-green-50 border border-green-200 px-2 py-1 rounded text-green-700 font-medium text-xs w-20 focus:outline-none focus:ring-1 focus:ring-crawlguard-primary"
                 min="0"
                 step="100"
@@ -169,26 +172,30 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-1 mt-4">
+          <div className="flex gap-1 mt-3">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onEdit(lead)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(lead);
+              }}
               data-testid={`button-edit-lead-${lead.id}`}
-              className="flex-1 sm:flex-none border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+              className="h-7 w-7 p-0 border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
             >
-              <Edit2 className="h-3 w-3 sm:mr-1" />
-              <span className="hidden sm:inline">Edit</span>
+              <Edit2 className="h-3 w-3" />
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDelete(lead.id)}
-              className="flex-1 sm:flex-none border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(lead.id);
+              }}
+              className="h-7 w-7 p-0 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               data-testid={`button-delete-lead-${lead.id}`}
             >
-              <Trash2 className="h-3 w-3 sm:mr-1" />
-              <span className="hidden sm:inline">Delete</span>
+              <Trash2 className="h-3 w-3" />
             </Button>
           </div>
         </CardContent>
