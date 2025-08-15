@@ -6,6 +6,15 @@ CrawlGuard LLC is a professional waterproofing and crawl space solutions busines
 
 ## Recent Updates
 
+- **August 15, 2025**: Integrated comprehensive appointment booking system with lead management
+  - Created centralized AppointmentBooking component replacing inline scheduling
+  - Added lead dropdown selection that auto-fills client information for existing leads
+  - Integrated appointment booking with calendar views (monthly, weekly, daily)
+  - Supports scheduling new appointments for both existing leads and new clients
+  - Fixed time blocks display in all calendar views with color-coded styling
+  - Resolved working hours validation and database constraint issues
+  - Enhanced calendar functionality with time blocking and availability management
+
 - **January 15, 2025**: Replaced all stock photography with authentic CrawlGuard project photos
   - Added 10 professional project photos showcasing actual waterproofing work
   - Updated hero sections across Home, About, and Gallery pages

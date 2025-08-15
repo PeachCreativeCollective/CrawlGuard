@@ -36,6 +36,7 @@ import { MonthlyCalendar } from "@/components/monthly-calendar";
 import { WeeklyCalendar } from "@/components/weekly-calendar";
 import { DailyCalendar } from "@/components/daily-calendar";
 import { AvailabilityManager } from "@/components/availability-manager";
+import { AppointmentBooking } from "@/components/appointment-booking";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -635,16 +636,31 @@ export default function Admin() {
                 </h1>
                 <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
               </div>
-              <Button 
-                onClick={() => logoutMutation.mutate()}
-                variant="outline"
-                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                data-testid="button-logout"
-                disabled={logoutMutation.isPending}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                {logoutMutation.isPending ? "Logging out..." : "Logout"}
-              </Button>
+              <div className="flex items-center gap-3">
+                <AppointmentBooking 
+                  leads={leads}
+                  trigger={
+                    <Button className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" data-testid="button-book-appointment">
+                      <CalendarDays className="h-4 w-4 mr-2" />
+                      Book Appointment
+                    </Button>
+                  }
+                  onSuccess={() => {
+                    // Refresh leads after successful booking
+                    queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+                  }}
+                />
+                <Button 
+                  onClick={() => logoutMutation.mutate()}
+                  variant="outline"
+                  className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  data-testid="button-logout"
+                  disabled={logoutMutation.isPending}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -948,16 +964,14 @@ export default function Admin() {
                         leads={leads}
                         timeBlocks={userTimeBlocks}
                         onDateClick={(date) => {
-                          setSelectedLead(null);
-                          setIsLeadFormOpen(true);
+                          console.log("Date clicked:", date);
                         }}
                         onLeadClick={(lead) => {
                           setSelectedLead(lead);
                           setIsLeadFormOpen(true);
                         }}
                         onTimeSlotClick={(date, hour) => {
-                          setSelectedLead(null);
-                          setIsLeadFormOpen(true);
+                          console.log("Time slot clicked:", date, hour);
                         }}
                       />
                     </div>
@@ -969,16 +983,14 @@ export default function Admin() {
                         leads={leads}
                         timeBlocks={userTimeBlocks}
                         onDateClick={(date) => {
-                          setSelectedLead(null);
-                          setIsLeadFormOpen(true);
+                          console.log("Date clicked:", date);
                         }}
                         onLeadClick={(lead) => {
                           setSelectedLead(lead);
                           setIsLeadFormOpen(true);
                         }}
                         onTimeSlotClick={(date, hour) => {
-                          setSelectedLead(null);
-                          setIsLeadFormOpen(true);
+                          console.log("Time slot clicked:", date, hour);
                         }}
                       />
                     </div>
