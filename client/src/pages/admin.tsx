@@ -36,6 +36,7 @@ import { CalendarIntegration } from "@/components/calendar-integration";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
