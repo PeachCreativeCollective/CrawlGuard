@@ -91,10 +91,10 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
       ref={setNodeRef} 
       style={style} 
       className={isDragging ? "z-50" : ""}
-      {...attributes}
-      {...listeners}
     >
-      <Card className="mb-4 hover:shadow-lg transition-all duration-200 cursor-move border-border/50 hover:border-crawlguard-primary/30">
+      <Card className="mb-4 hover:shadow-lg transition-all duration-200 cursor-move border-border/50 hover:border-crawlguard-primary/30"
+            {...attributes}
+            {...listeners}>
         <CardHeader className="pb-3 px-3 sm:px-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -102,12 +102,10 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
                 {lead.name}
               </CardTitle>
             </div>
-            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0" onMouseDown={(e) => e.stopPropagation()}>
               <Select value={lead.priority} onValueChange={handlePriorityChange}>
                 <SelectTrigger 
                   className={`h-6 text-xs border-0 px-2 py-0 ${priorityColors[lead.priority as keyof typeof priorityColors]} hover:opacity-80`}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -146,15 +144,12 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
                 Service: {lead.service}
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" onMouseDown={(e) => e.stopPropagation()}>
               <span className="text-xs text-crawlguard-dark/70">Value: $</span>
               <input
                 type="number"
                 value={lead.estimatedValue?.toString() || "0"}
                 onChange={handleEstimatedValueChange}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                onFocus={(e) => e.stopPropagation()}
                 className="bg-green-50 border border-green-200 px-2 py-1 rounded text-green-700 font-medium text-xs w-20 focus:outline-none focus:ring-1 focus:ring-crawlguard-primary"
                 min="0"
                 step="100"
