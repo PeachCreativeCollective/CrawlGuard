@@ -56,10 +56,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // Only crawlguardllc@gmail.com should be admin
+    // Only crawlguardllc@gmail.com should be admin (case insensitive)
     const userData = {
       ...insertUser,
-      isAdmin: insertUser.email === 'crawlguardllc@gmail.com'
+      isAdmin: insertUser.email.toLowerCase() === 'crawlguardllc@gmail.com'
     };
 
     const [user] = await db
