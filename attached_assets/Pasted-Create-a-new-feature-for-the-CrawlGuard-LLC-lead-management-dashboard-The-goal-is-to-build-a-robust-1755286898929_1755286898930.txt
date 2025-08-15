@@ -1,0 +1,22 @@
+Create a new feature for the CrawlGuard LLC lead management dashboard. The goal is to build a robust, user-friendly scheduling system that is similar in functionality to Calendly or Housecall Pro's dispatching tools, but is designed exclusively for the business owner to schedule appointments for new leads.
+
+The feature should be integrated directly into the existing single-file React application. It must be a new page or view that is only accessible to authenticated users on the private dashboard.
+
+Core Functionality
+Calendar View: Implement a highly visual and interactive calendar. This should support at least a weekly view and a daily agenda view. Appointments and time blocks should be clearly displayed with start and end times.
+
+Availability Management: The user must be able to define their work schedule and block off time.
+
+Set Working Hours: Allow the user to set their default business hours for each day of the week (e.g., Monday-Friday, 9:00 AM - 5:00 PM).
+
+Custom Time Blocking: Provide the ability to add custom time blocks on the calendar for personal tasks or other commitments.
+
+Appointment Booking: The user should be able to create new appointments.
+
+Lead Integration: A new appointment must be created from a lead in the leads collection. The user should be able to select a lead from a list to populate the appointment's client details.
+
+Job Details: The appointment record should include fields for the client's name, contact information, job type (e.g., encapsulation, dehumidifier installation), and a notes section.
+
+Conflict Prevention: This is critical. The system must prevent overbooking. Before a new appointment is saved or an existing one is modified, it must perform a validation check to ensure there are no time overlaps with other scheduled appointments or custom time blocks. If a conflict is detected, display a clear, non-intrusive error message.
+
+CRUD Operations: Allow the user to easily create, read, update, and delete appointments and time blocks directly from the calendar view.

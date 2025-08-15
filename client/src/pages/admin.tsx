@@ -33,6 +33,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { LeadForm } from "@/components/lead-form";
 import { MonthlyCalendar } from "@/components/monthly-calendar";
+import { WeeklyCalendar } from "@/components/weekly-calendar";
+import { DailyCalendar } from "@/components/daily-calendar";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -84,7 +86,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
 
   const handleEstimatedValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
-    onUpdateLead(lead.id, { estimatedValue: value });
+    onUpdateLead(lead.id, { estimatedValue: value.toString() });
   };
 
   return (
@@ -357,7 +359,7 @@ export default function Admin() {
   const [isLeadFormOpen, setIsLeadFormOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [calendarView, setCalendarView] = useState<"month" | "week" | "schedule">("month");
+  const [calendarView, setCalendarView] = useState<"month" | "week" | "schedule" | "day">("month");
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -872,6 +874,7 @@ export default function Admin() {
                         "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
                         "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
                       }
+                      data-testid="button-month-view"
                     >
                       <CalendarDays className="w-4 h-4 mr-2" />
                       Month View
@@ -883,9 +886,22 @@ export default function Admin() {
                         "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
                         "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
                       }
+                      data-testid="button-week-view"
                     >
                       <Clock className="w-4 h-4 mr-2" />
                       Week View
+                    </Button>
+                    <Button
+                      variant={calendarView === "day" ? "default" : "outline"}
+                      onClick={() => setCalendarView("day")}
+                      className={calendarView === "day" ? 
+                        "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
+                        "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                      }
+                      data-testid="button-day-view"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Day View
                     </Button>
                     <Button
                       variant={calendarView === "schedule" ? "default" : "outline"}
@@ -894,9 +910,10 @@ export default function Admin() {
                         "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" : 
                         "border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
                       }
+                      data-testid="button-schedule-view"
                     >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Schedule View
+                      <Clock className="w-4 h-4 mr-2" />
+                      Schedule List
                     </Button>
                   </div>
                   
@@ -916,13 +933,41 @@ export default function Admin() {
 
                   {calendarView === "week" && (
                     <div className="mb-8">
-                      <Card className="border-crawlguard-primary/10">
-                        <CardContent className="text-center py-8">
-                          <Calendar className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
-                          <p className="text-crawlguard-dark/70 mb-2">Week View</p>
-                          <p className="text-sm text-crawlguard-dark/50">Coming soon - will show appointments in weekly format</p>
-                        </CardContent>
-                      </Card>
+                      <WeeklyCalendar
+                        leads={leads}
+                        onDateClick={(date) => {
+                          setSelectedLead(null);
+                          setIsLeadFormOpen(true);
+                        }}
+                        onLeadClick={(lead) => {
+                          setSelectedLead(lead);
+                          setIsLeadFormOpen(true);
+                        }}
+                        onTimeSlotClick={(date, hour) => {
+                          setSelectedLead(null);
+                          setIsLeadFormOpen(true);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {calendarView === "day" && (
+                    <div className="mb-8">
+                      <DailyCalendar
+                        leads={leads}
+                        onDateClick={(date) => {
+                          setSelectedLead(null);
+                          setIsLeadFormOpen(true);
+                        }}
+                        onLeadClick={(lead) => {
+                          setSelectedLead(lead);
+                          setIsLeadFormOpen(true);
+                        }}
+                        onTimeSlotClick={(date, hour) => {
+                          setSelectedLead(null);
+                          setIsLeadFormOpen(true);
+                        }}
+                      />
                     </div>
                   )}
 
@@ -930,9 +975,9 @@ export default function Admin() {
                     <div className="mb-8">
                       <Card className="border-crawlguard-primary/10">
                         <CardContent className="text-center py-8">
-                          <Calendar className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
-                          <p className="text-crawlguard-dark/70 mb-2">Schedule View</p>
-                          <p className="text-sm text-crawlguard-dark/50">Viewing all scheduled appointments in list format below</p>
+                          <Clock className="w-12 h-12 text-crawlguard-primary/40 mx-auto mb-4" />
+                          <p className="text-crawlguard-dark/70 mb-2">Schedule List View</p>
+                          <p className="text-sm text-crawlguard-dark/50">All scheduled appointments in chronological order</p>
                         </CardContent>
                       </Card>
                     </div>
@@ -1101,7 +1146,7 @@ export default function Admin() {
                             <div className="text-sm text-crawlguard-dark/70 space-y-1 mt-2">
                               <p className="truncate">Email: {user.email || 'N/A'}</p>
                               <p className="text-xs text-crawlguard-dark/50">
-                                Created: {new Date(user.createdAt).toLocaleDateString()}
+                                Created: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                               </p>
                               {user.isAdmin && (
                                 <Badge className="bg-crawlguard-primary/10 text-crawlguard-primary text-xs">
