@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical } from "lucide-react";
+import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -30,11 +30,15 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { LeadForm } from "@/components/lead-form";
 import { CalendarIntegration } from "@/components/calendar-integration";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 const statusColors = {
   new: "bg-blue-50 text-blue-700 border border-blue-200",
@@ -242,6 +246,96 @@ function StatusColumn({
   );
 }
 
+// Password Reset Form Component
+const passwordResetSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(8, "Password must be at least 8 characters")
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
+
+function PasswordResetForm({ 
+  userId, 
+  username, 
+  onSuccess, 
+  resetPasswordMutation 
+}: { 
+  userId: string; 
+  username: string; 
+  onSuccess: () => void;
+  resetPasswordMutation: any;
+}) {
+  const form = useForm({
+    resolver: zodResolver(passwordResetSchema),
+    defaultValues: { password: "", confirmPassword: "" }
+  });
+
+  const onSubmit = (data: { password: string; confirmPassword: string }) => {
+    resetPasswordMutation.mutate(
+      { userId, newPassword: data.password },
+      { onSuccess: () => {
+          form.reset();
+          onSuccess();
+        }
+      }
+    );
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>New Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder="Enter new password"
+                  {...field}
+                  data-testid="input-new-password"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder="Confirm new password"
+                  {...field}
+                  data-testid="input-confirm-password"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex gap-2 pt-4">
+          <Button
+            type="submit"
+            disabled={resetPasswordMutation.isPending}
+            className="bg-crawlguard-primary hover:bg-crawlguard-primary/90"
+            data-testid="button-submit-password-reset"
+          >
+            {resetPasswordMutation.isPending ? "Resetting..." : "Reset Password"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
 export default function Admin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -274,6 +368,50 @@ export default function Admin() {
   // Fetch contact submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"]
+  });
+
+  // Fetch users for admin management
+  const { data: users = [], isLoading: usersLoading } = useQuery({
+    queryKey: ["/api/users"]
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Failed to logout");
+    },
+    onSuccess: () => {
+      window.location.href = "/auth";
+    }
+  });
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await fetch(`/api/users/${userId}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete user");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    }
+  });
+
+  // Reset password mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, newPassword }: { userId: string; newPassword: string }) => {
+      const response = await fetch(`/api/users/${userId}/reset-password`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword })
+      });
+      if (!response.ok) throw new Error("Failed to reset password");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    }
   });
 
   // Convert submission to lead
@@ -407,10 +545,24 @@ export default function Admin() {
       <div className="min-h-screen bg-crawlguard-light">
         <div className="bg-white shadow-sm border-b border-crawlguard-primary/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
-              CrawlGuard Admin Dashboard
-            </h1>
-            <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
+                  CrawlGuard Admin Dashboard
+                </h1>
+                <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
+              </div>
+              <Button 
+                onClick={() => logoutMutation.mutate()}
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                data-testid="button-logout"
+                disabled={logoutMutation.isPending}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {logoutMutation.isPending ? "Logging out..." : "Logout"}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -429,7 +581,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="leads" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-white border border-crawlguard-primary/20">
+            <TabsList className="grid w-full grid-cols-3 bg-white border border-crawlguard-primary/20">
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
@@ -437,6 +589,10 @@ export default function Admin() {
               <TabsTrigger value="submissions" data-testid="submissions-tab"
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Contact Submissions
+              </TabsTrigger>
+              <TabsTrigger value="users" data-testid="users-tab"
+                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                User Management
               </TabsTrigger>
             </TabsList>
 
@@ -598,6 +754,92 @@ export default function Admin() {
                             <UserPlus className="w-4 h-4 mr-2" />
                             Convert to Lead
                           </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="users" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-crawlguard-dark">User Management</h2>
+              </div>
+
+              {usersLoading ? (
+                <div className="text-center py-8 text-crawlguard-dark/70">Loading users...</div>
+              ) : users.length === 0 ? (
+                <Card className="border-crawlguard-primary/10">
+                  <CardContent className="text-center py-8">
+                    <p className="text-crawlguard-dark/70">No users found</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {users.map((user: any) => (
+                    <Card key={user.id} data-testid={`user-card-${user.id}`}
+                          className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg text-crawlguard-dark truncate">{user.username}</h3>
+                            <div className="text-sm text-crawlguard-dark/70 space-y-1 mt-2">
+                              <p className="truncate">Email: {user.email || 'N/A'}</p>
+                              <p className="text-xs text-crawlguard-dark/50">
+                                Created: {new Date(user.createdAt).toLocaleDateString()}
+                              </p>
+                              {user.isAdmin && (
+                                <Badge className="bg-crawlguard-primary/10 text-crawlguard-primary text-xs">
+                                  Admin
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10 w-full sm:w-auto"
+                                  data-testid={`reset-password-${user.id}`}
+                                >
+                                  <Key className="w-4 h-4 mr-2" />
+                                  Reset Password
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Reset Password for {user.username}</DialogTitle>
+                                  <DialogDescription>
+                                    Enter a new password for this user account.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <PasswordResetForm
+                                  userId={user.id}
+                                  username={user.username}
+                                  onSuccess={() => {
+                                    // Dialog will close automatically
+                                  }}
+                                  resetPasswordMutation={resetPasswordMutation}
+                                />
+                              </DialogContent>
+                            </Dialog>
+                            {!user.isAdmin && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => deleteUserMutation.mutate(user.id)}
+                                disabled={deleteUserMutation.isPending}
+                                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 w-full sm:w-auto"
+                                data-testid={`delete-user-${user.id}`}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete User
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

@@ -22,6 +22,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   deleteUser(id: string): Promise<void>;
+  updateUserPassword(id: string, password: string): Promise<void>;
   getUserCount(): Promise<number>;
   
   // Contact submission operations
@@ -75,6 +76,13 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: string): Promise<void> {
     await db.delete(users).where(eq(users.id, id));
+  }
+
+  async updateUserPassword(id: string, password: string): Promise<void> {
+    // We'll need to hash the password here, similar to how it's done in auth.ts
+    const { hashPassword } = await import("./auth");
+    const hashedPassword = await hashPassword(password);
+    await db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
   }
 
   async getUserCount(): Promise<number> {
