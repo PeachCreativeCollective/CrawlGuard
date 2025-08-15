@@ -39,6 +39,7 @@ import { AvailabilityManager } from "@/components/availability-manager";
 import { AppointmentBooking } from "@/components/appointment-booking";
 import { CustomAppointmentModal } from "@/components/custom-appointment-modal";
 import { GoogleCalendarIntegration } from "@/components/google-calendar-integration";
+import { GalleryManagement } from "@/components/gallery-management";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -729,7 +730,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="leads" className="w-full">
-            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-6' : 'grid-cols-5'} bg-white border border-crawlguard-primary/20`}>
+            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-7' : 'grid-cols-6'} bg-white border border-crawlguard-primary/20`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
@@ -749,6 +750,10 @@ export default function Admin() {
               <TabsTrigger value="google-calendar" data-testid="google-calendar-tab"
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Google Calendar
+              </TabsTrigger>
+              <TabsTrigger value="gallery" data-testid="gallery-tab"
+                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                Gallery
               </TabsTrigger>
               {currentUser?.isAdmin && (
                 <TabsTrigger value="users" data-testid="users-tab"
@@ -1267,6 +1272,10 @@ export default function Admin() {
                 <h2 className="text-xl font-semibold text-crawlguard-dark">Google Calendar Integration</h2>
               </div>
               <GoogleCalendarIntegration />
+            </TabsContent>
+
+            <TabsContent value="gallery" className="space-y-6">
+              <GalleryManagement />
             </TabsContent>
 
             {currentUser?.isAdmin && (

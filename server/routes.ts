@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
 import { googleCalendarService } from "./google-calendar";
+import { ObjectStorageService } from "./objectStorage";
+import { insertGalleryImageSchema, updateGalleryImageSchema } from "@shared/schema";
+import { z } from "zod";
 import { 
   insertContactSubmissionSchema, 
   insertLeadSchema, 
@@ -11,6 +14,8 @@ import {
   updateWorkingHoursSchema,
   insertTimeBlockSchema,
   updateTimeBlockSchema,
+  insertGalleryImageSchema,
+  updateGalleryImageSchema,
   type User 
 } from "@shared/schema";
 import { z } from "zod";
@@ -523,6 +528,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating appointment event:", error);
       res.status(500).json({ message: "Failed to create appointment in calendar" });
+    }
+  });
+
+  // Serve public images from object storage
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Gallery Image Management API Routes
+  app.get("/api/gallery", async (req, res) => {
+    try {
+      const images = await storage.getPublishedGalleryImages();
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching gallery images:", error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
+  app.get("/api/admin/gallery", requireAuth, async (req, res) => {
+    try {
+      const images = await storage.getGalleryImages();
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching all gallery images:", error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
+  app.post("/api/admin/gallery/upload", requireAuth, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getGalleryImageUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ message: "Failed to get upload URL" });
+    }
+  });
+
+  app.post("/api/admin/gallery", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const validatedData = insertGalleryImageSchema.parse(req.body);
+      
+      const imageData = {
+        ...validatedData,
+        uploadedBy: currentUser.id,
+      };
+
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = objectStorageService.normalizeGalleryImagePath(imageData.imageUrl);
+      
+      const image = await storage.createGalleryImage({
+        ...imageData,
+        imageUrl: normalizedPath,
+      });
+      
+      res.status(201).json(image);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid image data", errors: error.errors });
+      } else {
+        console.error("Error creating gallery image:", error);
+        res.status(500).json({ message: "Failed to create gallery image" });
+      }
+    }
+  });
+
+  app.patch("/api/admin/gallery/:id", requireAuth, async (req, res) => {
+    try {
+      const imageId = req.params.id;
+      const validatedData = updateGalleryImageSchema.parse(req.body);
+
+      const image = await storage.updateGalleryImage(imageId, validatedData);
+      res.json(image);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid image data", errors: error.errors });
+      } else {
+        console.error("Error updating gallery image:", error);
+        res.status(500).json({ message: "Failed to update gallery image" });
+      }
+    }
+  });
+
+  app.delete("/api/admin/gallery/:id", requireAuth, async (req, res) => {
+    try {
+      const imageId = req.params.id;
+      await storage.deleteGalleryImage(imageId);
+      res.json({ success: true, message: "Image deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting gallery image:", error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
     }
   });
 

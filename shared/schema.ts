@@ -175,3 +175,48 @@ export type UpdateWorkingHours = z.infer<typeof updateWorkingHoursSchema>;
 export type TimeBlock = typeof timeBlocks.$inferSelect;
 export type InsertTimeBlock = z.infer<typeof insertTimeBlockSchema>;
 export type UpdateTimeBlock = z.infer<typeof updateTimeBlockSchema>;
+
+// Gallery Images Table
+export const galleryImages = pgTable("gallery_images", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  altText: varchar("alt_text", { length: 255 }).notNull(),
+  imageUrl: varchar("image_url", { length: 500 }).notNull(),
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  fileSize: varchar("file_size"),
+  mimeType: varchar("mime_type", { length: 100 }),
+  category: varchar("category", { length: 100 }).default("general"),
+  isPublished: boolean("is_published").default(false),
+  displayOrder: varchar("display_order").default("0"),
+  seoKeywords: varchar("seo_keywords", { length: 500 }),
+  uploadedBy: varchar("uploaded_by", { length: 255 }).references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_gallery_images_published").on(table.isPublished),
+  index("idx_gallery_images_category").on(table.category),
+  index("idx_gallery_images_order").on(table.displayOrder),
+]);
+
+// Gallery image schemas
+export const insertGalleryImageSchema = createInsertSchema(galleryImages).pick({
+  title: true,
+  description: true,
+  altText: true,
+  imageUrl: true,
+  fileName: true,
+  fileSize: true,
+  mimeType: true,
+  category: true,
+  isPublished: true,
+  displayOrder: true,
+  seoKeywords: true,
+  uploadedBy: true,
+});
+
+export const updateGalleryImageSchema = insertGalleryImageSchema.partial();
+
+export type GalleryImage = typeof galleryImages.$inferSelect;
+export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
+export type UpdateGalleryImage = z.infer<typeof updateGalleryImageSchema>;
