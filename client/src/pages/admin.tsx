@@ -92,17 +92,23 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
       style={style} 
       className={isDragging ? "z-50" : ""}
     >
-      <Card className="mb-4 hover:shadow-lg transition-all duration-200 cursor-move border-border/50 hover:border-crawlguard-primary/30"
-            {...attributes}
-            {...listeners}>
+      <Card className="mb-4 hover:shadow-lg transition-all duration-200 border-border/50 hover:border-crawlguard-primary/30">
         <CardHeader className="pb-3 px-3 sm:px-4">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="cursor-move p-1 -ml-1 hover:bg-gray-100 rounded" {...attributes} {...listeners}>
+                <div className="w-2 h-2 grid grid-cols-2 gap-px">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                </div>
+              </div>
               <CardTitle className="text-base sm:text-lg font-semibold text-crawlguard-dark truncate">
                 {lead.name}
               </CardTitle>
             </div>
-            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
               <Select value={lead.priority} onValueChange={handlePriorityChange}>
                 <SelectTrigger 
                   className={`h-6 text-xs border-0 px-2 py-0 ${priorityColors[lead.priority as keyof typeof priorityColors]} hover:opacity-80`}
@@ -144,7 +150,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
                 Service: {lead.service}
               </div>
             )}
-            <div className="flex items-center gap-2" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
               <span className="text-xs text-crawlguard-dark/70">Value: $</span>
               <input
                 type="number"
