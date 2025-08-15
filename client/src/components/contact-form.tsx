@@ -15,6 +15,8 @@ const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().optional(),
+  address: z.string().optional(),
+  zipCode: z.string().min(5, "Zip code must be at least 5 characters"),
   service: z.string().optional(),
   message: z.string().optional(),
 });
@@ -31,6 +33,8 @@ export function ContactForm() {
       name: "",
       email: "",
       phone: "",
+      address: "",
+      zipCode: "",
       service: "",
       message: "",
     },
@@ -96,6 +100,43 @@ export function ContactForm() {
                       type="tel" 
                       placeholder="Your phone number"
                       data-testid="input-phone"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="zipCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zip Code *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="28801"
+                      data-testid="input-zip-code"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="123 Main St, Asheville, NC"
+                      data-testid="input-address"
                     />
                   </FormControl>
                   <FormMessage />

@@ -18,6 +18,8 @@ export const contactSubmissions = pgTable("contact_submissions", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
+  address: text("address"),
+  zipCode: text("zip_code").notNull(),
   service: text("service"),
   message: text("message"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -61,6 +63,8 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
   name: true,
   email: true,
   phone: true,
+  address: true,
+  zipCode: true,
   service: true,
   message: true,
 });
