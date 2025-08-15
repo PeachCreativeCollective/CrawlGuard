@@ -73,14 +73,14 @@ export default function Home() {
       <SEOHead structuredData={structuredData} />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-20" data-testid="hero-section">
+      <section className="relative bg-black py-20" data-testid="hero-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-crawlguard-dark mb-6" data-testid="hero-title">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6" data-testid="hero-title">
                 Expert Crawl Space <span className="text-crawlguard-primary">Waterproofing</span> in Asheville, NC
               </h1>
-              <p className="text-xl text-gray-600 mb-8" data-testid="hero-description">
+              <p className="text-xl text-white mb-8" data-testid="hero-description">
                 Protect your home from water damage, mold, and moisture with our professional waterproofing solutions. 
                 Serving Asheville and surrounding areas with reliable, long-lasting results.
               </p>
@@ -105,14 +105,14 @@ export default function Home() {
                   </a>
                 </Button>
               </div>
-              <div className="mt-8 flex flex-wrap gap-6 text-sm text-gray-600">
+              <div className="mt-8 flex flex-wrap gap-6 text-sm text-white">
                 {[
                   "Free Consultations",
                   "Licensed & Insured", 
                   "Local Experts"
                 ].map((feature) => (
                   <div key={feature} className="flex items-center" data-testid={`feature-${feature.toLowerCase().replace(/\s+/g, '-')}`}>
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                    <CheckCircle className="w-5 h-5 text-crawlguard-primary mr-2" />
                     {feature}
                   </div>
                 ))}
