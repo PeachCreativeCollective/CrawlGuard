@@ -187,23 +187,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours> {
-    const [result] = await db
-      .insert(workingHours)
-      .values({
-        userId,
-        dayOfWeek,
-        ...hours,
-        updatedAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: [workingHours.userId, workingHours.dayOfWeek],
-        set: {
+    // First, try to find existing working hours for this user and day
+    const existingHours = await db
+      .select()
+      .from(workingHours)
+      .where(and(eq(workingHours.userId, userId), eq(workingHours.dayOfWeek, dayOfWeek)))
+      .limit(1);
+
+    if (existingHours.length > 0) {
+      // Update existing record
+      const [result] = await db
+        .update(workingHours)
+        .set({
           ...hours,
           updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return result;
+        })
+        .where(and(eq(workingHours.userId, userId), eq(workingHours.dayOfWeek, dayOfWeek)))
+        .returning();
+      return result;
+    } else {
+      // Insert new record
+      const [result] = await db
+        .insert(workingHours)
+        .values({
+          userId,
+          dayOfWeek,
+          ...hours,
+          updatedAt: new Date(),
+        })
+        .returning();
+      return result;
+    }
   }
 
   // Time blocks operations
