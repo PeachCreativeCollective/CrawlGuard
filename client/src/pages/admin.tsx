@@ -145,6 +145,12 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
                 <span className="text-gray-700 leading-tight break-words">{lead.address}</span>
               </div>
             )}
+            {lead.zipCode && (
+              <div className="flex items-center gap-2 min-w-0">
+                <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
+                <span className="text-gray-700">Zip: {lead.zipCode}</span>
+              </div>
+            )}
             {lead.service && (
               <div className="bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs">
                 Service: {lead.service}

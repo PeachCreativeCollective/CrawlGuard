@@ -30,6 +30,7 @@ export const leads = pgTable("leads", {
   email: text("email").notNull(),
   phone: text("phone"),
   address: text("address"),
+  zipCode: text("zip_code"),
   service: text("service").notNull(), // crawl-space, basement, foundation, etc.
   status: text("status").notNull().default("new"), // new, contacted, scheduled, quoted, won, lost
   priority: text("priority").notNull().default("medium"), // low, medium, high
@@ -69,6 +70,7 @@ export const insertLeadSchema = createInsertSchema(leads).pick({
   email: true,
   phone: true,
   address: true,
+  zipCode: true,
   service: true,
   status: true,
   priority: true,
@@ -83,6 +85,7 @@ export const updateLeadSchema = createInsertSchema(leads).pick({
   email: true,
   phone: true,
   address: true,
+  zipCode: true,
   service: true,
   status: true,
   priority: true,

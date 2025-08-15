@@ -25,6 +25,7 @@ interface LeadFormProps {
 
 const formSchema = insertLeadSchema.extend({
   scheduledDate: z.string().optional(),
+  zipCode: z.string().min(5, "Zip code must be at least 5 characters"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -39,6 +40,7 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
       email: lead?.email || "",
       phone: lead?.phone || "",
       address: lead?.address || "",
+      zipCode: lead?.zipCode || "",
       service: lead?.service || "crawl-space",
       status: lead?.status || "new",
       priority: lead?.priority || "medium",
@@ -132,6 +134,20 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
 
           <FormField
             control={form.control}
+            name="zipCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Zip Code *</FormLabel>
+                <FormControl>
+                  <Input placeholder="28801" {...field} data-testid="input-zip-code" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="service"
             render={({ field }) => (
               <FormItem>
@@ -212,7 +228,7 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Lead Source</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
                   <FormControl>
                     <SelectTrigger data-testid="select-source">
                       <SelectValue placeholder="Select source" />
@@ -239,7 +255,7 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
               <FormItem>
                 <FormLabel>Estimated Value</FormLabel>
                 <FormControl>
-                  <Input placeholder="$5,000" {...field} data-testid="input-estimated-value" />
+                  <Input placeholder="$5,000" {...field} value={field.value || ""} data-testid="input-estimated-value" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -266,9 +282,9 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Address (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="123 Main St, Asheville, NC 28801" {...field} data-testid="input-address" />
+                <Input placeholder="123 Main St, Asheville, NC" {...field} value={field.value || ""} data-testid="input-address" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -286,6 +302,7 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
                   placeholder="Additional notes about this lead..."
                   className="min-h-[80px]"
                   {...field}
+                  value={field.value || ""}
                   data-testid="textarea-notes"
                 />
               </FormControl>
