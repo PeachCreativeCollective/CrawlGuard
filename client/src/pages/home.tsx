@@ -74,7 +74,7 @@ export default function Home() {
       
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen bg-black p-4 sm:p-6 lg:p-8 flex items-center" 
+        className="relative min-h-[85vh] sm:min-h-screen bg-black p-4 sm:p-6 lg:p-8 flex items-center" 
         data-testid="hero-section"
         style={{
           backgroundImage: `url(${heroImage})`,
@@ -89,10 +89,10 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="hero-content-slide-right">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight hero-title-fade" data-testid="hero-title">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 md:mb-6 leading-tight hero-title-fade" data-testid="hero-title">
                 Expert Crawl Space <span className="text-crawlguard-primary">Waterproofing</span> in Asheville, NC
               </h1>
-              <p className="text-lg sm:text-xl text-white mb-6 sm:mb-8 leading-relaxed hero-description-fade" data-testid="hero-description">
+              <p className="text-base sm:text-lg md:text-xl text-white mb-4 sm:mb-6 md:mb-8 leading-relaxed hero-description-fade" data-testid="hero-description">
                 Protect your home from water damage, mold, and moisture with our professional waterproofing solutions. 
                 Serving Asheville and surrounding areas with reliable, long-lasting results.
               </p>
@@ -183,7 +183,7 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
             {SERVICE_AREAS.map((area) => (
               <div 
                 key={area}

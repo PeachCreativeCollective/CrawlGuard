@@ -180,4 +180,19 @@
       transform: translateY(0);
     }
   }
+
+  /* Mobile typography improvements */
+  @media (max-width: 640px) {
+    .mobile-text-balance {
+      text-wrap: balance;
+    }
+    
+    .mobile-leading-tight {
+      line-height: 1.1;
+    }
+    
+    .mobile-spacing-sm {
+      letter-spacing: -0.025em;
+    }
+  }
 }

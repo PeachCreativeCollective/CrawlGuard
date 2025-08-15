@@ -18,7 +18,7 @@ export default function About() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-20" data-testid="about-hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-crawlguard-dark mb-6" data-testid="about-hero-title">
                 Protecting Homes Across Western NC
@@ -108,7 +108,7 @@ export default function About() {
       {/* Stats Section */}
       <section className="py-20 bg-crawlguard-light" data-testid="stats-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
             {[
               {
                 icon: Award,

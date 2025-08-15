@@ -28,7 +28,7 @@ export default function Contact() {
       {/* Contact Section */}
       <section className="py-20 bg-white" data-testid="contact-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
             {/* Contact Form */}
             <ContactForm />
 
@@ -144,7 +144,7 @@ export default function Contact() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
             {[
               "Asheville", "Marshall", "Mars Hill", "Weaverville", "Candler", "Hendersonville",
               "Maggie Valley", "Burnsville", "Leicester", "Hot Springs", "Enka", "Woodfin",

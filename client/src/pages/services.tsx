@@ -52,7 +52,7 @@ export default function Services() {
       {/* Services Grid */}
       <section className="py-20 bg-white" data-testid="services-grid-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {SERVICES.map((service) => {
               const IconComponent = getServiceIcon(service.icon);
               return (
@@ -139,7 +139,7 @@ export default function Services() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
             {[
               {
                 step: "1",
