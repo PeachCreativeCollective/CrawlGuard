@@ -839,8 +839,10 @@ export default function Admin() {
                           }
                         }}
                         onBookAppointment={(lead) => {
+                          console.log("Book appointment clicked for lead:", lead.name);
                           setSelectedLeadForAppointment(lead);
                           setIsAppointmentBookingOpen(true);
+                          console.log("State updated - selectedLeadForAppointment:", lead, "isAppointmentBookingOpen:", true);
                         }}
                       />
                     ))}

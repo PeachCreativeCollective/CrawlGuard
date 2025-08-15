@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar, Clock, User, Phone, Mail, MapPin, FileText, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -60,6 +60,9 @@ export function AppointmentBooking({
   const currentSelectedLead = selectedLead || internalSelectedLead;
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Debug logging
+  console.log("AppointmentBooking render - open:", open, "externalOpen:", externalOpen, "selectedLead:", selectedLead?.name);
 
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
@@ -215,6 +218,9 @@ export function AppointmentBooking({
             <Calendar className="h-5 w-5" />
             Book New Appointment
           </DialogTitle>
+          <DialogDescription>
+            Schedule a new appointment for waterproofing services. You can select an existing lead or create a new one.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
