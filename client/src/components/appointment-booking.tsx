@@ -61,6 +61,14 @@ export function AppointmentBooking({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  console.log("AppointmentBooking - Props received:", { 
+    open, 
+    externalOpen, 
+    selectedLead: selectedLead?.name,
+    selectedDate: selectedDate?.toISOString().split('T')[0],
+    selectedTime 
+  });
+
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
