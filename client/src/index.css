@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(240 10% 3.9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(240 10% 3.9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 10% 3.9%);
+  --primary: hsl(174 44% 53%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(356 75% 54%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 4.8% 95.9%);
+  --muted-foreground: hsl(240 3.8% 46.1%);
+  --accent: hsl(240 4.8% 95.9%);
+  --accent-foreground: hsl(240 5.9% 10%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 5.9% 90%);
+  --input: hsl(240 5.9% 90%);
+  --ring: hsl(174 44% 53%);
+  --chart-1: hsl(174 44% 53%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: 'Fira Code', monospace;
+  --radius: 0.5rem;
+  --crawlguard-primary: hsl(174 44% 53%);
+  --crawlguard-secondary: hsl(356 75% 54%);
+  --crawlguard-dark: hsl(210 22% 22%);
+  --crawlguard-light: hsl(210 40% 98%);
+}
+
+.dark {
+  --background: hsl(240 10% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(240 10% 3.9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(240 10% 3.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(174 44% 53%);
+  --primary-foreground: hsl(240 5.9% 10%);
+  --secondary: hsl(356 75% 54%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 3.7% 15.9%);
+  --muted-foreground: hsl(240 5% 64.9%);
+  --accent: hsl(240 3.7% 15.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 3.7% 15.9%);
+  --input: hsl(240 3.7% 15.9%);
+  --ring: hsl(174 44% 53%);
+  --chart-1: hsl(174 44% 53%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  .crawlguard-primary {
+    @apply text-[var(--crawlguard-primary)];
+  }
+  
+  .crawlguard-secondary {
+    @apply text-[var(--crawlguard-secondary)];
+  }
+  
+  .crawlguard-dark {
+    @apply text-[var(--crawlguard-dark)];
+  }
+  
+  .crawlguard-light {
+    @apply text-[var(--crawlguard-light)];
+  }
+  
+  .bg-crawlguard-primary {
+    @apply bg-[var(--crawlguard-primary)];
+  }
+  
+  .bg-crawlguard-secondary {
+    @apply bg-[var(--crawlguard-secondary)];
+  }
+  
+  .bg-crawlguard-dark {
+    @apply bg-[var(--crawlguard-dark)];
+  }
+  
+  .bg-crawlguard-light {
+    @apply bg-[var(--crawlguard-light)];
+  }
+}
