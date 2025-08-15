@@ -6,6 +6,7 @@ import { ServiceCard } from "@/components/service-card";
 import { TestimonialCard } from "@/components/testimonial-card";
 import { BUSINESS_INFO, SERVICES, SERVICE_AREAS, TESTIMONIALS } from "@/lib/constants";
 import * as Icons from "lucide-react";
+import heroImage from "@assets/CG3_1755280257029.webp";
 
 export default function Home() {
   const structuredData = {
@@ -119,7 +120,7 @@ export default function Home() {
             </div>
             <div className="relative">
               <img 
-                src="@assets/CG3_1755280257029.webp" 
+                src={heroImage} 
                 alt="Professional CrawlGuard LLC crawl space encapsulation with vapor barrier installation" 
                 className="rounded-xl shadow-2xl w-full h-auto"
                 data-testid="hero-image"

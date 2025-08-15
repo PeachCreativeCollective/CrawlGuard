@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SEOHead } from "@/components/seo-head";
 import { BUSINESS_INFO } from "@/lib/constants";
 import { Link } from "wouter";
+import aboutImage from "@assets/CG2_1755280257030.webp";
 
 export default function About() {
   return (
@@ -64,7 +65,7 @@ export default function About() {
             </div>
             <div className="relative">
               <img 
-                src="@assets/CG2_1755280257030.webp" 
+                src={aboutImage} 
                 alt="Professional CrawlGuard LLC waterproofing work on Asheville area home foundation" 
                 className="rounded-xl shadow-lg w-full h-auto"
                 data-testid="about-hero-image"

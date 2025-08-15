@@ -3,12 +3,22 @@ import { SEOHead } from "@/components/seo-head";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "wouter";
+import cg1Image from "@assets/CG1_1755280257030.webp";
+import cg2Image from "@assets/CG2_1755280257030.webp";
+import cg3Image from "@assets/CG3_1755280257029.webp";
+import cg4Image from "@assets/CG4_1755280257029.webp";
+import cg5Image from "@assets/CG5_1755280257029.webp";
+import cg6Image from "@assets/CG6_1755280257028.webp";
+import cg7Image from "@assets/CG7_1755280257028.webp";
+import cg8Image from "@assets/CG8_1755280257028.webp";
+import cg9Image from "@assets/CG9_1755280257027.webp";
+import cg10Image from "@assets/CG10_1755280257026.webp";
 
 // Gallery images with proper categorization - Real CrawlGuard LLC project photos
 const galleryImages = [
   {
     id: 1,
-    src: "@assets/CG1_1755280257030.webp",
+    src: cg1Image,
     alt: "CrawlGuard LLC crawl space encapsulation showing complete vapor barrier installation with HVAC system",
     title: "Complete Crawl Space Encapsulation",
     description: "Professional vapor barrier installation with sealed HVAC integration",
@@ -16,7 +26,7 @@ const galleryImages = [
   },
   {
     id: 2,
-    src: "@assets/CG2_1755280257030.webp",
+    src: cg2Image,
     alt: "Foundation waterproofing and exterior drainage work around brick foundation",
     title: "Foundation Protection",
     description: "Exterior foundation waterproofing and drainage solutions",
@@ -24,7 +34,7 @@ const galleryImages = [
   },
   {
     id: 3,
-    src: "@assets/CG3_1755280257029.webp",
+    src: cg3Image,
     alt: "Crawl space with professional vapor barrier installation and structural support posts",
     title: "Vapor Barrier System",
     description: "High-quality moisture barrier with structural integrity protection",
@@ -32,7 +42,7 @@ const galleryImages = [
   },
   {
     id: 4,
-    src: "@assets/CG4_1755280257029.webp",
+    src: cg4Image,
     alt: "Basement waterproofing showing moisture barrier installation around utilities",
     title: "Basement Moisture Control",
     description: "Professional basement waterproofing with utility protection",
@@ -40,7 +50,7 @@ const galleryImages = [
   },
   {
     id: 5,
-    src: "@assets/CG5_1755280257029.webp",
+    src: cg5Image,
     alt: "Crawl space showing completed moisture barrier installation with ventilation system",
     title: "Professional Encapsulation",
     description: "Complete crawl space sealing with ventilation integration",
@@ -48,7 +58,7 @@ const galleryImages = [
   },
   {
     id: 6,
-    src: "@assets/CG6_1755280257028.webp",
+    src: cg6Image,
     alt: "Sump pump installation in basement for water removal and flood prevention",
     title: "Sump Pump Installation",
     description: "Professional sump pump system for water management",
@@ -56,7 +66,7 @@ const galleryImages = [
   },
   {
     id: 7,
-    src: "@assets/CG7_1755280257028.webp",
+    src: cg7Image,
     alt: "French drain installation with gravel bed for foundation water diversion",
     title: "French Drain System",
     description: "Professional drainage system installation with gravel bed",
@@ -64,7 +74,7 @@ const galleryImages = [
   },
   {
     id: 8,
-    src: "@assets/CG8_1755280257028.webp",
+    src: cg8Image,
     alt: "Crawl space before waterproofing showing moisture issues and structural concerns",
     title: "Before Treatment",
     description: "Crawl space showing moisture damage before CrawlGuard treatment",
@@ -72,7 +82,7 @@ const galleryImages = [
   },
   {
     id: 9,
-    src: "@assets/CG9_1755280257027.webp",
+    src: cg9Image,
     alt: "Completed crawl space encapsulation showing dry, clean space with structural posts",
     title: "After Treatment",
     description: "Transformed crawl space with complete moisture protection",
@@ -80,7 +90,7 @@ const galleryImages = [
   },
   {
     id: 10,
-    src: "@assets/CG10_1755280257026.webp",
+    src: cg10Image,
     alt: "Professional dehumidification system installed in crawl space for moisture control",
     title: "Dehumidification System",
     description: "Advanced moisture control with professional dehumidifier installation",
@@ -244,7 +254,7 @@ export default function Gallery() {
             </div>
             <div>
               <img 
-                src="@assets/CG9_1755280257027.webp"
+                src={cg9Image}
                 alt="Completed CrawlGuard waterproofing project showing protected crawl space"
                 className="rounded-xl shadow-lg w-full h-auto"
                 data-testid="transformation-image"
