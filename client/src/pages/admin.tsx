@@ -34,7 +34,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { LeadForm } from "@/components/lead-form";
 import { CalendarIntegration } from "@/components/calendar-integration";
 import { SEOHead } from "@/components/seo-head";
-import type { Lead, ContactSubmission } from "@shared/schema";
+import type { Lead, ContactSubmission, User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -149,7 +149,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
               <span className="text-xs text-crawlguard-dark/70">Value: $</span>
               <input
                 type="number"
-                value={(lead.estimatedValue || 0).toString()}
+                value={lead.estimatedValue?.toString() || "0"}
                 onChange={handleEstimatedValueChange}
                 onClick={(e) => e.stopPropagation()}
                 className="bg-green-50 border border-green-200 px-2 py-1 rounded text-green-700 font-medium text-xs w-20 focus:outline-none focus:ring-1 focus:ring-crawlguard-primary"
@@ -370,9 +370,15 @@ export default function Admin() {
     queryKey: ["/api/contact-submissions"]
   });
 
-  // Fetch users for admin management
-  const { data: users = [], isLoading: usersLoading } = useQuery({
-    queryKey: ["/api/users"]
+  // Fetch current user to check admin status
+  const { data: currentUser } = useQuery<User>({
+    queryKey: ["/api/user"]
+  });
+
+  // Fetch users for admin management (only if admin)
+  const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+    enabled: currentUser?.isAdmin === true
   });
 
   // Logout mutation
@@ -581,7 +587,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="leads" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-white border border-crawlguard-primary/20">
+            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-3' : 'grid-cols-2'} bg-white border border-crawlguard-primary/20`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
@@ -590,10 +596,12 @@ export default function Admin() {
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Contact Submissions
               </TabsTrigger>
-              <TabsTrigger value="users" data-testid="users-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                User Management
-              </TabsTrigger>
+              {currentUser?.isAdmin && (
+                <TabsTrigger value="users" data-testid="users-tab"
+                             className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                  User Management
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="leads" className="space-y-6">
@@ -762,7 +770,8 @@ export default function Admin() {
               )}
             </TabsContent>
 
-            <TabsContent value="users" className="space-y-6">
+            {currentUser?.isAdmin && (
+              <TabsContent value="users" className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-crawlguard-dark">User Management</h2>
               </div>
@@ -777,7 +786,7 @@ export default function Admin() {
                 </Card>
               ) : (
                 <div className="space-y-4">
-                  {users.map((user: any) => (
+                  {users.map((user: User) => (
                     <Card key={user.id} data-testid={`user-card-${user.id}`}
                           className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
                       <CardContent className="p-4 sm:p-6">
@@ -846,7 +855,8 @@ export default function Admin() {
                   ))}
                 </div>
               )}
-            </TabsContent>
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>

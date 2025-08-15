@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
-import { insertContactSubmissionSchema, insertLeadSchema, updateLeadSchema } from "@shared/schema";
+import { insertContactSubmissionSchema, insertLeadSchema, updateLeadSchema, type User } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -156,7 +156,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User management routes (admin only)
   app.get("/api/users", requireAuth, async (req, res) => {
     try {
-      // TODO: Add admin check
+      // Check if user is admin
+      const currentUser = req.user as User;
+      if (!currentUser.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
       const users = await storage.getAllUsers();
       res.json(users);
     } catch (error) {
@@ -167,8 +172,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/users/:id", requireAuth, async (req, res) => {
     try {
-      // TODO: Add admin check and prevent deleting admin users
+      // Check if user is admin
+      const currentUser = req.user as User;
+      if (!currentUser.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
       const userId = req.params.id;
+      const userToDelete = await storage.getUser(userId);
+      
+      // Prevent deleting admin users or self
+      if (!userToDelete) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      if (userToDelete.isAdmin) {
+        return res.status(400).json({ message: "Cannot delete admin users" });
+      }
+      
+      if (userToDelete.id === currentUser.id) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+
       await storage.deleteUser(userId);
       res.json({ success: true, message: "User deleted successfully" });
     } catch (error) {
@@ -179,7 +204,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/users/:id/reset-password", requireAuth, async (req, res) => {
     try {
-      // TODO: Add admin check
+      // Check if user is admin
+      const currentUser = req.user as User;
+      if (!currentUser.isAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
       const userId = req.params.id;
       const { password } = req.body;
       

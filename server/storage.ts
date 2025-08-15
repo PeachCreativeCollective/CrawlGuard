@@ -56,11 +56,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // Check if this is the first user (admin)
-    const userCount = await this.getUserCount();
+    // Only crawlguardllc@gmail.com should be admin
     const userData = {
       ...insertUser,
-      isAdmin: userCount === 0 // First user becomes admin
+      isAdmin: insertUser.email === 'crawlguardllc@gmail.com'
     };
 
     const [user] = await db
