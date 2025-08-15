@@ -4,6 +4,7 @@ import {
   leads,
   type User,
   type InsertUser,
+  type LoginUser,
   type ContactSubmission,
   type InsertContactSubmission,
   type Lead,
@@ -17,7 +18,11 @@ export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  deleteUser(id: string): Promise<void>;
+  getUserCount(): Promise<number>;
   
   // Contact submission operations
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
@@ -44,12 +49,37 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
+    // Check if this is the first user (admin)
+    const userCount = await this.getUserCount();
+    const userData = {
+      ...insertUser,
+      isAdmin: userCount === 0 // First user becomes admin
+    };
+
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values(userData)
       .returning();
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async getUserCount(): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(*)` }).from(users);
+    return result[0].count;
   }
 
   // Contact submission operations

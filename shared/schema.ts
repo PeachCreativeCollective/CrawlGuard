@@ -6,7 +6,11 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  isAdmin: boolean("is_admin").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const contactSubmissions = pgTable("contact_submissions", {
@@ -43,6 +47,12 @@ export const leads = pgTable("leads", {
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
+  email: true,
+  password: true,
+});
+
+export const loginSchema = createInsertSchema(users).pick({
+  email: true,
   password: true,
 });
 
@@ -84,6 +94,7 @@ export const updateLeadSchema = createInsertSchema(leads).pick({
 }).partial();
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type LoginUser = z.infer<typeof loginSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;

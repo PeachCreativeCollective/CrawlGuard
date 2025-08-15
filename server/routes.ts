@@ -1,10 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, requireAuth } from "./auth";
 import { insertContactSubmissionSchema, insertLeadSchema, updateLeadSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
+
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
     try {
@@ -37,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get contact submissions (for admin use)
-  app.get("/api/contact-submissions", async (req, res) => {
+  app.get("/api/contact-submissions", requireAuth, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions);
@@ -48,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Lead management API routes
-  app.get("/api/leads", async (req, res) => {
+  app.get("/api/leads", requireAuth, async (req, res) => {
     try {
       const { status } = req.query;
       const leads = status ? 
@@ -61,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/leads/:id", async (req, res) => {
+  app.get("/api/leads/:id", requireAuth, async (req, res) => {
     try {
       const lead = await storage.getLeadById(req.params.id);
       if (!lead) {
@@ -74,7 +78,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/leads", async (req, res) => {
+  app.post("/api/leads", requireAuth, async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(validatedData);
@@ -92,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/leads/:id", async (req, res) => {
+  app.patch("/api/leads/:id", requireAuth, async (req, res) => {
     try {
       const validatedData = updateLeadSchema.parse(req.body);
       const lead = await storage.updateLead(req.params.id, validatedData);
@@ -110,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/leads/:id", async (req, res) => {
+  app.delete("/api/leads/:id", requireAuth, async (req, res) => {
     try {
       await storage.deleteLead(req.params.id);
       res.json({ success: true });
@@ -121,7 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Convert contact submission to lead
-  app.post("/api/contact-submissions/:id/convert-to-lead", async (req, res) => {
+  app.post("/api/contact-submissions/:id/convert-to-lead", requireAuth, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       const submission = submissions.find(s => s.id === req.params.id);
