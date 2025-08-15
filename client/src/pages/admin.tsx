@@ -37,18 +37,18 @@ import type { Lead, ContactSubmission } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
 const statusColors = {
-  new: "bg-blue-100 text-blue-800",
-  contacted: "bg-yellow-100 text-yellow-800", 
-  scheduled: "bg-purple-100 text-purple-800",
-  quoted: "bg-orange-100 text-orange-800",
-  won: "bg-green-100 text-green-800",
-  lost: "bg-red-100 text-red-800",
+  new: "bg-blue-50 text-blue-700 border border-blue-200",
+  contacted: "bg-yellow-50 text-yellow-700 border border-yellow-200", 
+  scheduled: "bg-purple-50 text-purple-700 border border-purple-200",
+  quoted: "bg-orange-50 text-orange-700 border border-orange-200",
+  won: "bg-green-50 text-green-700 border border-green-200",
+  lost: "bg-red-50 text-red-700 border border-red-200",
 } as const;
 
 const priorityColors = {
-  low: "bg-gray-100 text-gray-800",
-  medium: "bg-blue-100 text-blue-800",
-  high: "bg-red-100 text-red-800",
+  low: "bg-gray-50 text-gray-700 border border-gray-200",
+  medium: "bg-crawlguard-primary/10 text-crawlguard-primary border border-crawlguard-primary/20",
+  high: "bg-crawlguard-secondary/10 text-crawlguard-secondary border border-crawlguard-secondary/20",
 } as const;
 
 // Draggable Lead Card Component
@@ -74,84 +74,87 @@ function DraggableLeadCard({ lead, onEdit, onDelete }: {
 
   return (
     <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
-      <Card className="mb-4 hover:shadow-md transition-shadow cursor-move">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-                <GripVertical className="h-4 w-4 text-gray-400" />
+      <Card className="mb-4 hover:shadow-lg transition-all duration-200 cursor-move border-border/50 hover:border-crawlguard-primary/30">
+        <CardHeader className="pb-3 px-3 sm:px-4">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing flex-shrink-0">
+                <GripVertical className="h-4 w-4 text-crawlguard-primary/60" />
               </div>
-              <CardTitle className="text-lg">{lead.name}</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-semibold text-crawlguard-dark truncate">
+                {lead.name}
+              </CardTitle>
             </div>
-            <div className="flex gap-1">
-              <Badge className={priorityColors[lead.priority as keyof typeof priorityColors]}>
+            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
+              <Badge className={`text-xs ${priorityColors[lead.priority as keyof typeof priorityColors]}`}>
                 {lead.priority}
               </Badge>
-              <Badge className={statusColors[lead.status as keyof typeof statusColors]}>
+              <Badge className={`text-xs ${statusColors[lead.status as keyof typeof statusColors]}`}>
                 {lead.status}
               </Badge>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-4 pt-0">
           <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-gray-500" />
-              <span>{lead.email}</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <Mail className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
+              <span className="truncate text-gray-700">{lead.email}</span>
             </div>
             {lead.phone && (
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gray-500" />
-                <span>{lead.phone}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <Phone className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
+                <span className="text-gray-700">{lead.phone}</span>
               </div>
             )}
             {lead.address && (
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
-                <span>{lead.address}</span>
+              <div className="flex items-start gap-2 min-w-0">
+                <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0 mt-0.5" />
+                <span className="text-gray-700 leading-tight break-words">{lead.address}</span>
               </div>
             )}
             {lead.service && (
-              <div className="text-blue-600 font-medium">
+              <div className="bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs">
                 Service: {lead.service}
               </div>
             )}
             {lead.estimatedValue && (
-              <div className="text-green-600 font-medium">
+              <div className="bg-green-50 px-2 py-1 rounded text-green-700 font-medium text-xs">
                 Value: ${lead.estimatedValue.toLocaleString()}
               </div>
             )}
             {lead.notes && (
-              <div className="text-gray-600 text-xs">
-                {lead.notes}
+              <div className="bg-gray-50 p-2 rounded text-gray-700 text-xs leading-relaxed">
+                {lead.notes.length > 100 ? `${lead.notes.substring(0, 100)}...` : lead.notes}
               </div>
             )}
             {lead.scheduledDate && (
-              <div className="flex items-center gap-2 text-purple-600">
-                <Calendar className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs">
+                <Calendar className="h-3 w-3 flex-shrink-0" />
                 <span>{new Date(lead.scheduledDate).toLocaleDateString()}</span>
               </div>
             )}
           </div>
-          <div className="flex gap-2 mt-4">
+          <div className="flex flex-wrap gap-1 mt-4">
             <Button
               variant="outline"
               size="sm"
               onClick={() => onEdit(lead)}
               data-testid={`button-edit-lead-${lead.id}`}
+              className="flex-1 sm:flex-none border-crawlguard-primary/20 text-crawlguard-primary hover:bg-crawlguard-primary/10"
             >
-              <Edit2 className="h-4 w-4 mr-1" />
-              Edit
+              <Edit2 className="h-3 w-3 sm:mr-1" />
+              <span className="hidden sm:inline">Edit</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onDelete(lead.id)}
-              className="text-red-600 hover:text-red-700"
+              className="flex-1 sm:flex-none border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               data-testid={`button-delete-lead-${lead.id}`}
             >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Delete
+              <Trash2 className="h-3 w-3 sm:mr-1" />
+              <span className="hidden sm:inline">Delete</span>
             </Button>
           </div>
         </CardContent>
@@ -181,11 +184,11 @@ function StatusColumn({
   });
 
   return (
-    <div className="flex flex-col h-fit">
-      <div className={`${color} border-2 rounded-lg p-4 min-h-[500px] ${isOver ? 'border-blue-400 bg-blue-100' : ''}`}>
-        <h3 className="font-semibold text-sm text-gray-700 mb-4 flex items-center justify-between">
-          {title}
-          <span className="bg-gray-200 text-gray-600 px-2 py-1 rounded-full text-xs">
+    <div className="flex flex-col h-fit min-w-[280px] sm:min-w-[320px]">
+      <div className={`${color} border-2 rounded-lg p-3 sm:p-4 min-h-[400px] sm:min-h-[500px] transition-all duration-200 ${isOver ? 'border-crawlguard-primary bg-crawlguard-primary/5' : 'border-gray-200 hover:border-crawlguard-primary/30'}`}>
+        <h3 className="font-semibold text-sm sm:text-base text-crawlguard-dark mb-3 sm:mb-4 flex items-center justify-between">
+          <span className="truncate">{title}</span>
+          <span className="bg-crawlguard-primary/10 text-crawlguard-primary px-2 py-1 rounded-full text-xs font-medium ml-2 flex-shrink-0">
             {leads.length}
           </span>
         </h3>
@@ -339,10 +342,10 @@ export default function Admin() {
     }, {} as Record<string, number>);
 
     return [
-      { label: "New Leads", value: stats.new || 0, color: "text-blue-600" },
-      { label: "Scheduled", value: stats.scheduled || 0, color: "text-purple-600" },
-      { label: "Quoted", value: stats.quoted || 0, color: "text-orange-600" },
-      { label: "Won", value: stats.won || 0, color: "text-green-600" },
+      { label: "Total Leads", value: leads.length, color: "text-crawlguard-primary", bgColor: "bg-crawlguard-primary/10" },
+      { label: "New Leads", value: stats.new || 0, color: "text-blue-600", bgColor: "bg-blue-50" },
+      { label: "Scheduled", value: stats.scheduled || 0, color: "text-purple-600", bgColor: "bg-purple-50" },
+      { label: "Won", value: stats.won || 0, color: "text-green-600", bgColor: "bg-green-50" },
     ];
   };
 
@@ -363,33 +366,40 @@ export default function Admin() {
         description="Private admin dashboard for managing leads and customer inquiries"
       />
 
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white shadow-sm border-b">
+      <div className="min-h-screen bg-crawlguard-light">
+        <div className="bg-white shadow-sm border-b border-crawlguard-primary/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
+            <h1 className="text-2xl sm:text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
               CrawlGuard Admin Dashboard
             </h1>
-            <p className="text-gray-600 mt-2">Manage leads, track opportunities, and schedule appointments</p>
+            <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
             {getStatusStats().map((stat) => (
-              <Card key={stat.label} data-testid={`stat-${stat.label.toLowerCase().replace(' ', '-')}`}>
-                <CardContent className="p-6">
-                  <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+              <Card key={stat.label} data-testid={`stat-${stat.label.toLowerCase().replace(' ', '-')}`} 
+                    className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
+                <CardContent className={`p-4 sm:p-6 ${stat.bgColor || 'bg-white'}`}>
+                  <div className={`text-xl sm:text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-xs sm:text-sm text-crawlguard-dark/70 mt-1">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           <Tabs defaultValue="leads" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="leads" data-testid="leads-tab">Lead Management</TabsTrigger>
-              <TabsTrigger value="submissions" data-testid="submissions-tab">Contact Submissions</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-white border border-crawlguard-primary/20">
+              <TabsTrigger value="leads" data-testid="leads-tab" 
+                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                Lead Management
+              </TabsTrigger>
+              <TabsTrigger value="submissions" data-testid="submissions-tab"
+                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                Contact Submissions
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="leads" className="space-y-6">
@@ -397,17 +407,17 @@ export default function Admin() {
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div className="flex flex-col sm:flex-row gap-4 flex-1">
                   <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-crawlguard-primary/60 w-4 h-4" />
                     <Input
                       placeholder="Search leads..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-crawlguard-primary/20 focus:border-crawlguard-primary focus:ring-crawlguard-primary/20"
                       data-testid="search-leads"
                     />
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-40" data-testid="filter-status">
+                    <SelectTrigger className="w-40 border-crawlguard-primary/20 focus:border-crawlguard-primary focus:ring-crawlguard-primary/20" data-testid="filter-status">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -423,7 +433,7 @@ export default function Admin() {
                 </div>
                 <Dialog open={isLeadFormOpen} onOpenChange={setIsLeadFormOpen}>
                   <DialogTrigger asChild>
-                    <Button className="bg-crawlguard-primary hover:bg-teal-600" data-testid="add-lead-button">
+                    <Button className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white border-crawlguard-primary" data-testid="add-lead-button">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Lead
                     </Button>
@@ -467,7 +477,7 @@ export default function Admin() {
                   onDragStart={handleDragStart}
                   onDragEnd={handleDragEnd}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto">
+                  <div className="flex gap-4 overflow-x-auto pb-4 min-h-[500px]">
                     {statusColumns.map((column) => (
                       <StatusColumn
                         key={column.id}
@@ -504,30 +514,37 @@ export default function Admin() {
               </div>
 
               {submissionsLoading ? (
-                <div className="text-center py-8">Loading submissions...</div>
+                <div className="text-center py-8 text-crawlguard-dark/70">Loading submissions...</div>
               ) : submissions.length === 0 ? (
-                <Card>
+                <Card className="border-crawlguard-primary/10">
                   <CardContent className="text-center py-8">
-                    <p className="text-gray-600">No contact submissions yet</p>
+                    <p className="text-crawlguard-dark/70">No contact submissions yet</p>
                   </CardContent>
                 </Card>
               ) : (
                 <div className="space-y-4">
                   {submissions.map((submission: ContactSubmission) => (
-                    <Card key={submission.id} data-testid={`submission-card-${submission.id}`}>
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{submission.name}</h3>
-                            <div className="text-sm text-gray-600 space-y-1 mt-2">
-                              <p>Email: {submission.email}</p>
+                    <Card key={submission.id} data-testid={`submission-card-${submission.id}`}
+                          className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg text-crawlguard-dark truncate">{submission.name}</h3>
+                            <div className="text-sm text-crawlguard-dark/70 space-y-1 mt-2">
+                              <p className="truncate">Email: {submission.email}</p>
                               {submission.phone && <p>Phone: {formatPhone(submission.phone)}</p>}
-                              {submission.service && <p>Service: {submission.service}</p>}
-                              <p>Submitted: {formatDate(submission.createdAt)}</p>
+                              {submission.service && (
+                                <div className="bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary text-xs inline-block">
+                                  Service: {submission.service}
+                                </div>
+                              )}
+                              <p className="text-xs text-crawlguard-dark/50">Submitted: {formatDate(submission.createdAt)}</p>
                             </div>
                             {submission.message && (
-                              <div className="mt-3 bg-gray-50 p-3 rounded-lg">
-                                <p className="text-sm text-gray-700">{submission.message}</p>
+                              <div className="mt-3 bg-crawlguard-primary/5 p-3 rounded-lg border border-crawlguard-primary/10">
+                                <p className="text-sm text-crawlguard-dark/80 leading-relaxed">
+                                  {submission.message.length > 200 ? `${submission.message.substring(0, 200)}...` : submission.message}
+                                </p>
                               </div>
                             )}
                           </div>
@@ -535,6 +552,7 @@ export default function Admin() {
                             size="sm"
                             onClick={() => convertToLeadMutation.mutate(submission.id)}
                             disabled={convertToLeadMutation.isPending}
+                            className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white border-crawlguard-primary w-full sm:w-auto"
                             data-testid={`convert-submission-${submission.id}`}
                           >
                             <UserPlus className="w-4 h-4 mr-2" />
