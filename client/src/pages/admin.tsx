@@ -35,6 +35,7 @@ import { LeadForm } from "@/components/lead-form";
 import { MonthlyCalendar } from "@/components/monthly-calendar";
 import { WeeklyCalendar } from "@/components/weekly-calendar";
 import { DailyCalendar } from "@/components/daily-calendar";
+import { AvailabilityManager } from "@/components/availability-manager";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -657,7 +658,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="leads" className="w-full">
-            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-4' : 'grid-cols-3'} bg-white border border-crawlguard-primary/20`}>
+            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-5' : 'grid-cols-4'} bg-white border border-crawlguard-primary/20`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
@@ -669,6 +670,10 @@ export default function Admin() {
               <TabsTrigger value="calendar" data-testid="calendar-tab"
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Calendar
+              </TabsTrigger>
+              <TabsTrigger value="availability" data-testid="availability-tab"
+                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                Availability
               </TabsTrigger>
               {currentUser?.isAdmin && (
                 <TabsTrigger value="users" data-testid="users-tab"
@@ -1118,6 +1123,15 @@ export default function Admin() {
                   </div>
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="availability" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-crawlguard-dark">Time Availability Management</h2>
+              </div>
+              <div className="bg-white p-6 rounded-lg border border-crawlguard-primary/10">
+                <AvailabilityManager userId={currentUser?.id || ''} />
+              </div>
             </TabsContent>
 
             {currentUser?.isAdmin && (

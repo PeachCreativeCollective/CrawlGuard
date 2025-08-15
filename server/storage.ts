@@ -2,6 +2,8 @@ import {
   users,
   contactSubmissions,
   leads,
+  workingHours,
+  timeBlocks,
   type User,
   type InsertUser,
   type LoginUser,
@@ -10,6 +12,12 @@ import {
   type Lead,
   type InsertLead,
   type UpdateLead,
+  type WorkingHours,
+  type InsertWorkingHours,
+  type UpdateWorkingHours,
+  type TimeBlock,
+  type InsertTimeBlock,
+  type UpdateTimeBlock,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -36,6 +44,16 @@ export interface IStorage {
   updateLead(id: string, updates: UpdateLead): Promise<Lead>;
   deleteLead(id: string): Promise<void>;
   getLeadsByStatus(status: string): Promise<Lead[]>;
+
+  // Working hours operations
+  getWorkingHours(userId: string): Promise<WorkingHours[]>;
+  upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours>;
+
+  // Time blocks operations
+  getTimeBlocks(userId: string): Promise<TimeBlock[]>;
+  createTimeBlock(timeBlock: InsertTimeBlock & { userId: string }): Promise<TimeBlock>;
+  updateTimeBlock(id: string, updates: UpdateTimeBlock): Promise<TimeBlock>;
+  deleteTimeBlock(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -161,6 +179,75 @@ export class DatabaseStorage implements IStorage {
       .from(leads)
       .where(eq(leads.status, status))
       .orderBy(desc(leads.createdAt));
+  }
+
+  // Working hours operations
+  async getWorkingHours(userId: string): Promise<WorkingHours[]> {
+    return db.select().from(workingHours).where(eq(workingHours.userId, userId));
+  }
+
+  async upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours> {
+    const [result] = await db
+      .insert(workingHours)
+      .values({
+        userId,
+        dayOfWeek,
+        ...hours,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [workingHours.userId, workingHours.dayOfWeek],
+        set: {
+          ...hours,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return result;
+  }
+
+  // Time blocks operations
+  async getTimeBlocks(userId: string): Promise<TimeBlock[]> {
+    return db.select().from(timeBlocks).where(eq(timeBlocks.userId, userId));
+  }
+
+  async createTimeBlock(timeBlockData: InsertTimeBlock & { userId: string }): Promise<TimeBlock> {
+    const [result] = await db
+      .insert(timeBlocks)
+      .values({
+        ...timeBlockData,
+        startDateTime: typeof timeBlockData.startDateTime === 'string' ? 
+          new Date(timeBlockData.startDateTime) : timeBlockData.startDateTime,
+        endDateTime: typeof timeBlockData.endDateTime === 'string' ? 
+          new Date(timeBlockData.endDateTime) : timeBlockData.endDateTime,
+      })
+      .returning();
+    return result;
+  }
+
+  async updateTimeBlock(id: string, updates: UpdateTimeBlock): Promise<TimeBlock> {
+    const updateData: any = { ...updates, updatedAt: new Date() };
+    
+    if (updates.startDateTime) {
+      updateData.startDateTime = typeof updates.startDateTime === 'string' ? 
+        new Date(updates.startDateTime) : updates.startDateTime;
+    }
+    
+    if (updates.endDateTime) {
+      updateData.endDateTime = typeof updates.endDateTime === 'string' ? 
+        new Date(updates.endDateTime) : updates.endDateTime;
+    }
+
+    const [result] = await db
+      .update(timeBlocks)
+      .set(updateData)
+      .where(eq(timeBlocks.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteTimeBlock(id: string): Promise<void> {
+    await db.delete(timeBlocks).where(eq(timeBlocks.id, id));
   }
 }
 

@@ -2,7 +2,16 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
-import { insertContactSubmissionSchema, insertLeadSchema, updateLeadSchema, type User } from "@shared/schema";
+import { 
+  insertContactSubmissionSchema, 
+  insertLeadSchema, 
+  updateLeadSchema,
+  insertWorkingHoursSchema,
+  updateWorkingHoursSchema,
+  insertTimeBlockSchema,
+  updateTimeBlockSchema,
+  type User 
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -276,6 +285,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Add calendar event error:", error);
       res.status(500).json({ message: "Failed to add event to calendar" });
+    }
+  });
+
+  // Working Hours API Routes
+  app.get("/api/working-hours/:userId", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const userId = req.params.userId;
+      
+      // Users can only access their own working hours unless they're admin
+      if (userId !== currentUser.id && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const workingHours = await storage.getWorkingHours(userId);
+      res.json(workingHours);
+    } catch (error) {
+      console.error("Error fetching working hours:", error);
+      res.status(500).json({ message: "Failed to fetch working hours" });
+    }
+  });
+
+  app.put("/api/working-hours/:dayOfWeek", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const dayOfWeek = req.params.dayOfWeek;
+      const validatedData = insertWorkingHoursSchema.parse(req.body);
+
+      const workingHours = await storage.upsertWorkingHours(currentUser.id, dayOfWeek, validatedData);
+      res.json(workingHours);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid working hours data", errors: error.errors });
+      } else {
+        console.error("Error updating working hours:", error);
+        res.status(500).json({ message: "Failed to update working hours" });
+      }
+    }
+  });
+
+  // Time Blocks API Routes
+  app.get("/api/time-blocks/:userId", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const userId = req.params.userId;
+      
+      // Users can only access their own time blocks unless they're admin
+      if (userId !== currentUser.id && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const timeBlocks = await storage.getTimeBlocks(userId);
+      res.json(timeBlocks);
+    } catch (error) {
+      console.error("Error fetching time blocks:", error);
+      res.status(500).json({ message: "Failed to fetch time blocks" });
+    }
+  });
+
+  app.post("/api/time-blocks", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const validatedData = insertTimeBlockSchema.parse(req.body);
+
+      const timeBlock = await storage.createTimeBlock({
+        ...validatedData,
+        userId: currentUser.id,
+      });
+      res.status(201).json(timeBlock);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid time block data", errors: error.errors });
+      } else {
+        console.error("Error creating time block:", error);
+        res.status(500).json({ message: "Failed to create time block" });
+      }
+    }
+  });
+
+  app.patch("/api/time-blocks/:id", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const timeBlockId = req.params.id;
+      const validatedData = updateTimeBlockSchema.parse(req.body);
+
+      // Check if the time block belongs to the current user
+      const existingBlock = await storage.getTimeBlocks(currentUser.id);
+      const userOwnsBlock = existingBlock.some(block => block.id === timeBlockId);
+      
+      if (!userOwnsBlock && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const timeBlock = await storage.updateTimeBlock(timeBlockId, validatedData);
+      res.json(timeBlock);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid time block data", errors: error.errors });
+      } else {
+        console.error("Error updating time block:", error);
+        res.status(500).json({ message: "Failed to update time block" });
+      }
+    }
+  });
+
+  app.delete("/api/time-blocks/:id", requireAuth, async (req, res) => {
+    try {
+      const currentUser = req.user as User;
+      const timeBlockId = req.params.id;
+
+      // Check if the time block belongs to the current user
+      const existingBlocks = await storage.getTimeBlocks(currentUser.id);
+      const userOwnsBlock = existingBlocks.some(block => block.id === timeBlockId);
+      
+      if (!userOwnsBlock && !currentUser.isAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.deleteTimeBlock(timeBlockId);
+      res.json({ success: true, message: "Time block deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting time block:", error);
+      res.status(500).json({ message: "Failed to delete time block" });
     }
   });
 

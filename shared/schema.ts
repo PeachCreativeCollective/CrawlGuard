@@ -112,3 +112,67 @@ export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type InsertLead = z.infer<typeof insertLeadSchema>;
 export type UpdateLead = z.infer<typeof updateLeadSchema>;
 export type Lead = typeof leads.$inferSelect;
+
+// Working Hours and Availability Management
+export const workingHours = pgTable("working_hours", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  dayOfWeek: varchar("day_of_week").notNull(), // 0=Sunday, 1=Monday, etc.
+  startTime: varchar("start_time").notNull(), // HH:mm format
+  endTime: varchar("end_time").notNull(), // HH:mm format
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_working_hours_user_day").on(table.userId, table.dayOfWeek),
+]);
+
+export const timeBlocks = pgTable("time_blocks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  startDateTime: timestamp("start_date_time").notNull(),
+  endDateTime: timestamp("end_date_time").notNull(),
+  blockType: varchar("block_type").notNull().default("personal"), // personal, maintenance, break, etc.
+  isRecurring: boolean("is_recurring").default(false),
+  recurringPattern: varchar("recurring_pattern"), // weekly, daily, etc.
+  color: varchar("color").default("#ef4444"), // hex color for display
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_time_blocks_user").on(table.userId),
+  index("idx_time_blocks_date").on(table.startDateTime),
+]);
+
+export const insertWorkingHoursSchema = createInsertSchema(workingHours).pick({
+  dayOfWeek: true,
+  startTime: true,
+  endTime: true,
+  isActive: true,
+});
+
+export const updateWorkingHoursSchema = insertWorkingHoursSchema.partial();
+
+export const insertTimeBlockSchema = createInsertSchema(timeBlocks).pick({
+  title: true,
+  description: true,
+  startDateTime: true,
+  endDateTime: true,
+  blockType: true,
+  isRecurring: true,
+  recurringPattern: true,
+  color: true,
+}).extend({
+  startDateTime: z.union([z.date(), z.string().datetime()]),
+  endDateTime: z.union([z.date(), z.string().datetime()]),
+});
+
+export const updateTimeBlockSchema = insertTimeBlockSchema.partial();
+
+export type WorkingHours = typeof workingHours.$inferSelect;
+export type InsertWorkingHours = z.infer<typeof insertWorkingHoursSchema>;
+export type UpdateWorkingHours = z.infer<typeof updateWorkingHoursSchema>;
+export type TimeBlock = typeof timeBlocks.$inferSelect;
+export type InsertTimeBlock = z.infer<typeof insertTimeBlockSchema>;
+export type UpdateTimeBlock = z.infer<typeof updateTimeBlockSchema>;
