@@ -111,16 +111,16 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                icon: Users,
-                number: "15+",
-                label: "Years Experience",
-                description: "Serving Western NC with reliable waterproofing solutions"
-              },
-              {
                 icon: Award,
                 number: "500+",
                 label: "Homes Protected",
                 description: "Successfully waterproofed homes across the region"
+              },
+              {
+                icon: Users,
+                number: "100%",
+                label: "Customer Satisfaction",
+                description: "Committed to excellence in every project we complete"
               },
               {
                 icon: Clock,

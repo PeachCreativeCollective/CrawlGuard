@@ -11,6 +11,9 @@ CrawlGuard LLC is a professional waterproofing and crawl space solutions busines
   - Updated hero sections across Home, About, and Gallery pages
   - Enhanced gallery with real before/after photos and detailed project descriptions
   - All images now reflect authentic CrawlGuard work including crawl space encapsulation, vapor barriers, sump pumps, French drains, and dehumidification systems
+  - Updated hero section styling with black background, white/turquoise text, and red CTA button
+  - Removed years of experience references throughout site to reflect newer company status
+  - Replaced "Years Experience" stat with "Customer Satisfaction" metric
 
 ## User Preferences
 

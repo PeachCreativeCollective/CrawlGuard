@@ -125,10 +125,6 @@ export default function Home() {
                 className="rounded-xl shadow-2xl w-full h-auto"
                 data-testid="hero-image"
               />
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-lg shadow-lg">
-                <div className="text-2xl font-bold text-crawlguard-primary" data-testid="experience-years">15+</div>
-                <div className="text-sm text-gray-600">Years Experience</div>
-              </div>
             </div>
           </div>
         </div>
