@@ -311,12 +311,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user as User;
       const dayOfWeek = req.params.dayOfWeek;
+      console.log("Working hours update request:", { dayOfWeek, body: req.body });
       const validatedData = insertWorkingHoursSchema.parse(req.body);
 
       const workingHours = await storage.upsertWorkingHours(currentUser.id, dayOfWeek, validatedData);
       res.json(workingHours);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error("Working hours validation error:", error.errors);
         res.status(400).json({ message: "Invalid working hours data", errors: error.errors });
       } else {
         console.error("Error updating working hours:", error);

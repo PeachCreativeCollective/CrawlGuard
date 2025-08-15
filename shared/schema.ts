@@ -146,7 +146,6 @@ export const timeBlocks = pgTable("time_blocks", {
 ]);
 
 export const insertWorkingHoursSchema = createInsertSchema(workingHours).pick({
-  dayOfWeek: true,
   startTime: true,
   endTime: true,
   isActive: true,

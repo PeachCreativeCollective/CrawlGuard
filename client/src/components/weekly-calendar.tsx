@@ -4,16 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { Lead } from '@shared/schema';
+import type { Lead, TimeBlock } from '@shared/schema';
 
 interface WeeklyCalendarProps {
   leads: Lead[];
+  timeBlocks?: TimeBlock[];
   onDateClick?: (date: Date) => void;
   onLeadClick?: (lead: Lead) => void;
   onTimeSlotClick?: (date: Date, hour: number) => void;
 }
 
-export function WeeklyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClick }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ leads, timeBlocks = [], onDateClick, onLeadClick, onTimeSlotClick }: WeeklyCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Get start of the week (Sunday)
@@ -43,6 +44,14 @@ export function WeeklyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClic
     return leadDate >= startOfWeek && leadDate <= endOfWeek;
   });
 
+  // Filter time blocks for current week
+  const weekTimeBlocks = timeBlocks.filter((block: TimeBlock) => {
+    const blockDate = new Date(block.startDateTime);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    return blockDate >= startOfWeek && blockDate <= endOfWeek;
+  });
+
   // Get leads for specific date and hour
   const getLeadsForDateTime = (date: Date, hour?: number) => {
     return weekLeads.filter((lead: Lead) => {
@@ -51,6 +60,23 @@ export function WeeklyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClic
       const sameDay = leadDate.toDateString() === date.toDateString();
       if (hour !== undefined) {
         return sameDay && leadDate.getHours() === hour;
+      }
+      return sameDay;
+    });
+  };
+
+  // Get time blocks for specific date and hour
+  const getTimeBlocksForDateTime = (date: Date, hour?: number) => {
+    return weekTimeBlocks.filter((block: TimeBlock) => {
+      const blockStart = new Date(block.startDateTime);
+      const blockEnd = new Date(block.endDateTime);
+      const sameDay = blockStart.toDateString() === date.toDateString();
+      if (hour !== undefined) {
+        const hourStart = new Date(date);
+        hourStart.setHours(hour, 0, 0, 0);
+        const hourEnd = new Date(date);
+        hourEnd.setHours(hour + 1, 0, 0, 0);
+        return sameDay && blockStart < hourEnd && blockEnd > hourStart;
       }
       return sameDay;
     });
@@ -184,6 +210,7 @@ export function WeeklyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClic
                 {/* Time slots */}
                 {timeSlots.map((hour) => {
                   const slotLeads = getLeadsForDateTime(date, hour);
+                  const slotTimeBlocks = getTimeBlocksForDateTime(date, hour);
                   const hasPastTime = isPastTime(date, hour);
                   
                   return (
@@ -196,8 +223,9 @@ export function WeeklyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClic
                       onClick={() => onTimeSlotClick?.(date, hour)}
                       data-testid={`button-time-slot-${dayIndex}-${hour}`}
                     >
-                      {slotLeads.length > 0 ? (
+                      {(slotLeads.length > 0 || slotTimeBlocks.length > 0) ? (
                         <div className="p-1 space-y-1">
+                          {/* Render leads */}
                           {slotLeads.map((lead) => (
                             <div
                               key={lead.id}
@@ -220,6 +248,26 @@ export function WeeklyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClic
                                     minute: '2-digit'
                                   })}
                                 </span>
+                              </div>
+                            </div>
+                          ))}
+                          {/* Render time blocks */}
+                          {slotTimeBlocks.map((block) => (
+                            <div
+                              key={block.id}
+                              className="text-xs p-1.5 rounded truncate opacity-75"
+                              style={{ backgroundColor: block.color, color: 'white' }}
+                              data-testid={`card-time-block-${block.id}`}
+                            >
+                              <div className="font-medium truncate">{block.title}</div>
+                              <div className="text-xs opacity-90">
+                                {new Date(block.startDateTime).toLocaleTimeString('en-US', {
+                                  hour: 'numeric',
+                                  minute: '2-digit'
+                                })} - {new Date(block.endDateTime).toLocaleTimeString('en-US', {
+                                  hour: 'numeric',
+                                  minute: '2-digit'
+                                })}
                               </div>
                             </div>
                           ))}

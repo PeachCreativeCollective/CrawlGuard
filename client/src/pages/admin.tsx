@@ -37,7 +37,7 @@ import { WeeklyCalendar } from "@/components/weekly-calendar";
 import { DailyCalendar } from "@/components/daily-calendar";
 import { AvailabilityManager } from "@/components/availability-manager";
 import { SEOHead } from "@/components/seo-head";
-import type { Lead, ContactSubmission, User } from "@shared/schema";
+import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -393,6 +393,12 @@ export default function Admin() {
   // Fetch current user to check admin status
   const { data: currentUser } = useQuery<User>({
     queryKey: ["/api/user"]
+  });
+
+  // Fetch time blocks for calendar views
+  const { data: userTimeBlocks = [] } = useQuery<TimeBlock[]>({
+    queryKey: ['/api/time-blocks', currentUser?.id],
+    enabled: !!currentUser?.id,
   });
 
   // Fetch users for admin management (only if admin)
@@ -940,6 +946,7 @@ export default function Admin() {
                     <div className="mb-8">
                       <WeeklyCalendar
                         leads={leads}
+                        timeBlocks={userTimeBlocks}
                         onDateClick={(date) => {
                           setSelectedLead(null);
                           setIsLeadFormOpen(true);
