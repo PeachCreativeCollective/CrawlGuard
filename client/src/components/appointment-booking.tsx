@@ -61,9 +61,6 @@ export function AppointmentBooking({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Debug logging
-  console.log("AppointmentBooking render - open:", open, "externalOpen:", externalOpen, "selectedLead:", selectedLead?.name);
-
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {

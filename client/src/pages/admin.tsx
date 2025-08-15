@@ -673,19 +673,29 @@ export default function Admin() {
                 <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
               </div>
               <div className="flex items-center gap-3">
-                <AppointmentBooking 
-                  leads={leads}
-                  trigger={
-                    <Button className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" data-testid="button-book-appointment">
-                      <CalendarDays className="h-4 w-4 mr-2" />
-                      Book Appointment
-                    </Button>
-                  }
-                  onSuccess={() => {
-                    // Refresh leads after successful booking
-                    queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+                <Button 
+                  onClick={() => {
+                    setSelectedLeadForAppointment(null);
+                    setIsAppointmentBookingOpen(true);
                   }}
-                />
+                  className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" 
+                  data-testid="button-book-appointment-header"
+                >
+                  <CalendarDays className="h-4 w-4 mr-2" />
+                  Book Appointment
+                </Button>
+                <Button
+                  onClick={() => {
+                    setSelectedLead(null);
+                    setIsLeadFormOpen(true);
+                  }}
+                  variant="outline" 
+                  className="border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary/10"
+                  data-testid="button-add-lead"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Lead
+                </Button>
                 <Button 
                   onClick={() => logoutMutation.mutate()}
                   variant="outline"
@@ -839,10 +849,8 @@ export default function Admin() {
                           }
                         }}
                         onBookAppointment={(lead) => {
-                          console.log("Book appointment clicked for lead:", lead.name);
                           setSelectedLeadForAppointment(lead);
                           setIsAppointmentBookingOpen(true);
-                          console.log("State updated - selectedLeadForAppointment:", lead, "isAppointmentBookingOpen:", true);
                         }}
                       />
                     ))}
