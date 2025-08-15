@@ -358,6 +358,7 @@ export default function Admin() {
   const [activeId, setActiveId] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -435,7 +436,6 @@ export default function Admin() {
   });
 
   // Google Calendar mutations
-  const { toast } = useToast();
   
   const syncCalendarMutation = useMutation({
     mutationFn: async () => {

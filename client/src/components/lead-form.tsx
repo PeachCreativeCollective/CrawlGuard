@@ -25,6 +25,7 @@ interface LeadFormProps {
 
 const formSchema = insertLeadSchema.extend({
   scheduledDate: z.string().optional(),
+  scheduledTime: z.string().optional(),
   zipCode: z.string().min(5, "Zip code must be at least 5 characters"),
 });
 
@@ -49,6 +50,8 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
       estimatedValue: lead?.estimatedValue || "",
       scheduledDate: lead?.scheduledDate ? 
         new Date(lead.scheduledDate).toISOString().split('T')[0] : "",
+      scheduledTime: lead?.scheduledDate ? 
+        new Date(lead.scheduledDate).toISOString().split('T')[1].slice(0, 5) : "",
     },
   });
 
@@ -56,8 +59,13 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
     mutationFn: async (data: FormData) => {
       const payload = {
         ...data,
-        scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : null,
+        scheduledDate: data.scheduledDate && data.scheduledTime ? 
+          new Date(`${data.scheduledDate}T${data.scheduledTime}:00`) : 
+          data.scheduledDate ? new Date(`${data.scheduledDate}T09:00:00`) : null,
       };
+      
+      // Remove the separate time field before sending to backend
+      delete payload.scheduledTime;
 
       if (isEditing && lead) {
         const response = await fetch(`/api/leads/${lead.id}`, {
@@ -262,19 +270,35 @@ export function LeadForm({ lead, onSuccess, onCancel }: LeadFormProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="scheduledDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Scheduled Date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} data-testid="input-scheduled-date" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="scheduledDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Scheduled Date</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} value={field.value || ""} data-testid="input-scheduled-date" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="scheduledTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Scheduled Time</FormLabel>
+                  <FormControl>
+                    <Input type="time" {...field} value={field.value || ""} data-testid="input-scheduled-time" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         <FormField
