@@ -155,6 +155,19 @@ export function CustomAppointmentModal({
   });
 
   const handleLeadSelect = (leadId: string) => {
+    if (leadId === "new-client") {
+      // Clear form for new client
+      form.setValue("leadId", "");
+      form.setValue("clientName", "");
+      form.setValue("email", "");
+      form.setValue("phone", "");
+      form.setValue("address", "");
+      form.setValue("service", "");
+      form.setValue("notes", "");
+      form.setValue("estimatedValue", "");
+      return;
+    }
+    
     const lead = leads.find(l => l.id === leadId);
     if (lead) {
       form.setValue("leadId", lead.id);
@@ -200,13 +213,13 @@ export function CustomAppointmentModal({
             <Label htmlFor="leadSelect">Select Existing Lead (Optional)</Label>
             <Select
               onValueChange={handleLeadSelect}
-              value={selectedLead?.id || ""}
+              value={selectedLead?.id || "new-client"}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Choose a lead or enter new client info below" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">New Client</SelectItem>
+                <SelectItem value="new-client">New Client</SelectItem>
                 {leads.map((lead) => (
                   <SelectItem key={lead.id} value={lead.id}>
                     <div className="flex items-center gap-2">
@@ -310,7 +323,10 @@ export function CustomAppointmentModal({
 
             <div className="space-y-2">
               <Label htmlFor="appointmentTime">Appointment Time *</Label>
-              <Select {...form.register("appointmentTime")}>
+              <Select
+                onValueChange={(value) => form.setValue("appointmentTime", value)}
+                value={form.watch("appointmentTime")}
+              >
                 <SelectTrigger className={form.formState.errors.appointmentTime ? "border-red-500" : ""}>
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
@@ -333,7 +349,10 @@ export function CustomAppointmentModal({
 
           <div className="space-y-2">
             <Label htmlFor="service">Service Required *</Label>
-            <Select {...form.register("service")}>
+            <Select
+              onValueChange={(value) => form.setValue("service", value)}
+              value={form.watch("service")}
+            >
               <SelectTrigger className={form.formState.errors.service ? "border-red-500" : ""}>
                 <SelectValue placeholder="Select service type" />
               </SelectTrigger>
