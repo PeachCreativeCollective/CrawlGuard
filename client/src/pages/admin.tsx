@@ -1,6 +1,28 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus } from "lucide-react";
+import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { useDroppable } from "@dnd-kit/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,13 +51,177 @@ const priorityColors = {
   high: "bg-red-100 text-red-800",
 } as const;
 
+// Draggable Lead Card Component
+function DraggableLeadCard({ lead, onEdit, onDelete }: { 
+  lead: Lead; 
+  onEdit: (lead: Lead) => void; 
+  onDelete: (id: string) => void; 
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: lead.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={isDragging ? "z-50" : ""}>
+      <Card className="mb-4 hover:shadow-md transition-shadow cursor-move">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+                <GripVertical className="h-4 w-4 text-gray-400" />
+              </div>
+              <CardTitle className="text-lg">{lead.name}</CardTitle>
+            </div>
+            <div className="flex gap-1">
+              <Badge className={priorityColors[lead.priority as keyof typeof priorityColors]}>
+                {lead.priority}
+              </Badge>
+              <Badge className={statusColors[lead.status as keyof typeof statusColors]}>
+                {lead.status}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-gray-500" />
+              <span>{lead.email}</span>
+            </div>
+            {lead.phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-gray-500" />
+                <span>{lead.phone}</span>
+              </div>
+            )}
+            {lead.address && (
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-gray-500" />
+                <span>{lead.address}</span>
+              </div>
+            )}
+            {lead.service && (
+              <div className="text-blue-600 font-medium">
+                Service: {lead.service}
+              </div>
+            )}
+            {lead.estimatedValue && (
+              <div className="text-green-600 font-medium">
+                Value: ${lead.estimatedValue.toLocaleString()}
+              </div>
+            )}
+            {lead.notes && (
+              <div className="text-gray-600 text-xs">
+                {lead.notes}
+              </div>
+            )}
+            {lead.scheduledDate && (
+              <div className="flex items-center gap-2 text-purple-600">
+                <Calendar className="h-4 w-4" />
+                <span>{new Date(lead.scheduledDate).toLocaleDateString()}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(lead)}
+              data-testid={`button-edit-lead-${lead.id}`}
+            >
+              <Edit2 className="h-4 w-4 mr-1" />
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(lead.id)}
+              className="text-red-600 hover:text-red-700"
+              data-testid={`button-delete-lead-${lead.id}`}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Status Column Component
+function StatusColumn({ 
+  status, 
+  title, 
+  color, 
+  leads, 
+  onEditLead, 
+  onDeleteLead 
+}: {
+  status: string;
+  title: string;
+  color: string;
+  leads: Lead[];
+  onEditLead: (lead: Lead) => void;
+  onDeleteLead: (id: string) => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  });
+
+  return (
+    <div className="flex flex-col h-fit">
+      <div className={`${color} border-2 rounded-lg p-4 min-h-[500px] ${isOver ? 'border-blue-400 bg-blue-100' : ''}`}>
+        <h3 className="font-semibold text-sm text-gray-700 mb-4 flex items-center justify-between">
+          {title}
+          <span className="bg-gray-200 text-gray-600 px-2 py-1 rounded-full text-xs">
+            {leads.length}
+          </span>
+        </h3>
+        <div ref={setNodeRef} className="space-y-3">
+          <SortableContext items={leads.map(l => l.id)} strategy={verticalListSortingStrategy}>
+            {leads.map((lead) => (
+              <DraggableLeadCard
+                key={lead.id}
+                lead={lead}
+                onEdit={onEditLead}
+                onDelete={onDeleteLead}
+              />
+            ))}
+          </SortableContext>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Admin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLeadFormOpen, setIsLeadFormOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Fetch leads
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -50,7 +236,7 @@ export default function Admin() {
   });
 
   // Fetch contact submissions
-  const { data: submissions = [], isLoading: submissionsLoading } = useQuery({
+  const { data: submissions = [], isLoading: submissionsLoading } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions"]
   });
 
@@ -100,6 +286,52 @@ export default function Admin() {
     }
   });
 
+  // Drag and drop handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveId(active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // If dropped on a status column, update the lead status
+    const validStatuses = ['new', 'contacted', 'scheduled', 'quoted', 'won', 'lost'];
+    if (validStatuses.includes(overId)) {
+      const lead = leads.find(l => l.id === activeId);
+      if (lead && lead.status !== overId) {
+        updateLeadMutation.mutate({
+          id: activeId,
+          updates: { status: overId as Lead['status'] }
+        });
+      }
+    }
+  };
+
+  // Group leads by status for kanban view
+  const leadsByStatus = leads.reduce((acc, lead) => {
+    if (!acc[lead.status]) {
+      acc[lead.status] = [];
+    }
+    acc[lead.status].push(lead);
+    return acc;
+  }, {} as Record<string, Lead[]>);
+
+  const statusColumns = [
+    { id: 'new', title: 'New Leads', color: 'border-blue-200 bg-blue-50' },
+    { id: 'contacted', title: 'Contacted', color: 'border-yellow-200 bg-yellow-50' },
+    { id: 'scheduled', title: 'Scheduled', color: 'border-purple-200 bg-purple-50' },
+    { id: 'quoted', title: 'Quoted', color: 'border-orange-200 bg-orange-50' },
+    { id: 'won', title: 'Won', color: 'border-green-200 bg-green-50' },
+    { id: 'lost', title: 'Lost', color: 'border-red-200 bg-red-50' },
+  ];
+
   const getStatusStats = () => {
     const stats = leads.reduce((acc, lead) => {
       acc[lead.status] = (acc[lead.status] || 0) + 1;
@@ -129,7 +361,6 @@ export default function Admin() {
       <SEOHead
         title="Admin Dashboard - CrawlGuard LLC Lead Management"
         description="Private admin dashboard for managing leads and customer inquiries"
-        robots="noindex, nofollow"
       />
 
       <div className="min-h-screen bg-gray-50">
@@ -220,7 +451,7 @@ export default function Admin() {
                 </Dialog>
               </div>
 
-              {/* Leads Grid */}
+              {/* Kanban Board */}
               {leadsLoading ? (
                 <div className="text-center py-8">Loading leads...</div>
               ) : leads.length === 0 ? (
@@ -230,89 +461,40 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {leads.map((lead: Lead) => (
-                    <Card key={lead.id} className="hover:shadow-lg transition-shadow" data-testid={`lead-card-${lead.id}`}>
-                      <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{lead.name}</CardTitle>
-                            <p className="text-sm text-gray-600 capitalize">{lead.service}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Badge className={priorityColors[lead.priority as keyof typeof priorityColors]}>
-                              {lead.priority}
-                            </Badge>
-                            <Badge className={statusColors[lead.status as keyof typeof statusColors]}>
-                              {lead.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">{lead.email}</span>
-                          </div>
-                          {lead.phone && (
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-600">{formatPhone(lead.phone)}</span>
-                            </div>
-                          )}
-                          {lead.address && (
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-gray-400" />
-                              <span className="text-gray-600">{lead.address}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">Created: {formatDate(lead.createdAt)}</span>
-                          </div>
-                          {lead.scheduledDate && (
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-crawlguard-primary" />
-                              <span className="text-crawlguard-primary font-medium">
-                                Scheduled: {formatDate(lead.scheduledDate)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {lead.notes && (
-                          <div className="bg-gray-50 p-3 rounded-lg">
-                            <p className="text-sm text-gray-700">{lead.notes}</p>
-                          </div>
-                        )}
-
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedLead(lead);
-                              setIsLeadFormOpen(true);
-                            }}
-                            data-testid={`edit-lead-${lead.id}`}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteLeadMutation.mutate(lead.id)}
-                            data-testid={`delete-lead-${lead.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                          <CalendarIntegration lead={lead} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCorners}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto">
+                    {statusColumns.map((column) => (
+                      <StatusColumn
+                        key={column.id}
+                        status={column.id}
+                        title={column.title}
+                        color={column.color}
+                        leads={leadsByStatus[column.id] || []}
+                        onEditLead={(lead) => {
+                          setSelectedLead(lead);
+                          setIsLeadFormOpen(true);
+                        }}
+                        onDeleteLead={(id) => deleteLeadMutation.mutate(id)}
+                      />
+                    ))}
+                  </div>
+                  <DragOverlay>
+                    {activeId ? (
+                      <div className="transform rotate-2">
+                        <DraggableLeadCard
+                          lead={leads.find(l => l.id === activeId)!}
+                          onEdit={() => {}}
+                          onDelete={() => {}}
+                        />
+                      </div>
+                    ) : null}
+                  </DragOverlay>
+                </DndContext>
               )}
             </TabsContent>
 
