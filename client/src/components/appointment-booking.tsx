@@ -61,13 +61,15 @@ export function AppointmentBooking({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  console.log("AppointmentBooking - Props received:", { 
-    open, 
-    externalOpen, 
-    selectedLead: selectedLead?.name,
-    selectedDate: selectedDate?.toISOString().split('T')[0],
-    selectedTime 
-  });
+  // Debug logging for calendar appointments only
+  if (selectedDate || selectedTime) {
+    console.log("Calendar AppointmentBooking - Props received:", { 
+      open, 
+      externalOpen, 
+      selectedDate: selectedDate?.toISOString().split('T')[0],
+      selectedTime 
+    });
+  }
 
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),

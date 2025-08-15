@@ -37,6 +37,7 @@ import { WeeklyCalendar } from "@/components/weekly-calendar";
 import { DailyCalendar } from "@/components/daily-calendar";
 import { AvailabilityManager } from "@/components/availability-manager";
 import { AppointmentBooking } from "@/components/appointment-booking";
+import { CustomAppointmentModal } from "@/components/custom-appointment-modal";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -850,12 +851,9 @@ export default function Admin() {
                           }
                         }}
                         onBookAppointment={(lead) => {
-                          console.log("Book Appointment clicked, setting state for lead:", lead.name);
                           setSelectedLeadForAppointment(lead);
                           setSelectedDateTime(null); // Clear any calendar selection
                           setIsAppointmentBookingOpen(true);
-                          setAppointmentBookingKey(prev => prev + 1); // Force re-render
-                          console.log("State set - isAppointmentBookingOpen should be true");
                         }}
                       />
                     ))}
@@ -1211,27 +1209,37 @@ export default function Admin() {
                       ))}
                   </div>
 
-                  {/* Controlled Appointment Booking Dialog */}
-                  {(isAppointmentBookingOpen || selectedDateTime !== null) && (
+                  {/* Custom Appointment Modal for Lead Cards */}
+                  <CustomAppointmentModal
+                    isOpen={isAppointmentBookingOpen}
+                    onClose={() => {
+                      setIsAppointmentBookingOpen(false);
+                      setSelectedLeadForAppointment(null);
+                    }}
+                    leads={leads}
+                    selectedLead={selectedLeadForAppointment}
+                    onSuccess={() => {
+                      setIsAppointmentBookingOpen(false);
+                      setSelectedLeadForAppointment(null);
+                      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+                    }}
+                  />
+
+                  {/* AppointmentBooking Dialog for Calendar Time Slots */}
+                  {selectedDateTime !== null && (
                     <AppointmentBooking
                       key={appointmentBookingKey}
                       leads={leads}
-                      selectedDate={selectedDateTime?.date}
-                      selectedTime={selectedDateTime?.hour ? `${selectedDateTime.hour.toString().padStart(2, '0')}:00` : undefined}
-                      selectedLead={selectedLeadForAppointment}
+                      selectedDate={selectedDateTime.date}
+                      selectedTime={selectedDateTime.hour ? `${selectedDateTime.hour.toString().padStart(2, '0')}:00` : undefined}
                       open={true}
                       onOpenChange={(open) => {
-                        console.log("Dialog onOpenChange called with:", open);
                         if (!open) {
-                          setIsAppointmentBookingOpen(false);
                           setSelectedDateTime(null);
-                          setSelectedLeadForAppointment(null);
                         }
                       }}
                       onSuccess={() => {
-                        setIsAppointmentBookingOpen(false);
                         setSelectedDateTime(null);
-                        setSelectedLeadForAppointment(null);
                         queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
                       }}
                     />
