@@ -61,11 +61,12 @@ const priorityColors = {
 } as const;
 
 // Draggable Lead Card Component
-function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: { 
+function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalendar }: { 
   lead: Lead; 
   onEdit: (lead: Lead) => void; 
   onDelete: (id: string) => void; 
   onUpdateLead: (leadId: string, updates: Partial<Lead>) => void;
+  onOpenCalendar: () => void;
 }) {
   const {
     attributes,
@@ -178,10 +179,21 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead }: {
               </div>
             )}
             {lead.scheduledDate && (
-              <div className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenCalendar();
+                }}
+                className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs hover:bg-purple-100 transition-colors cursor-pointer"
+                data-testid={`scheduled-date-${lead.id}`}
+              >
                 <Calendar className="h-3 w-3 flex-shrink-0" />
-                <span>{new Date(lead.scheduledDate).toLocaleDateString()}</span>
-              </div>
+                <span>{new Date(lead.scheduledDate).toLocaleDateString()} at {new Date(lead.scheduledDate).toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true
+                })}</span>
+              </button>
             )}
           </div>
           <div className="flex gap-1 mt-3">
@@ -224,7 +236,8 @@ function StatusColumn({
   leads, 
   onEditLead, 
   onDeleteLead,
-  onUpdateLead
+  onUpdateLead,
+  onOpenCalendar
 }: {
   status: string;
   title: string;
@@ -233,6 +246,7 @@ function StatusColumn({
   onEditLead: (lead: Lead) => void;
   onDeleteLead: (id: string) => void;
   onUpdateLead: (leadId: string, updates: Partial<Lead>) => void;
+  onOpenCalendar: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
@@ -256,6 +270,7 @@ function StatusColumn({
                 onEdit={onEditLead}
                 onDelete={onDeleteLead}
                 onUpdateLead={onUpdateLead}
+                onOpenCalendar={onOpenCalendar}
               />
             ))}
           </SortableContext>
@@ -362,6 +377,9 @@ export default function Admin() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [calendarView, setCalendarView] = useState<"month" | "week" | "schedule" | "day">("month");
+  const [selectedCalendarLead, setSelectedCalendarLead] = useState<Lead | null>(null);
+  const [selectedDateTime, setSelectedDateTime] = useState<{ date: Date; hour?: number } | null>(null);
+  const [isAppointmentBookingOpen, setIsAppointmentBookingOpen] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -794,6 +812,14 @@ export default function Admin() {
                         }}
                         onDeleteLead={(id) => deleteLeadMutation.mutate(id)}
                         onUpdateLead={handleUpdateLead}
+                        onOpenCalendar={() => {
+                          setCalendarView("week");
+                          // Switch to calendar tab and weekly view
+                          const calendarTab = document.querySelector('[data-testid="calendar-tab"]') as HTMLElement;
+                          if (calendarTab) {
+                            calendarTab.click();
+                          }
+                        }}
                       />
                     ))}
                   </div>
@@ -805,6 +831,7 @@ export default function Admin() {
                           onEdit={() => {}}
                           onDelete={() => {}}
                           onUpdateLead={() => {}}
+                          onOpenCalendar={() => {}}
                         />
                       </div>
                     ) : null}
@@ -964,14 +991,16 @@ export default function Admin() {
                         leads={leads}
                         timeBlocks={userTimeBlocks}
                         onDateClick={(date) => {
-                          console.log("Date clicked:", date);
+                          setSelectedDateTime({ date });
+                          setIsAppointmentBookingOpen(true);
                         }}
                         onLeadClick={(lead) => {
                           setSelectedLead(lead);
                           setIsLeadFormOpen(true);
                         }}
                         onTimeSlotClick={(date, hour) => {
-                          console.log("Time slot clicked:", date, hour);
+                          setSelectedDateTime({ date, hour });
+                          setIsAppointmentBookingOpen(true);
                         }}
                       />
                     </div>
@@ -983,14 +1012,16 @@ export default function Admin() {
                         leads={leads}
                         timeBlocks={userTimeBlocks}
                         onDateClick={(date) => {
-                          console.log("Date clicked:", date);
+                          setSelectedDateTime({ date });
+                          setIsAppointmentBookingOpen(true);
                         }}
                         onLeadClick={(lead) => {
                           setSelectedLead(lead);
                           setIsLeadFormOpen(true);
                         }}
                         onTimeSlotClick={(date, hour) => {
-                          console.log("Time slot clicked:", date, hour);
+                          setSelectedDateTime({ date, hour });
+                          setIsAppointmentBookingOpen(true);
                         }}
                       />
                     </div>
@@ -1141,6 +1172,26 @@ export default function Admin() {
                         </Card>
                       ))}
                   </div>
+
+                  {/* Controlled Appointment Booking Dialog */}
+                  <AppointmentBooking
+                    leads={leads}
+                    selectedDate={selectedDateTime?.date}
+                    selectedTime={selectedDateTime?.hour ? `${selectedDateTime.hour.toString().padStart(2, '0')}:00` : undefined}
+                    trigger={<></>}
+                    open={isAppointmentBookingOpen || selectedDateTime !== null}
+                    onOpenChange={(open) => {
+                      setIsAppointmentBookingOpen(open);
+                      if (!open) {
+                        setSelectedDateTime(null);
+                      }
+                    }}
+                    onSuccess={() => {
+                      setIsAppointmentBookingOpen(false);
+                      setSelectedDateTime(null);
+                      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+                    }}
+                  />
                 </div>
               )}
             </TabsContent>

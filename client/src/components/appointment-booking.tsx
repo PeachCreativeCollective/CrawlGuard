@@ -38,6 +38,8 @@ interface AppointmentBookingProps {
   selectedTime?: string;
   trigger?: React.ReactNode;
   onSuccess?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function AppointmentBooking({ 
@@ -45,9 +47,13 @@ export function AppointmentBooking({
   selectedDate, 
   selectedTime, 
   trigger,
-  onSuccess 
+  onSuccess,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange 
 }: AppointmentBookingProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
