@@ -4,6 +4,14 @@
 
 CrawlGuard LLC is a professional waterproofing and crawl space solutions business serving Asheville, NC and surrounding areas. This is a full-stack web application built to showcase their services, handle customer inquiries, and provide a professional online presence. The application features a modern React frontend with a Node.js/Express backend, designed to generate leads and provide information about waterproofing services including crawl space encapsulation, basement waterproofing, and mold remediation.
 
+## Recent Updates
+
+- **January 15, 2025**: Replaced all stock photography with authentic CrawlGuard project photos
+  - Added 10 professional project photos showcasing actual waterproofing work
+  - Updated hero sections across Home, About, and Gallery pages
+  - Enhanced gallery with real before/after photos and detailed project descriptions
+  - All images now reflect authentic CrawlGuard work including crawl space encapsulation, vapor barriers, sump pumps, French drains, and dehumidification systems
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

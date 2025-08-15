@@ -119,8 +119,8 @@ export default function Home() {
             </div>
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                alt="Professional contractor working on crawl space waterproofing" 
+                src="@assets/CG3_1755280257029.webp" 
+                alt="Professional CrawlGuard LLC crawl space encapsulation with vapor barrier installation" 
                 className="rounded-xl shadow-2xl w-full h-auto"
                 data-testid="hero-image"
               />

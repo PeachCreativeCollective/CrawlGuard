@@ -64,8 +64,8 @@ export default function About() {
             </div>
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                alt="Beautiful mountain homes in Asheville, North Carolina" 
+                src="@assets/CG2_1755280257030.webp" 
+                alt="Professional CrawlGuard LLC waterproofing work on Asheville area home foundation" 
                 className="rounded-xl shadow-lg w-full h-auto"
                 data-testid="about-hero-image"
               />

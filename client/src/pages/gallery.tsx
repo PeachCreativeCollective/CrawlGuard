@@ -4,55 +4,87 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "wouter";
 
-// Gallery images with proper categorization
+// Gallery images with proper categorization - Real CrawlGuard LLC project photos
 const galleryImages = [
   {
     id: 1,
-    src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400",
-    alt: "Crawl space waterproofing project showing moisture barrier installation",
-    title: "Crawl Space Encapsulation",
-    description: "Complete moisture barrier installation",
+    src: "@assets/CG1_1755280257030.webp",
+    alt: "CrawlGuard LLC crawl space encapsulation showing complete vapor barrier installation with HVAC system",
+    title: "Complete Crawl Space Encapsulation",
+    description: "Professional vapor barrier installation with sealed HVAC integration",
     category: "crawl-space"
   },
   {
     id: 2,
-    src: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400",
-    alt: "Professional basement waterproofing with interior drainage system",
-    title: "Basement Waterproofing",
-    description: "Interior drainage system installation",
-    category: "basement"
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400",
-    alt: "Professional contractors working on foundation waterproofing",
-    title: "Foundation Waterproofing",
-    description: "Exterior foundation protection",
+    src: "@assets/CG2_1755280257030.webp",
+    alt: "Foundation waterproofing and exterior drainage work around brick foundation",
+    title: "Foundation Protection",
+    description: "Exterior foundation waterproofing and drainage solutions",
     category: "foundation"
   },
   {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400",
-    alt: "Crawl space showing completed vapor barrier installation",
+    id: 3,
+    src: "@assets/CG3_1755280257029.webp",
+    alt: "Crawl space with professional vapor barrier installation and structural support posts",
     title: "Vapor Barrier System",
-    description: "High-quality moisture protection",
+    description: "High-quality moisture barrier with structural integrity protection",
     category: "crawl-space"
   },
   {
+    id: 4,
+    src: "@assets/CG4_1755280257029.webp",
+    alt: "Basement waterproofing showing moisture barrier installation around utilities",
+    title: "Basement Moisture Control",
+    description: "Professional basement waterproofing with utility protection",
+    category: "basement"
+  },
+  {
     id: 5,
-    src: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400",
-    alt: "Professional contractors installing French drain system",
-    title: "French Drain Installation",
-    description: "Professional drainage solutions",
-    category: "drainage"
+    src: "@assets/CG5_1755280257029.webp",
+    alt: "Crawl space showing completed moisture barrier installation with ventilation system",
+    title: "Professional Encapsulation",
+    description: "Complete crawl space sealing with ventilation integration",
+    category: "crawl-space"
   },
   {
     id: 6,
-    src: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=400",
-    alt: "Completed basement waterproofing showing dry, clean space",
-    title: "Complete Protection",
-    description: "Dry, protected basement space",
-    category: "basement"
+    src: "@assets/CG6_1755280257028.webp",
+    alt: "Sump pump installation in basement for water removal and flood prevention",
+    title: "Sump Pump Installation",
+    description: "Professional sump pump system for water management",
+    category: "drainage"
+  },
+  {
+    id: 7,
+    src: "@assets/CG7_1755280257028.webp",
+    alt: "French drain installation with gravel bed for foundation water diversion",
+    title: "French Drain System",
+    description: "Professional drainage system installation with gravel bed",
+    category: "drainage"
+  },
+  {
+    id: 8,
+    src: "@assets/CG8_1755280257028.webp",
+    alt: "Crawl space before waterproofing showing moisture issues and structural concerns",
+    title: "Before Treatment",
+    description: "Crawl space showing moisture damage before CrawlGuard treatment",
+    category: "crawl-space"
+  },
+  {
+    id: 9,
+    src: "@assets/CG9_1755280257027.webp",
+    alt: "Completed crawl space encapsulation showing dry, clean space with structural posts",
+    title: "After Treatment",
+    description: "Transformed crawl space with complete moisture protection",
+    category: "crawl-space"
+  },
+  {
+    id: 10,
+    src: "@assets/CG10_1755280257026.webp",
+    alt: "Professional dehumidification system installed in crawl space for moisture control",
+    title: "Dehumidification System",
+    description: "Advanced moisture control with professional dehumidifier installation",
+    category: "crawl-space"
   }
 ];
 
@@ -212,8 +244,8 @@ export default function Gallery() {
             </div>
             <div>
               <img 
-                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"
-                alt="Completed waterproofing project showing protected crawl space"
+                src="@assets/CG9_1755280257027.webp"
+                alt="Completed CrawlGuard waterproofing project showing protected crawl space"
                 className="rounded-xl shadow-lg w-full h-auto"
                 data-testid="transformation-image"
               />
