@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
+import { googleCalendarService } from "./google-calendar";
 import { 
   insertContactSubmissionSchema, 
   insertLeadSchema, 
@@ -410,6 +411,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting time block:", error);
       res.status(500).json({ message: "Failed to delete time block" });
+    }
+  });
+
+  // Google Calendar Integration Routes
+  // Initialize Google Calendar service
+  app.post("/api/calendar/init", requireAuth, async (req, res) => {
+    try {
+      await googleCalendarService.loadTokens();
+      res.json({ 
+        authenticated: googleCalendarService.isAuthenticated(),
+        message: googleCalendarService.isAuthenticated() ? "Google Calendar connected" : "Not connected"
+      });
+    } catch (error) {
+      console.error("Error initializing calendar:", error);
+      res.status(500).json({ message: "Failed to initialize Google Calendar" });
+    }
+  });
+
+  // Get Google OAuth authorization URL
+  app.get("/api/calendar/auth-url", requireAuth, (req, res) => {
+    try {
+      const authUrl = googleCalendarService.generateAuthUrl();
+      res.json({ authUrl });
+    } catch (error) {
+      console.error("Error generating auth URL:", error);
+      res.status(500).json({ message: "Failed to generate authorization URL" });
+    }
+  });
+
+  // Handle OAuth callback
+  app.post("/api/calendar/callback", requireAuth, async (req, res) => {
+    try {
+      const { code } = req.body;
+      if (!code) {
+        return res.status(400).json({ message: "Authorization code is required" });
+      }
+
+      await googleCalendarService.exchangeCodeForTokens(code);
+      res.json({ 
+        success: true, 
+        message: "Google Calendar connected successfully",
+        authenticated: true
+      });
+    } catch (error) {
+      console.error("Error handling OAuth callback:", error);
+      res.status(500).json({ message: "Failed to connect Google Calendar" });
+    }
+  });
+
+  // Check authentication status
+  app.get("/api/calendar/status", requireAuth, async (req, res) => {
+    try {
+      await googleCalendarService.loadTokens();
+      res.json({ 
+        authenticated: googleCalendarService.isAuthenticated() 
+      });
+    } catch (error) {
+      console.error("Error checking calendar status:", error);
+      res.status(500).json({ authenticated: false });
+    }
+  });
+
+  // Get upcoming calendar events
+  app.get("/api/calendar/events", requireAuth, async (req, res) => {
+    try {
+      const maxResults = parseInt(req.query.limit as string) || 10;
+      const events = await googleCalendarService.listUpcomingEvents(maxResults);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching calendar events:", error);
+      res.status(500).json({ message: "Failed to fetch calendar events" });
+    }
+  });
+
+  // Get events in date range
+  app.get("/api/calendar/events/range", requireAuth, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "Start date and end date are required" });
+      }
+
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+      
+      const events = await googleCalendarService.getEventsInRange(start, end);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events in range:", error);
+      res.status(500).json({ message: "Failed to fetch events in date range" });
+    }
+  });
+
+  // Create calendar event
+  app.post("/api/calendar/events", requireAuth, async (req, res) => {
+    try {
+      const event = await googleCalendarService.createEvent(req.body);
+      res.json({ success: true, event });
+    } catch (error) {
+      console.error("Error creating calendar event:", error);
+      res.status(500).json({ message: "Failed to create calendar event" });
+    }
+  });
+
+  // Create appointment event from lead data
+  app.post("/api/calendar/appointment", requireAuth, async (req, res) => {
+    try {
+      const event = await googleCalendarService.createAppointmentEvent(req.body);
+      res.json({ success: true, event });
+    } catch (error) {
+      console.error("Error creating appointment event:", error);
+      res.status(500).json({ message: "Failed to create appointment in calendar" });
     }
   });
 

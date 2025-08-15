@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useGoogleCalendar } from "@/hooks/use-google-calendar";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/schema";
 
@@ -69,6 +70,7 @@ export function CustomAppointmentModal({
 }: CustomAppointmentModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { createAppointmentEvent, isAuthenticated: calendarConnected } = useGoogleCalendar();
   
   console.log("CustomAppointmentModal - Props:", { 
     isOpen, 
@@ -136,11 +138,27 @@ export function CustomAppointmentModal({
         return response.json();
       }
     },
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
       toast({
         title: "Success!",
         description: "Appointment has been scheduled successfully.",
       });
+      
+      // Create Google Calendar event if calendar is connected
+      if (calendarConnected) {
+        createAppointmentEvent({
+          clientName: variables.clientName,
+          email: variables.email,
+          phone: variables.phone,
+          address: variables.address,
+          service: variables.service,
+          appointmentDate: variables.appointmentDate,
+          appointmentTime: variables.appointmentTime,
+          notes: variables.notes,
+          estimatedValue: variables.estimatedValue ? parseFloat(variables.estimatedValue) : undefined,
+        });
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       onSuccess?.();
       onClose();
@@ -378,6 +396,16 @@ export function CustomAppointmentModal({
               rows={3}
             />
           </div>
+
+          {/* Google Calendar Integration Notice */}
+          {calendarConnected && (
+            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <Calendar className="h-4 w-4 text-green-600" />
+              <span className="text-sm text-green-700">
+                This appointment will automatically be added to your Google Calendar
+              </span>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
