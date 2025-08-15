@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar, Clock, User, Phone, Mail, MapPin, FileText, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ interface AppointmentBookingProps {
   leads: Lead[];
   selectedDate?: Date;
   selectedTime?: string;
+  selectedLead?: Lead | null;
   trigger?: React.ReactNode;
   onSuccess?: () => void;
   open?: boolean;
@@ -46,6 +47,7 @@ export function AppointmentBooking({
   leads, 
   selectedDate, 
   selectedTime, 
+  selectedLead,
   trigger,
   onSuccess,
   open: externalOpen,
@@ -54,7 +56,8 @@ export function AppointmentBooking({
   const [internalOpen, setInternalOpen] = useState(false);
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = externalOnOpenChange || setInternalOpen;
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [internalSelectedLead, setInternalSelectedLead] = useState<Lead | null>(null);
+  const currentSelectedLead = selectedLead || internalSelectedLead;
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -102,10 +105,25 @@ export function AppointmentBooking({
   // Filter leads that don't already have appointments
   const availableLeads = leads.filter(lead => !lead.scheduledDate);
 
+  // Effect to handle selectedLead prop
+  useEffect(() => {
+    if (selectedLead && selectedLead !== currentSelectedLead) {
+      setInternalSelectedLead(selectedLead);
+      form.setValue("leadId", selectedLead.id);
+      form.setValue("clientName", selectedLead.name);
+      form.setValue("email", selectedLead.email);
+      form.setValue("phone", selectedLead.phone || "");
+      form.setValue("address", selectedLead.address || "");
+      form.setValue("service", selectedLead.service);
+      form.setValue("notes", selectedLead.notes || "");
+      form.setValue("priority", selectedLead.priority as "low" | "medium" | "high");
+    }
+  }, [selectedLead, currentSelectedLead, form]);
+
   const handleLeadSelection = (leadId: string) => {
     const lead = availableLeads.find(l => l.id === leadId);
     if (lead) {
-      setSelectedLead(lead);
+      setInternalSelectedLead(lead);
       form.setValue("leadId", lead.id);
       form.setValue("clientName", lead.name);
       form.setValue("email", lead.email);
@@ -155,7 +173,7 @@ export function AppointmentBooking({
       });
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       form.reset();
-      setSelectedLead(null);
+      setInternalSelectedLead(null);
       setOpen(false);
       onSuccess?.();
     },
@@ -174,7 +192,7 @@ export function AppointmentBooking({
 
   const resetForm = () => {
     form.reset();
-    setSelectedLead(null);
+    setInternalSelectedLead(null);
   };
 
   const getServiceLabel = (value: string) => {
@@ -210,7 +228,7 @@ export function AppointmentBooking({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Select value={selectedLead?.id || ""} onValueChange={handleLeadSelection}>
+                <Select value={currentSelectedLead?.id || ""} onValueChange={handleLeadSelection}>
                   <SelectTrigger data-testid="select-lead">
                     <SelectValue placeholder="Choose from existing leads or create new appointment" />
                   </SelectTrigger>
@@ -233,7 +251,7 @@ export function AppointmentBooking({
                   </SelectContent>
                 </Select>
                 
-                {selectedLead && (
+                {currentSelectedLead && (
                   <div className="bg-muted/50 p-3 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-sm">Selected Lead Details</h4>
@@ -249,10 +267,10 @@ export function AppointmentBooking({
                       </Button>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div><strong>Status:</strong> <Badge variant="outline" className="capitalize">{selectedLead.status}</Badge></div>
-                      <div><strong>Priority:</strong> <Badge variant="outline" className="capitalize">{selectedLead.priority}</Badge></div>
-                      <div><strong>Source:</strong> {selectedLead.source}</div>
-                      <div><strong>Service:</strong> {getServiceLabel(selectedLead.service)}</div>
+                      <div><strong>Status:</strong> <Badge variant="outline" className="capitalize">{currentSelectedLead.status}</Badge></div>
+                      <div><strong>Priority:</strong> <Badge variant="outline" className="capitalize">{currentSelectedLead.priority}</Badge></div>
+                      <div><strong>Source:</strong> {currentSelectedLead.source}</div>
+                      <div><strong>Service:</strong> {getServiceLabel(currentSelectedLead.service)}</div>
                     </div>
                   </div>
                 )}

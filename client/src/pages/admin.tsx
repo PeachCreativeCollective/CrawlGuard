@@ -61,12 +61,13 @@ const priorityColors = {
 } as const;
 
 // Draggable Lead Card Component
-function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalendar }: { 
+function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalendar, onBookAppointment }: { 
   lead: Lead; 
   onEdit: (lead: Lead) => void; 
   onDelete: (id: string) => void; 
   onUpdateLead: (leadId: string, updates: Partial<Lead>) => void;
   onOpenCalendar: () => void;
+  onBookAppointment: (lead: Lead) => void;
 }) {
   const {
     attributes,
@@ -202,6 +203,19 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                onBookAppointment(lead);
+              }}
+              data-testid={`button-book-appointment-${lead.id}`}
+              className="h-7 px-2 text-xs border-purple-200 text-purple-600 hover:bg-purple-50 hover:text-purple-700 flex-1"
+            >
+              <CalendarDays className="h-3 w-3 mr-1" />
+              Book Appointment
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
                 onEdit(lead);
               }}
               data-testid={`button-edit-lead-${lead.id}`}
@@ -237,7 +251,8 @@ function StatusColumn({
   onEditLead, 
   onDeleteLead,
   onUpdateLead,
-  onOpenCalendar
+  onOpenCalendar,
+  onBookAppointment
 }: {
   status: string;
   title: string;
@@ -247,6 +262,7 @@ function StatusColumn({
   onDeleteLead: (id: string) => void;
   onUpdateLead: (leadId: string, updates: Partial<Lead>) => void;
   onOpenCalendar: () => void;
+  onBookAppointment: (lead: Lead) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
@@ -271,6 +287,7 @@ function StatusColumn({
                 onDelete={onDeleteLead}
                 onUpdateLead={onUpdateLead}
                 onOpenCalendar={onOpenCalendar}
+                onBookAppointment={onBookAppointment}
               />
             ))}
           </SortableContext>
@@ -375,6 +392,7 @@ export default function Admin() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLeadFormOpen, setIsLeadFormOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLeadForAppointment, setSelectedLeadForAppointment] = useState<Lead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [calendarView, setCalendarView] = useState<"month" | "week" | "schedule" | "day">("month");
   const [selectedCalendarLead, setSelectedCalendarLead] = useState<Lead | null>(null);
@@ -820,6 +838,10 @@ export default function Admin() {
                             calendarTab.click();
                           }
                         }}
+                        onBookAppointment={(lead) => {
+                          setSelectedLeadForAppointment(lead);
+                          setIsAppointmentBookingOpen(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -832,6 +854,7 @@ export default function Admin() {
                           onDelete={() => {}}
                           onUpdateLead={() => {}}
                           onOpenCalendar={() => {}}
+                          onBookAppointment={() => {}}
                         />
                       </div>
                     ) : null}
@@ -1178,17 +1201,20 @@ export default function Admin() {
                     leads={leads}
                     selectedDate={selectedDateTime?.date}
                     selectedTime={selectedDateTime?.hour ? `${selectedDateTime.hour.toString().padStart(2, '0')}:00` : undefined}
+                    selectedLead={selectedLeadForAppointment}
                     trigger={<></>}
                     open={isAppointmentBookingOpen || selectedDateTime !== null}
                     onOpenChange={(open) => {
                       setIsAppointmentBookingOpen(open);
                       if (!open) {
                         setSelectedDateTime(null);
+                        setSelectedLeadForAppointment(null);
                       }
                     }}
                     onSuccess={() => {
                       setIsAppointmentBookingOpen(false);
                       setSelectedDateTime(null);
+                      setSelectedLeadForAppointment(null);
                       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
                     }}
                   />
