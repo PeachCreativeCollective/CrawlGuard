@@ -4,16 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { Lead } from '@shared/schema';
+import type { Lead, TimeBlock } from '@shared/schema';
 
 interface DailyCalendarProps {
   leads: Lead[];
+  timeBlocks?: TimeBlock[];
   onDateClick?: (date: Date) => void;
   onLeadClick?: (lead: Lead) => void;
   onTimeSlotClick?: (date: Date, hour: number) => void;
 }
 
-export function DailyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClick }: DailyCalendarProps) {
+export function DailyCalendar({ leads, timeBlocks = [], onDateClick, onLeadClick, onTimeSlotClick }: DailyCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Time slots from 6 AM to 10 PM in 30-minute intervals
@@ -34,6 +35,18 @@ export function DailyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClick
     return dateA.getTime() - dateB.getTime();
   });
 
+  // Filter time blocks for current day
+  const dayTimeBlocks = timeBlocks.filter((block: TimeBlock) => {
+    const blockStartDate = new Date(block.startDateTime);
+    const blockEndDate = new Date(block.endDateTime);
+    const currentDateStr = currentDate.toDateString();
+    
+    // Check if the time block overlaps with the current day
+    return blockStartDate.toDateString() === currentDateStr || 
+           blockEndDate.toDateString() === currentDateStr ||
+           (blockStartDate < currentDate && blockEndDate > currentDate);
+  });
+
   // Get leads for specific time slot
   const getLeadsForTimeSlot = (hour: number, minute: number) => {
     return dayLeads.filter((lead: Lead) => {
@@ -47,6 +60,22 @@ export function DailyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClick
         (minute === 0 && leadMinute < 30) || 
         (minute === 30 && leadMinute >= 30)
       );
+    });
+  };
+
+  // Get time blocks for specific time slot
+  const getTimeBlocksForTimeSlot = (hour: number, minute: number) => {
+    const slotStart = new Date(currentDate);
+    slotStart.setHours(hour, minute, 0, 0);
+    const slotEnd = new Date(slotStart);
+    slotEnd.setMinutes(slotStart.getMinutes() + 30);
+
+    return dayTimeBlocks.filter((block: TimeBlock) => {
+      const blockStart = new Date(block.startDateTime);
+      const blockEnd = new Date(block.endDateTime);
+      
+      // Check if time block overlaps with this 30-minute slot
+      return (blockStart < slotEnd && blockEnd > slotStart);
     });
   };
 
@@ -199,7 +228,9 @@ export function DailyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClick
 
                 {timeSlots.map((slot, index) => {
                   const slotLeads = getLeadsForTimeSlot(slot.hour, slot.minute);
+                  const slotTimeBlocks = getTimeBlocksForTimeSlot(slot.hour, slot.minute);
                   const hasPastTime = isPastTime(slot.hour, slot.minute);
+                  const hasContent = slotLeads.length > 0 || slotTimeBlocks.length > 0;
                   
                   return (
                     <div 
@@ -217,14 +248,57 @@ export function DailyCalendar({ leads, onDateClick, onLeadClick, onTimeSlotClick
                         </span>
                       </div>
 
-                      {/* Appointment area */}
+                      {/* Appointment and Time Block area */}
                       <div 
                         className="flex-1 relative cursor-pointer p-2"
                         onClick={() => onTimeSlotClick?.(currentDate, slot.hour)}
                         data-testid={`button-time-slot-${slot.hour}-${slot.minute}`}
                       >
-                        {slotLeads.length > 0 ? (
+                        {hasContent ? (
                           <div className="space-y-1">
+                            {/* Render time blocks */}
+                            {slotTimeBlocks.map((block) => {
+                              const blockColor = block.color || '#ef4444';
+                              return (
+                                <div
+                                  key={block.id}
+                                  className="p-2 rounded border-l-4 text-sm"
+                                  style={{ 
+                                    backgroundColor: `${blockColor}20`, 
+                                    borderLeftColor: blockColor 
+                                  }}
+                                  data-testid={`card-time-block-${block.id}`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <Clock className="h-3 w-3" style={{ color: blockColor }} />
+                                      <div>
+                                        <div className="font-medium text-xs">{block.title}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {new Date(block.startDateTime).toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                          })} - {new Date(block.endDateTime).toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                          })}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs capitalize">
+                                      {block.blockType}
+                                    </Badge>
+                                  </div>
+                                  {block.description && (
+                                    <div className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                      {block.description}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                            
+                            {/* Render leads/appointments */}
                             {slotLeads.map((lead) => (
                               <div
                                 key={lead.id}

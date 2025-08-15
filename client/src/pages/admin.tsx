@@ -967,6 +967,7 @@ export default function Admin() {
                     <div className="mb-8">
                       <DailyCalendar
                         leads={leads}
+                        timeBlocks={userTimeBlocks}
                         onDateClick={(date) => {
                           setSelectedLead(null);
                           setIsLeadFormOpen(true);
