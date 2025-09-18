@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser, insertUserSchema, loginSchema } from "@shared/schema";
 import connectPg from "connect-pg-simple";
+import createMemoryStore from "memorystore";
 
 declare global {
   namespace Express {
@@ -31,19 +32,24 @@ async function comparePasswords(supplied: string, stored: string) {
 
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
-  
+  const MemoryStore = createMemoryStore(session);
+
+  const usePgStore = Boolean(process.env.DATABASE_URL);
+
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "crawlguard-session-secret-key",
     resave: false,
     saveUninitialized: false,
-    store: new PostgresSessionStore({
-      conString: process.env.DATABASE_URL,
-      createTableIfMissing: true,
-    }),
+    store: usePgStore
+      ? new PostgresSessionStore({
+          conString: process.env.DATABASE_URL,
+          createTableIfMissing: true,
+        })
+      : new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }),
     cookie: {
-      secure: false, // Set to true in production with HTTPS
+      secure: false,
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
     },
   };
 
@@ -54,7 +60,7 @@ export function setupAuth(app: Express) {
 
   passport.use(
     new LocalStrategy(
-      { usernameField: "email" }, // Use email as username field
+      { usernameField: "email" },
       async (email, password, done) => {
         try {
           const user = await storage.getUserByEmail(email);
@@ -79,31 +85,27 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Register route
   app.post("/api/register", async (req, res, next) => {
     try {
       const validatedData = insertUserSchema.parse(req.body);
-      
-      // Check if user already exists
+
       const existingUser = await storage.getUserByEmail(validatedData.email);
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
       }
 
-      // Create user with hashed password
       const user = await storage.createUser({
         ...validatedData,
         password: await hashPassword(validatedData.password),
       });
 
-      // Log the user in
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(201).json({ 
-          id: user.id, 
-          username: user.username, 
-          email: user.email, 
-          isAdmin: user.isAdmin 
+        res.status(201).json({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          isAdmin: user.isAdmin,
         });
       });
     } catch (error) {
@@ -111,27 +113,25 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Login route
   app.post("/api/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: SelectUser, info: any) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ error: info?.message || "Authentication failed" });
       }
-      
+
       req.login(user, (err) => {
         if (err) return next(err);
-        res.json({ 
-          id: user.id, 
-          username: user.username, 
-          email: user.email, 
-          isAdmin: user.isAdmin 
+        res.json({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          isAdmin: user.isAdmin,
         });
       });
     })(req, res, next);
   });
 
-  // Logout route
   app.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
@@ -139,25 +139,23 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Get current user route
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) {
       return res.sendStatus(401);
     }
     const user = req.user!;
-    res.json({ 
-      id: user.id, 
-      username: user.username, 
-      email: user.email, 
-      isAdmin: user.isAdmin 
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
     });
   });
 
-  // Admin-only routes
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      const safeUsers = users.map(user => ({
+      const safeUsers = users.map((user) => ({
         id: user.id,
         username: user.username,
         email: user.email,
@@ -174,8 +172,7 @@ export function setupAuth(app: Express) {
     try {
       const { id } = req.params;
       const currentUser = req.user!;
-      
-      // Prevent admin from deleting themselves
+
       if (id === currentUser.id) {
         return res.status(400).json({ error: "Cannot delete your own account" });
       }
@@ -188,7 +185,6 @@ export function setupAuth(app: Express) {
   });
 }
 
-// Middleware to require authentication
 export function requireAuth(req: any, res: any, next: any) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: "Authentication required" });
@@ -196,7 +192,6 @@ export function requireAuth(req: any, res: any, next: any) {
   next();
 }
 
-// Middleware to require admin privileges
 export function requireAdmin(req: any, res: any, next: any) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ error: "Authentication required" });
