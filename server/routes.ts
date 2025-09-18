@@ -4,11 +4,9 @@ import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
 import { googleCalendarService } from "./google-calendar";
 import { ObjectStorageService } from "./objectStorage";
-import { insertGalleryImageSchema, updateGalleryImageSchema } from "@shared/schema";
-import { z } from "zod";
-import { 
-  insertContactSubmissionSchema, 
-  insertLeadSchema, 
+import {
+  insertContactSubmissionSchema,
+  insertLeadSchema,
   updateLeadSchema,
   insertWorkingHoursSchema,
   updateWorkingHoursSchema,
@@ -16,7 +14,7 @@ import {
   updateTimeBlockSchema,
   insertGalleryImageSchema,
   updateGalleryImageSchema,
-  type User 
+  type User,
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -29,27 +27,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertContactSubmissionSchema.parse(req.body);
       const submission = await storage.createContactSubmission(validatedData);
-      
+
       // TODO: Send email notification to business owner
       // TODO: Send confirmation email to customer
-      
-      res.json({ 
-        success: true, 
+
+      res.json({
+        success: true,
         message: "Thank you for your inquiry! We'll contact you within 24 hours.",
-        id: submission.id 
+        id: submission.id,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ 
-          success: false, 
+        res.status(400).json({
+          success: false,
           message: "Please check all required fields.",
-          errors: error.errors 
+          errors: error.errors,
         });
       } else {
         console.error("Contact form error:", error);
-        res.status(500).json({ 
-          success: false, 
-          message: "Sorry, there was a problem submitting your request. Please try again or call us directly." 
+        res.status(500).json({
+          success: false,
+          message:
+            "Sorry, there was a problem submitting your request. Please try again or call us directly.",
         });
       }
     }
@@ -70,9 +69,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/leads", requireAuth, async (req, res) => {
     try {
       const { status } = req.query;
-      const leads = status ? 
-        await storage.getLeadsByStatus(status as string) : 
-        await storage.getLeads();
+      const leads = status
+        ? await storage.getLeadsByStatus(status as string)
+        : await storage.getLeads();
       res.json(leads);
     } catch (error) {
       console.error("Error fetching leads:", error);
@@ -96,19 +95,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/leads", requireAuth, async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
-      
-      // Convert string date to Date object if needed
-      if (validatedData.scheduledDate && typeof validatedData.scheduledDate === 'string') {
+
+      if (validatedData.scheduledDate && typeof validatedData.scheduledDate === "string") {
         validatedData.scheduledDate = new Date(validatedData.scheduledDate);
       }
-      
+
       const lead = await storage.createLead(validatedData);
       res.json(lead);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ 
+        res.status(400).json({
           message: "Validation error",
-          errors: error.errors 
+          errors: error.errors,
         });
       } else {
         console.error("Error creating lead:", error);
@@ -121,20 +119,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Updating lead with data:", JSON.stringify(req.body, null, 2));
       const validatedData = updateLeadSchema.parse(req.body);
-      
-      // Convert string date to Date object if needed
-      if (validatedData.scheduledDate && typeof validatedData.scheduledDate === 'string') {
+
+      if (validatedData.scheduledDate && typeof validatedData.scheduledDate === "string") {
         validatedData.scheduledDate = new Date(validatedData.scheduledDate);
       }
-      
+
       const lead = await storage.updateLead(req.params.id, validatedData);
       res.json(lead);
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Lead validation error:", error.errors);
-        res.status(400).json({ 
+        res.status(400).json({
           message: "Validation error",
-          errors: error.errors 
+          errors: error.errors,
         });
       } else {
         console.error("Error updating lead:", error);
@@ -154,38 +151,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Convert contact submission to lead
-  app.post("/api/contact-submissions/:id/convert-to-lead", requireAuth, async (req, res) => {
-    try {
-      const submissions = await storage.getContactSubmissions();
-      const submission = submissions.find(s => s.id === req.params.id);
-      
-      if (!submission) {
-        return res.status(404).json({ message: "Contact submission not found" });
+  app.post(
+    "/api/contact-submissions/:id/convert-to-lead",
+    requireAuth,
+    async (req, res) => {
+      try {
+        const submissions = await storage.getContactSubmissions();
+        const submission = submissions.find((s) => s.id === req.params.id);
+
+        if (!submission) {
+          return res.status(404).json({ message: "Contact submission not found" });
+        }
+
+        const leadData = {
+          name: submission.name,
+          email: submission.email,
+          phone: submission.phone || "",
+          service: submission.service || "consultation",
+          status: "new" as const,
+          priority: "medium" as const,
+          source: "website" as const,
+          notes: submission.message || "",
+        };
+
+        const lead = await storage.createLead(leadData);
+        res.json(lead);
+      } catch (error) {
+        console.error("Error converting to lead:", error);
+        res.status(500).json({ message: "Failed to convert to lead" });
       }
-
-      const leadData = {
-        name: submission.name,
-        email: submission.email,
-        phone: submission.phone || "",
-        service: submission.service || "consultation",
-        status: "new" as const,
-        priority: "medium" as const,
-        source: "website" as const,
-        notes: submission.message || "",
-      };
-
-      const lead = await storage.createLead(leadData);
-      res.json(lead);
-    } catch (error) {
-      console.error("Error converting to lead:", error);
-      res.status(500).json({ message: "Failed to convert to lead" });
     }
-  });
+  );
 
   // User management routes (admin only)
   app.get("/api/users", requireAuth, async (req, res) => {
     try {
-      // Check if user is admin
       const currentUser = req.user as User;
       if (!currentUser.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
@@ -201,7 +201,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/users/:id", requireAuth, async (req, res) => {
     try {
-      // Check if user is admin
       const currentUser = req.user as User;
       if (!currentUser.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
@@ -209,16 +208,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const userId = req.params.id;
       const userToDelete = await storage.getUser(userId);
-      
-      // Prevent deleting admin users or self
+
       if (!userToDelete) {
         return res.status(404).json({ message: "User not found" });
       }
-      
+
       if (userToDelete.isAdmin) {
         return res.status(400).json({ message: "Cannot delete admin users" });
       }
-      
+
       if (userToDelete.id === currentUser.id) {
         return res.status(400).json({ message: "Cannot delete your own account" });
       }
@@ -233,7 +231,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/users/:id/reset-password", requireAuth, async (req, res) => {
     try {
-      // Check if user is admin
       const currentUser = req.user as User;
       if (!currentUser.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
@@ -241,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const userId = req.params.id;
       const { password } = req.body;
-      
+
       if (!password || password.length < 8) {
         return res.status(400).json({ message: "Password must be at least 8 characters" });
       }
@@ -257,11 +254,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Google Calendar integration endpoints
   app.post("/api/calendar/sync", requireAuth, async (req, res) => {
     try {
-      // TODO: Implement Google Calendar OAuth integration
-      // For now, return a placeholder response
-      res.json({ 
-        success: true, 
-        message: "Google Calendar sync is not yet configured. Contact admin to set up OAuth credentials." 
+      res.json({
+        success: true,
+        message:
+          "Google Calendar sync is not yet configured. Contact admin to set up OAuth credentials.",
       });
     } catch (error) {
       console.error("Calendar sync error:", error);
@@ -273,20 +269,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const leadId = req.params.leadId;
       const lead = await storage.getLeadById(leadId);
-      
+
       if (!lead || !lead.scheduledDate) {
         return res.status(400).json({ message: "Lead not found or no scheduled date" });
       }
 
-      // TODO: Implement actual Google Calendar event creation
-      // For now, just update the lead with a placeholder event ID
       const eventId = `placeholder_${leadId}_${Date.now()}`;
       await storage.updateLead(leadId, { googleCalendarEventId: eventId });
-      
-      res.json({ 
-        success: true, 
-        message: "Event would be added to Google Calendar (integration not yet configured)",
-        eventId 
+
+      res.json({
+        success: true,
+        message:
+          "Event would be added to Google Calendar (integration not yet configured)",
+        eventId,
       });
     } catch (error) {
       console.error("Add calendar event error:", error);
@@ -299,8 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user as User;
       const userId = req.params.userId;
-      
-      // Users can only access their own working hours unless they're admin
+
       if (userId !== currentUser.id && !currentUser.isAdmin) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -320,7 +314,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Working hours update request:", { dayOfWeek, body: req.body });
       const validatedData = insertWorkingHoursSchema.parse(req.body);
 
-      const workingHours = await storage.upsertWorkingHours(currentUser.id, dayOfWeek, validatedData);
+      const workingHours = await storage.upsertWorkingHours(
+        currentUser.id,
+        dayOfWeek,
+        validatedData
+      );
       res.json(workingHours);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -338,8 +336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user as User;
       const userId = req.params.userId;
-      
-      // Users can only access their own time blocks unless they're admin
+
       if (userId !== currentUser.id && !currentUser.isAdmin) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -378,10 +375,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const timeBlockId = req.params.id;
       const validatedData = updateTimeBlockSchema.parse(req.body);
 
-      // Check if the time block belongs to the current user
       const existingBlock = await storage.getTimeBlocks(currentUser.id);
-      const userOwnsBlock = existingBlock.some(block => block.id === timeBlockId);
-      
+      const userOwnsBlock = existingBlock.some((block) => block.id === timeBlockId);
+
       if (!userOwnsBlock && !currentUser.isAdmin) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -403,10 +399,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentUser = req.user as User;
       const timeBlockId = req.params.id;
 
-      // Check if the time block belongs to the current user
       const existingBlocks = await storage.getTimeBlocks(currentUser.id);
-      const userOwnsBlock = existingBlocks.some(block => block.id === timeBlockId);
-      
+      const userOwnsBlock = existingBlocks.some((block) => block.id === timeBlockId);
+
       if (!userOwnsBlock && !currentUser.isAdmin) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -420,13 +415,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google Calendar Integration Routes
-  // Initialize Google Calendar service
   app.post("/api/calendar/init", requireAuth, async (req, res) => {
     try {
       await googleCalendarService.loadTokens();
-      res.json({ 
+      res.json({
         authenticated: googleCalendarService.isAuthenticated(),
-        message: googleCalendarService.isAuthenticated() ? "Google Calendar connected" : "Not connected"
+        message: googleCalendarService.isAuthenticated()
+          ? "Google Calendar connected"
+          : "Not connected",
       });
     } catch (error) {
       console.error("Error initializing calendar:", error);
@@ -434,7 +430,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get Google OAuth authorization URL
   app.get("/api/calendar/auth-url", requireAuth, (req, res) => {
     try {
       const authUrl = googleCalendarService.generateAuthUrl();
@@ -445,7 +440,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Handle OAuth callback
   app.post("/api/calendar/callback", requireAuth, async (req, res) => {
     try {
       const { code } = req.body;
@@ -454,10 +448,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await googleCalendarService.exchangeCodeForTokens(code);
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         message: "Google Calendar connected successfully",
-        authenticated: true
+        authenticated: true,
       });
     } catch (error) {
       console.error("Error handling OAuth callback:", error);
@@ -465,20 +459,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check authentication status
   app.get("/api/calendar/status", requireAuth, async (req, res) => {
     try {
       await googleCalendarService.loadTokens();
-      res.json({ 
-        authenticated: googleCalendarService.isAuthenticated() 
-      });
+      res.json({ authenticated: googleCalendarService.isAuthenticated() });
     } catch (error) {
       console.error("Error checking calendar status:", error);
       res.status(500).json({ authenticated: false });
     }
   });
 
-  // Get upcoming calendar events
   app.get("/api/calendar/events", requireAuth, async (req, res) => {
     try {
       const maxResults = parseInt(req.query.limit as string) || 10;
@@ -490,7 +480,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get events in date range
   app.get("/api/calendar/events/range", requireAuth, async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
@@ -500,7 +489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const start = new Date(startDate as string);
       const end = new Date(endDate as string);
-      
+
       const events = await googleCalendarService.getEventsInRange(start, end);
       res.json(events);
     } catch (error) {
@@ -509,7 +498,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create calendar event
   app.post("/api/calendar/events", requireAuth, async (req, res) => {
     try {
       const event = await googleCalendarService.createEvent(req.body);
@@ -520,7 +508,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create appointment event from lead data
   app.post("/api/calendar/appointment", requireAuth, async (req, res) => {
     try {
       const event = await googleCalendarService.createAppointmentEvent(req.body);
@@ -583,7 +570,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const currentUser = req.user as User;
       const validatedData = insertGalleryImageSchema.parse(req.body);
-      
+
       const imageData = {
         ...validatedData,
         uploadedBy: currentUser.id,
@@ -591,12 +578,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const objectStorageService = new ObjectStorageService();
       const normalizedPath = objectStorageService.normalizeGalleryImagePath(imageData.imageUrl);
-      
+
       const image = await storage.createGalleryImage({
         ...imageData,
         imageUrl: normalizedPath,
       });
-      
+
       res.status(201).json(image);
     } catch (error) {
       if (error instanceof z.ZodError) {
