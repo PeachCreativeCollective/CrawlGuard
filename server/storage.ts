@@ -23,11 +23,11 @@ import {
   type InsertGalleryImage,
   type UpdateGalleryImage,
 } from "@shared/schema";
-import { db } from "./db";
+import { db, hasDatabase } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // User operations
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -36,12 +36,10 @@ export interface IStorage {
   deleteUser(id: string): Promise<void>;
   updateUserPassword(id: string, password: string): Promise<void>;
   getUserCount(): Promise<number>;
-  
-  // Contact submission operations
+
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
   getContactSubmissions(): Promise<ContactSubmission[]>;
-  
-  // Lead management operations
+
   createLead(lead: InsertLead): Promise<Lead>;
   getLeads(): Promise<Lead[]>;
   getLeadById(id: string): Promise<Lead | undefined>;
@@ -49,17 +47,14 @@ export interface IStorage {
   deleteLead(id: string): Promise<void>;
   getLeadsByStatus(status: string): Promise<Lead[]>;
 
-  // Working hours operations
   getWorkingHours(userId: string): Promise<WorkingHours[]>;
   upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours>;
 
-  // Time blocks operations
   getTimeBlocks(userId: string): Promise<TimeBlock[]>;
   createTimeBlock(timeBlock: InsertTimeBlock & { userId: string }): Promise<TimeBlock>;
   updateTimeBlock(id: string, updates: UpdateTimeBlock): Promise<TimeBlock>;
   deleteTimeBlock(id: string): Promise<void>;
 
-  // Gallery image operations
   getGalleryImages(): Promise<GalleryImage[]>;
   getPublishedGalleryImages(): Promise<GalleryImage[]>;
   getGalleryImageById(id: string): Promise<GalleryImage | undefined>;
@@ -69,30 +64,28 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db!.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await db!.select().from(users).where(eq(users.username, username));
     return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await db!.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    // Only crawlguardllc@gmail.com should be admin (case insensitive)
     const userData = {
       ...insertUser,
-      isAdmin: insertUser.email.toLowerCase() === 'crawlguardllc@gmail.com'
-    };
+      isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
+    } as any;
 
-    const [user] = await db
+    const [user] = await db!
       .insert(users)
       .values(userData)
       .returning();
@@ -100,28 +93,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    return await db!.select().from(users);
   }
 
   async deleteUser(id: string): Promise<void> {
-    await db.delete(users).where(eq(users.id, id));
+    await db!.delete(users).where(eq(users.id, id));
   }
 
   async updateUserPassword(id: string, password: string): Promise<void> {
-    // We'll need to hash the password here, similar to how it's done in auth.ts
     const { hashPassword } = await import("./auth");
     const hashedPassword = await hashPassword(password);
-    await db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
+    await db!.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
   }
 
   async getUserCount(): Promise<number> {
-    const result = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const result = await db!.select({ count: sql<number>`count(*)` }).from(users);
     return result[0].count;
   }
 
-  // Contact submission operations
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
-    const [submission] = await db
+    const [submission] = await db!
       .insert(contactSubmissions)
       .values(insertSubmission)
       .returning();
@@ -129,23 +120,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
-    return await db
+    return await db!
       .select()
       .from(contactSubmissions)
       .orderBy(desc(contactSubmissions.createdAt));
   }
 
-  // Lead management operations
   async createLead(insertLead: InsertLead): Promise<Lead> {
-    // Convert the data to match the database schema
     const dbData: any = { ...insertLead };
-    
-    // Ensure scheduledDate is properly handled
-    if (dbData.scheduledDate && typeof dbData.scheduledDate === 'string') {
+    if (dbData.scheduledDate && typeof dbData.scheduledDate === "string") {
       dbData.scheduledDate = new Date(dbData.scheduledDate);
     }
-    
-    const [lead] = await db
+    const [lead] = await db!
       .insert(leads)
       .values(dbData)
       .returning();
@@ -153,27 +139,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLeads(): Promise<Lead[]> {
-    return await db
-      .select()
-      .from(leads)
-      .orderBy(desc(leads.createdAt));
+    return await db!.select().from(leads).orderBy(desc(leads.createdAt));
   }
 
   async getLeadById(id: string): Promise<Lead | undefined> {
-    const [lead] = await db.select().from(leads).where(eq(leads.id, id));
+    const [lead] = await db!.select().from(leads).where(eq(leads.id, id));
     return lead || undefined;
   }
 
   async updateLead(id: string, updates: UpdateLead): Promise<Lead> {
-    // Convert the updates to match the database schema
     const dbUpdates: any = { ...updates, updatedAt: new Date() };
-    
-    // Ensure scheduledDate is properly handled
-    if (dbUpdates.scheduledDate && typeof dbUpdates.scheduledDate === 'string') {
+    if (dbUpdates.scheduledDate && typeof dbUpdates.scheduledDate === "string") {
       dbUpdates.scheduledDate = new Date(dbUpdates.scheduledDate);
     }
-    
-    const [lead] = await db
+    const [lead] = await db!
       .update(leads)
       .set(dbUpdates)
       .where(eq(leads.id, id))
@@ -182,70 +161,61 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteLead(id: string): Promise<void> {
-    await db.delete(leads).where(eq(leads.id, id));
+    await db!.delete(leads).where(eq(leads.id, id));
   }
 
   async getLeadsByStatus(status: string): Promise<Lead[]> {
-    return await db
+    return await db!
       .select()
       .from(leads)
       .where(eq(leads.status, status))
       .orderBy(desc(leads.createdAt));
   }
 
-  // Working hours operations
   async getWorkingHours(userId: string): Promise<WorkingHours[]> {
-    return db.select().from(workingHours).where(eq(workingHours.userId, userId));
+    return db!.select().from(workingHours).where(eq(workingHours.userId, userId));
   }
 
   async upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours> {
-    // First, try to find existing working hours for this user and day
-    const existingHours = await db
+    const existingHours = await db!
       .select()
       .from(workingHours)
       .where(and(eq(workingHours.userId, userId), eq(workingHours.dayOfWeek, dayOfWeek)))
       .limit(1);
 
     if (existingHours.length > 0) {
-      // Update existing record
-      const [result] = await db
+      const [result] = await db!
         .update(workingHours)
-        .set({
-          ...hours,
-          updatedAt: new Date(),
-        })
+        .set({ ...hours, updatedAt: new Date() })
         .where(and(eq(workingHours.userId, userId), eq(workingHours.dayOfWeek, dayOfWeek)))
         .returning();
       return result;
     } else {
-      // Insert new record
-      const [result] = await db
+      const [result] = await db!
         .insert(workingHours)
-        .values({
-          userId,
-          dayOfWeek,
-          ...hours,
-          updatedAt: new Date(),
-        })
+        .values({ userId, dayOfWeek, ...hours, updatedAt: new Date() })
         .returning();
       return result;
     }
   }
 
-  // Time blocks operations
   async getTimeBlocks(userId: string): Promise<TimeBlock[]> {
-    return db.select().from(timeBlocks).where(eq(timeBlocks.userId, userId));
+    return db!.select().from(timeBlocks).where(eq(timeBlocks.userId, userId));
   }
 
   async createTimeBlock(timeBlockData: InsertTimeBlock & { userId: string }): Promise<TimeBlock> {
-    const [result] = await db
+    const [result] = await db!
       .insert(timeBlocks)
       .values({
         ...timeBlockData,
-        startDateTime: typeof timeBlockData.startDateTime === 'string' ? 
-          new Date(timeBlockData.startDateTime) : timeBlockData.startDateTime,
-        endDateTime: typeof timeBlockData.endDateTime === 'string' ? 
-          new Date(timeBlockData.endDateTime) : timeBlockData.endDateTime,
+        startDateTime:
+          typeof timeBlockData.startDateTime === "string"
+            ? new Date(timeBlockData.startDateTime)
+            : timeBlockData.startDateTime,
+        endDateTime:
+          typeof timeBlockData.endDateTime === "string"
+            ? new Date(timeBlockData.endDateTime)
+            : timeBlockData.endDateTime,
       })
       .returning();
     return result;
@@ -253,18 +223,15 @@ export class DatabaseStorage implements IStorage {
 
   async updateTimeBlock(id: string, updates: UpdateTimeBlock): Promise<TimeBlock> {
     const updateData: any = { ...updates, updatedAt: new Date() };
-    
     if (updates.startDateTime) {
-      updateData.startDateTime = typeof updates.startDateTime === 'string' ? 
-        new Date(updates.startDateTime) : updates.startDateTime;
+      updateData.startDateTime =
+        typeof updates.startDateTime === "string" ? new Date(updates.startDateTime) : updates.startDateTime;
     }
-    
     if (updates.endDateTime) {
-      updateData.endDateTime = typeof updates.endDateTime === 'string' ? 
-        new Date(updates.endDateTime) : updates.endDateTime;
+      updateData.endDateTime =
+        typeof updates.endDateTime === "string" ? new Date(updates.endDateTime) : updates.endDateTime;
     }
-
-    const [result] = await db
+    const [result] = await db!
       .update(timeBlocks)
       .set(updateData)
       .where(eq(timeBlocks.id, id))
@@ -273,35 +240,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteTimeBlock(id: string): Promise<void> {
-    await db.delete(timeBlocks).where(eq(timeBlocks.id, id));
+    await db!.delete(timeBlocks).where(eq(timeBlocks.id, id));
   }
 
-  // Gallery image operations
   async getGalleryImages(): Promise<GalleryImage[]> {
-    return db.select().from(galleryImages).orderBy(desc(galleryImages.displayOrder), desc(galleryImages.createdAt));
+    return db!
+      .select()
+      .from(galleryImages)
+      .orderBy(desc(galleryImages.displayOrder), desc(galleryImages.createdAt));
   }
 
   async getPublishedGalleryImages(): Promise<GalleryImage[]> {
-    return db.select().from(galleryImages)
+    return db!
+      .select()
+      .from(galleryImages)
       .where(eq(galleryImages.isPublished, true))
       .orderBy(desc(galleryImages.displayOrder), desc(galleryImages.createdAt));
   }
 
   async getGalleryImageById(id: string): Promise<GalleryImage | undefined> {
-    const [image] = await db.select().from(galleryImages).where(eq(galleryImages.id, id));
+    const [image] = await db!.select().from(galleryImages).where(eq(galleryImages.id, id));
     return image || undefined;
   }
 
   async createGalleryImage(imageData: InsertGalleryImage): Promise<GalleryImage> {
-    const [result] = await db
-      .insert(galleryImages)
-      .values(imageData)
-      .returning();
+    const [result] = await db!.insert(galleryImages).values(imageData).returning();
     return result;
   }
 
   async updateGalleryImage(id: string, updates: UpdateGalleryImage): Promise<GalleryImage> {
-    const [result] = await db
+    const [result] = await db!
       .update(galleryImages)
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(galleryImages.id, id))
@@ -310,8 +278,177 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteGalleryImage(id: string): Promise<void> {
-    await db.delete(galleryImages).where(eq(galleryImages.id, id));
+    await db!.delete(galleryImages).where(eq(galleryImages.id, id));
   }
 }
 
-export const storage = new DatabaseStorage();
+class MemoryStorage implements IStorage {
+  private users: User[] = [];
+  private contactSubs: ContactSubmission[] = [];
+  private leads: Lead[] = [];
+  private workingHours: WorkingHours[] = [];
+  private timeBlocks: TimeBlock[] = [];
+  private gallery: GalleryImage[] = [];
+
+  async getUser(id: string) { return this.users.find(u => u.id === id); }
+  async getUserByUsername(username: string) { return this.users.find(u => u.username === username); }
+  async getUserByEmail(email: string) { return this.users.find(u => u.email === email); }
+  async createUser(insertUser: InsertUser) {
+    const user: User = {
+      id: randomUUID(),
+      username: insertUser.username,
+      email: insertUser.email,
+      password: insertUser.password,
+      isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as User;
+    this.users.push(user);
+    return user;
+  }
+  async getAllUsers() { return [...this.users]; }
+  async deleteUser(id: string) { this.users = this.users.filter(u => u.id !== id); }
+  async updateUserPassword(id: string, password: string) {
+    const u = this.users.find(x => x.id === id);
+    if (u) { u.password = password; u.updatedAt = new Date() as any; }
+  }
+  async getUserCount() { return this.users.length; }
+
+  async createContactSubmission(data: InsertContactSubmission) {
+    const sub: ContactSubmission = {
+      id: randomUUID(),
+      name: data.name,
+      email: data.email,
+      phone: data.phone ?? null as any,
+      address: data.address ?? null as any,
+      zipCode: data.zipCode,
+      service: data.service ?? null as any,
+      message: data.message ?? null as any,
+      createdAt: new Date(),
+    } as ContactSubmission;
+    this.contactSubs.push(sub);
+    return sub;
+  }
+  async getContactSubmissions() { return [...this.contactSubs].sort((a,b) => (b.createdAt as any) - (a.createdAt as any)); }
+
+  async createLead(data: InsertLead) {
+    const lead: Lead = {
+      id: randomUUID(),
+      name: data.name,
+      email: data.email,
+      phone: data.phone ?? null as any,
+      address: data.address ?? null as any,
+      zipCode: data.zipCode ?? null as any,
+      service: data.service,
+      status: (data.status as any) ?? "new",
+      priority: (data.priority as any) ?? "medium",
+      source: (data.source as any) ?? "website",
+      notes: data.notes ?? null as any,
+      estimatedValue: data.estimatedValue ?? null as any,
+      scheduledDate: (data as any).scheduledDate ? new Date((data as any).scheduledDate) : null as any,
+      googleCalendarEventId: null as any,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Lead;
+    this.leads.push(lead);
+    return lead;
+  }
+  async getLeads() { return [...this.leads].sort((a,b) => (b.createdAt as any) - (a.createdAt as any)); }
+  async getLeadById(id: string) { return this.leads.find(l => l.id === id); }
+  async updateLead(id: string, updates: UpdateLead) {
+    const lead = this.leads.find(l => l.id === id)!;
+    Object.assign(lead, {
+      ...updates,
+      scheduledDate: (updates as any).scheduledDate ? new Date((updates as any).scheduledDate) : lead.scheduledDate,
+      updatedAt: new Date(),
+    });
+    return lead;
+  }
+  async deleteLead(id: string) { this.leads = this.leads.filter(l => l.id !== id); }
+  async getLeadsByStatus(status: string) { return this.leads.filter(l => l.status === status).sort((a,b) => (b.createdAt as any) - (a.createdAt as any)); }
+
+  async getWorkingHours(userId: string) { return this.workingHours.filter(w => w.userId === userId); }
+  async upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours) {
+    const found = this.workingHours.find(w => w.userId === userId && w.dayOfWeek === dayOfWeek);
+    if (found) {
+      Object.assign(found, { ...hours, updatedAt: new Date() });
+      return found;
+    }
+    const rec: WorkingHours = {
+      id: randomUUID(),
+      userId,
+      dayOfWeek,
+      startTime: hours.startTime,
+      endTime: hours.endTime,
+      isActive: (hours as any).isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.workingHours.push(rec);
+    return rec;
+  }
+
+  async getTimeBlocks(userId: string) { return this.timeBlocks.filter(t => t.userId === userId); }
+  async createTimeBlock(data: InsertTimeBlock & { userId: string }) {
+    const rec: TimeBlock = {
+      id: randomUUID(),
+      userId: data.userId,
+      title: data.title,
+      description: data.description ?? null as any,
+      startDateTime: typeof (data as any).startDateTime === 'string' ? new Date((data as any).startDateTime) : (data as any).startDateTime,
+      endDateTime: typeof (data as any).endDateTime === 'string' ? new Date((data as any).endDateTime) : (data as any).endDateTime,
+      blockType: (data as any).blockType ?? 'personal',
+      isRecurring: (data as any).isRecurring ?? false,
+      recurringPattern: (data as any).recurringPattern ?? null as any,
+      color: (data as any).color ?? '#ef4444',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.timeBlocks.push(rec);
+    return rec;
+  }
+  async updateTimeBlock(id: string, updates: UpdateTimeBlock) {
+    const tb = this.timeBlocks.find(t => t.id === id)!;
+    Object.assign(tb, {
+      ...updates,
+      startDateTime: updates.startDateTime ? (typeof (updates as any).startDateTime === 'string' ? new Date((updates as any).startDateTime) : (updates as any).startDateTime) : tb.startDateTime,
+      endDateTime: updates.endDateTime ? (typeof (updates as any).endDateTime === 'string' ? new Date((updates as any).endDateTime) : (updates as any).endDateTime) : tb.endDateTime,
+      updatedAt: new Date(),
+    });
+    return tb;
+  }
+  async deleteTimeBlock(id: string) { this.timeBlocks = this.timeBlocks.filter(t => t.id !== id); }
+
+  async getGalleryImages() { return [...this.gallery].sort((a,b) => (parseInt(b.displayOrder||'0') - parseInt(a.displayOrder||'0')) || ((b.createdAt as any) - (a.createdAt as any))); }
+  async getPublishedGalleryImages() { return (await this.getGalleryImages()).filter(g => g.isPublished); }
+  async getGalleryImageById(id: string) { return this.gallery.find(g => g.id === id); }
+  async createGalleryImage(data: InsertGalleryImage) {
+    const rec: GalleryImage = {
+      id: randomUUID(),
+      title: data.title,
+      description: data.description ?? null as any,
+      altText: data.altText,
+      imageUrl: data.imageUrl,
+      fileName: data.fileName,
+      fileSize: data.fileSize ?? null as any,
+      mimeType: data.mimeType ?? null as any,
+      category: (data as any).category ?? 'general',
+      isPublished: (data as any).isPublished ?? false,
+      displayOrder: (data as any).displayOrder ?? '0',
+      seoKeywords: data.seoKeywords ?? null as any,
+      uploadedBy: data.uploadedBy ?? null as any,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.gallery.push(rec);
+    return rec;
+  }
+  async updateGalleryImage(id: string, updates: UpdateGalleryImage) {
+    const g = this.gallery.find(x => x.id === id)!;
+    Object.assign(g, { ...updates, updatedAt: new Date() });
+    return g;
+  }
+  async deleteGalleryImage(id: string) { this.gallery = this.gallery.filter(g => g.id !== id); }
+}
+
+export const storage: IStorage = hasDatabase ? new DatabaseStorage() : new MemoryStorage();
