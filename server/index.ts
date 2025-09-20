@@ -37,6 +37,14 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Seed admin user from environment if provided
+  try {
+    const { seedAdminFromEnv } = await import('./seed');
+    await seedAdminFromEnv();
+  } catch (e) {
+    // seeding is best-effort
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
