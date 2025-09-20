@@ -33,19 +33,17 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   const MemoryStore = createMemoryStore(session);
+  const { pool } = await import('./db');
 
-  const usePgStore = Boolean(process.env.DATABASE_URL);
+  const usePgStore = Boolean(pool);
 
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "crawlguard-session-secret-key",
     resave: false,
     saveUninitialized: false,
-    store: usePgStore
+    store: usePgStore && pool
       ? new PostgresSessionStore({
-          conObject: {
-            connectionString: process.env.DATABASE_URL!,
-            ssl: { rejectUnauthorized: false },
-          },
+          pool,
           createTableIfMissing: true,
         })
       : new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }),
