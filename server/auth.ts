@@ -42,7 +42,10 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: usePgStore
       ? new PostgresSessionStore({
-          conString: process.env.DATABASE_URL,
+          conObject: {
+            connectionString: process.env.DATABASE_URL!,
+            ssl: { rejectUnauthorized: false },
+          },
           createTableIfMissing: true,
         })
       : new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }),
