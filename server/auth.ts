@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { User as SelectUser, insertUserSchema, loginSchema } from "@shared/schema";
 import connectPg from "connect-pg-simple";
 import createMemoryStore from "memorystore";
+import { pool } from "./db";
 
 declare global {
   namespace Express {
@@ -33,8 +34,6 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   const MemoryStore = createMemoryStore(session);
-  const { pool } = await import('./db');
-
   const usePgStore = Boolean(pool);
 
   const sessionSettings: session.SessionOptions = {
