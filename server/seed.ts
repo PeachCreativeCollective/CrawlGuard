@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 export async function seedAdminFromEnv() {
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
-  if (!email || !password || !db) return;
+  if (!email || !password) return;
 
   const existing = await storage.getUserByEmail(email);
   if (!existing) {
