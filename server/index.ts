@@ -37,15 +37,22 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed admin user from environment if provided
-  try {
-    const { seedAdminFromEnv } = await import('./seed');
-    await seedAdminFromEnv();
-  } catch (e) {
-    // seeding is best-effort
-  }
-
   const server = await registerRoutes(app);
+
+  // Seed admin user from environment after DB is ready
+  try {
+    const { pool } = await import('./db');
+    if (pool) {
+      await pool.query('select 1');
+      const { seedAdminFromEnv } = await import('./seed');
+      await seedAdminFromEnv();
+      log('admin seed completed');
+    } else {
+      log('skipping admin seed: no DB pool');
+    }
+  } catch (e: any) {
+    log(`admin seed skipped: ${e?.message || e}`);
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
