@@ -3,7 +3,9 @@ const { Pool } = pkg;
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
 
-export const hasDatabase = Boolean(process.env.DATABASE_URL);
+const rawDbUrl = process.env.DATABASE_URL || "";
+const isValidDbUrl = /^postgres(ql)?:\/\//i.test(rawDbUrl);
+export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
 
 export let pool: Pool | null = null;
 export let db: ReturnType<typeof drizzle> | null = null;
@@ -11,13 +13,14 @@ export let db: ReturnType<typeof drizzle> | null = null;
 if (hasDatabase) {
   // Supabase Postgres requires SSL in most environments
   pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: rawDbUrl,
     max: 10,
     ssl: { rejectUnauthorized: false },
   });
   db = drizzle(pool, { schema });
 } else {
-  console.warn(
-    'DATABASE_URL is not set. Using in-memory storage. Connect a database to enable persistence.'
-  );
+  const reason = rawDbUrl
+    ? 'DATABASE_URL is invalid. Expected a postgres://… URI. Falling back to in-memory storage.'
+    : 'DATABASE_URL is not set. Using in-memory storage. Connect a database to enable persistence.';
+  console.warn(reason);
 }
