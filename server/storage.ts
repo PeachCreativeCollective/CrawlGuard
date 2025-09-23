@@ -75,13 +75,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db!.select().from(users).where(eq(users.email, email));
+    const normalized = email.toLowerCase();
+    const [user] = await db!
+      .select()
+      .from(users)
+      .where(sql`lower(${users.email}) = ${normalized}`);
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const userData = {
       ...insertUser,
+      email: insertUser.email.toLowerCase(),
       isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
     } as any;
 
@@ -292,12 +297,12 @@ class MemoryStorage implements IStorage {
 
   async getUser(id: string) { return this.users.find(u => u.id === id); }
   async getUserByUsername(username: string) { return this.users.find(u => u.username === username); }
-  async getUserByEmail(email: string) { return this.users.find(u => u.email === email); }
+  async getUserByEmail(email: string) { return this.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
   async createUser(insertUser: InsertUser) {
     const user: User = {
       id: randomUUID(),
       username: insertUser.username,
-      email: insertUser.email,
+      email: insertUser.email.toLowerCase(),
       password: insertUser.password,
       isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
       createdAt: new Date(),
