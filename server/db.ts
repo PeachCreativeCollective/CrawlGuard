@@ -18,6 +18,12 @@ if (hasDatabase) {
     ssl: { rejectUnauthorized: false },
   });
   db = drizzle(pool, { schema });
+  // Test connection once at startup for clearer diagnostics
+  pool.query('select 1').then(() => {
+    console.log('Database connection OK');
+  }).catch((err) => {
+    console.error('Database connection failed:', err?.message || err);
+  });
 } else {
   const reason = rawDbUrl
     ? 'DATABASE_URL is invalid. Expected a postgres://… URI. Falling back to in-memory storage.'
