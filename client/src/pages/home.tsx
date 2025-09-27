@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { CheckCircle, Phone, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LocationSection } from "@/components/location-section";
 import { SEOHead } from "@/components/seo-head";
 import { ServiceCard } from "@/components/service-card";
 import { TestimonialCard } from "@/components/testimonial-card";
@@ -235,6 +236,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <LocationSection className="bg-crawlguard-light" />
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-crawlguard-primary to-teal-600 text-white" data-testid="cta-section">
