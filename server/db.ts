@@ -1,34 +1,32 @@
-import pkg from 'pg';
-import type { Pool as PgPool } from 'pg';
+import pkg from "pg";
+import type { Pool as PgPool } from "pg";
 const { Pool } = pkg;
-import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from '@shared/schema';
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import * as schema from "@shared/schema";
 
 declare const Netlify: undefined | { env?: { get(name: string): string | undefined } };
 
-function getEnvVar(name: string): string {
-  if (typeof Netlify !== "undefined" && Netlify?.env?.get) {
-    const value = Netlify.env.get(name);
-    if (value) {
-      return value;
-    }
+type DatabaseInstance = NodePgDatabase<typeof schema>;
+
+type EnvAccessor = {
+  get(name: string): string | undefined;
+};
+
+function readEnv(name: string): string {
+  const netlifyEnv: EnvAccessor | undefined =
+    typeof Netlify !== "undefined" ? Netlify?.env : undefined;
+  const valueFromNetlify = netlifyEnv?.get?.(name);
+  if (valueFromNetlify && valueFromNetlify !== "undefined") {
+    return valueFromNetlify;
   }
-  return process.env[name] ?? "";
-}
-
-const rawDbUrl = getEnvVar("DATABASE_URL");
-const isValidDbUrl = /^postgres(ql)?:\/\//i.test(rawDbUrl);
-export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
-
-if (!hasDatabase) {
-  console.warn("[db] DATABASE_URL is missing or invalid; using in-memory storage");
+  const valueFromProcess = process.env[name];
+  return valueFromProcess ?? "";
 }
 
 function prepareConnectionString(url: string): string {
   try {
     const parsed = new URL(url);
 
-    // Ensure Supabase pooler connections include project routing
     if (parsed.hostname.includes("pooler.supabase.com")) {
       const username = parsed.username || "";
       const segments = username.split(".");
@@ -54,13 +52,36 @@ function prepareConnectionString(url: string): string {
   }
 }
 
-export let pool: PgPool | null = null;
-export let db: ReturnType<typeof drizzle> | null = null;
+let pool: PgPool | null = null;
+let database: DatabaseInstance | null = null;
+let initialized = false;
 
-if (hasDatabase) {
-  const connectionString = prepareConnectionString(rawDbUrl);
+function resolveConnectionString(): string | null {
+  const raw = readEnv("DATABASE_URL");
+  if (!raw) {
+    console.warn("[db] DATABASE_URL is not set. Falling back to in-memory storage");
+    return null;
+  }
 
-  // Supabase Postgres requires SSL in most environments
+  if (!/^postgres(ql)?:\/\//i.test(raw)) {
+    console.warn('[db] DATABASE_URL is invalid. Expected a "postgres://" URI. Using in-memory storage');
+    return null;
+  }
+
+  return prepareConnectionString(raw);
+}
+
+function initializeDatabase(): boolean {
+  if (initialized) {
+    return database !== null;
+  }
+
+  initialized = true;
+  const connectionString = resolveConnectionString();
+  if (!connectionString) {
+    return false;
+  }
+
   pool = new Pool({
     connectionString,
     max: 10,
@@ -69,17 +90,38 @@ if (hasDatabase) {
       checkServerIdentity: () => undefined,
     },
   });
-  db = drizzle(pool, { schema });
-  // Test connection once at startup for clearer diagnostics
-  pool.query('select 1').then(() => {
-    console.log('Database connection OK');
-  }).catch((err: unknown) => {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error('Database connection failed:', message);
-  });
-} else {
-  const reason = rawDbUrl
-    ? 'DATABASE_URL is invalid. Expected a postgres://… URI. Falling back to in-memory storage.'
-    : 'DATABASE_URL is not set. Using in-memory storage. Connect a database to enable persistence.';
-  console.warn(reason);
+
+  database = drizzle(pool, { schema });
+
+  pool
+    .query("select 1")
+    .then(() => {
+      console.log("[db] Connection established");
+    })
+    .catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[db] Connection test failed:", message);
+    });
+
+  return true;
 }
+
+export function ensureDatabase(): boolean {
+  return initializeDatabase();
+}
+
+export function getPool(): PgPool | null {
+  if (!initialized) {
+    initializeDatabase();
+  }
+  return pool;
+}
+
+export function getDb(): DatabaseInstance | null {
+  if (!initialized) {
+    initializeDatabase();
+  }
+  return database;
+}
+
+export type { DatabaseInstance };
