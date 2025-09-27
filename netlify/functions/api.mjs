@@ -1,16 +1,53 @@
 import { Client } from 'pg';
+import { Client } from 'pg';
 import { scrypt, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
 const scryptAsync = promisify(scrypt);
 
+const prepareConnectionString = (url) => {
+  try {
+    const parsed = new URL(url);
+
+    if (parsed.hostname.includes('pooler.supabase.com')) {
+      const username = parsed.username || '';
+      const segments = username.split('.');
+      const role = segments[0] ?? username;
+      const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
+
+      if (projectRef) {
+        parsed.hostname = `db.${projectRef}.supabase.co`;
+        parsed.port = '5432';
+        parsed.username = role;
+        parsed.search = '';
+        parsed.searchParams.set('sslmode', 'no-verify');
+      }
+    }
+
+    if (!parsed.searchParams.has('sslmode')) {
+      parsed.searchParams.set('sslmode', 'no-verify');
+    }
+
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+};
+
 // Database connection
 const createDbClient = () => {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not configured');
+  }
+
+  const connectionString = prepareConnectionString(process.env.DATABASE_URL);
+  const sslConfig = connectionString.includes('supabase.co')
+    ? { rejectUnauthorized: false }
+    : false;
+
   return new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL?.includes('supabase.com') 
-      ? { rejectUnauthorized: false } 
-      : false,
+    connectionString,
+    ssl: sslConfig,
   });
 };
 
