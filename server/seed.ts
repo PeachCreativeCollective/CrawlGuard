@@ -9,6 +9,11 @@ export async function seedAdminFromEnv() {
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) return;
 
+  if (!db) {
+    console.warn("Skipping admin seed: database connection unavailable");
+    return;
+  }
+
   const existing = await storage.getUserByEmail(email);
   if (!existing) {
     const username = email.split("@")[0];
