@@ -7,35 +7,17 @@ const rawDbUrl = process.env.DATABASE_URL || "";
 const isValidDbUrl = /^postgres(ql)?:\/\//i.test(rawDbUrl);
 export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
 
-function sanitizeConnectionString(url: string): string {
-  try {
-    const parsed = new URL(url);
-
-    if (parsed.searchParams.has("sslmode")) {
-      parsed.searchParams.set("sslmode", "no-verify");
-    }
-
-    ["sslcert", "sslkey", "sslrootcert"].forEach((param) => {
-      if (parsed.searchParams.has(param)) {
-        parsed.searchParams.delete(param);
-      }
-    });
-
-    return parsed.toString();
-  } catch {
-    return url;
-  }
-}
-
 export let pool: Pool | null = null;
 export let db: ReturnType<typeof drizzle> | null = null;
 
 if (hasDatabase) {
-  const connectionString = sanitizeConnectionString(rawDbUrl);
+  if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  }
 
   // Supabase Postgres requires SSL in most environments
   pool = new Pool({
-    connectionString,
+    connectionString: rawDbUrl,
     max: 10,
     ssl: {
       rejectUnauthorized: false,
