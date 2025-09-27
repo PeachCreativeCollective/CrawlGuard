@@ -296,6 +296,23 @@ export const handler = async (event, context) => {
       };
     }
 
+    // Logout endpoint
+    const isLogoutEndpoint = (
+      apiPath === '/logout' ||
+      apiPath === '/api/logout'
+    ) && httpMethod === 'POST';
+
+    if (isLogoutEndpoint) {
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: true,
+          message: 'Logout successful - please clear local storage on client side'
+        })
+      };
+    }
+
     // User endpoint (for checking authentication status)
     if ((apiPath === '/user' || apiPath === '/api/user' || path.includes('/user')) && httpMethod === 'GET') {
       return {
@@ -323,6 +340,8 @@ export const handler = async (event, context) => {
           '/health',
           '/login (POST)',
           '/api/login (POST)',
+          '/logout (POST)',
+          '/api/logout (POST)',
           '/contact (POST)',
           '/api/contact (POST)',
           '/user (GET)',
