@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { storage } from "./storage";
+import { getStorage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
 import { googleCalendarService } from "./google-calendar";
 import { ObjectStorageService } from "./objectStorage";
@@ -20,6 +20,8 @@ import { z } from "zod";
 export function registerRoutes(app: Express): void {
   // Setup authentication
   setupAuth(app);
+
+  const storage = getStorage();
 
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
