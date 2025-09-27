@@ -1,7 +1,8 @@
-import { Client } from 'pg';
+import pg from 'pg';
 import { scrypt, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
+const { Client } = pg;
 const scryptAsync = promisify(scrypt);
 
 const prepareConnectionString = (url) => {
