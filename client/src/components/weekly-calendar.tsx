@@ -256,7 +256,7 @@ export function WeeklyCalendar({ leads, timeBlocks = [], onDateClick, onLeadClic
                             <div
                               key={block.id}
                               className="text-xs p-1.5 rounded truncate opacity-75"
-                              style={{ backgroundColor: block.color, color: 'white' }}
+                              style={{ backgroundColor: block.color ?? undefined, color: "white" }}
                               data-testid={`card-time-block-${block.id}`}
                             >
                               <div className="font-medium truncate">{block.title}</div>
