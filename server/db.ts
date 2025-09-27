@@ -23,12 +23,12 @@ function prepareConnectionString(url: string): string {
         parsed.port = "5432";
         parsed.username = role;
         parsed.search = "";
-        parsed.searchParams.set("sslmode", "require");
+        parsed.searchParams.set("sslmode", "no-verify");
       }
     }
 
     if (!parsed.searchParams.has("sslmode")) {
-      parsed.searchParams.set("sslmode", "require");
+      parsed.searchParams.set("sslmode", "no-verify");
     }
 
     return parsed.toString();
