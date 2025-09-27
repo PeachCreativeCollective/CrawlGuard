@@ -167,7 +167,7 @@ export default function Home() {
                   title={service.name}
                   description={service.description}
                   icon={IconComponent}
-                  href="/services"
+                  href={`/services/${service.id}`}
                 />
               );
             })}
