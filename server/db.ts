@@ -10,11 +10,17 @@ export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
 function sanitizeConnectionString(url: string): string {
   try {
     const parsed = new URL(url);
-    ["sslmode", "sslcert", "sslkey", "sslrootcert"].forEach((param) => {
+
+    if (parsed.searchParams.has("sslmode")) {
+      parsed.searchParams.set("sslmode", "no-verify");
+    }
+
+    ["sslcert", "sslkey", "sslrootcert"].forEach((param) => {
       if (parsed.searchParams.has(param)) {
         parsed.searchParams.delete(param);
       }
     });
+
     return parsed.toString();
   } catch {
     return url;
