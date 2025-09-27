@@ -70,8 +70,11 @@ export default function Home() {
 
   return (
     <>
-      <SEOHead structuredData={structuredData} />
-      
+      <SEOHead
+        canonicalUrl="https://crawlguardllc.com/"
+        structuredData={structuredData}
+      />
+
       {/* Hero Section */}
       <section 
         className="relative min-h-[85vh] sm:min-h-screen bg-black p-4 sm:p-6 lg:p-8 flex items-center" 
