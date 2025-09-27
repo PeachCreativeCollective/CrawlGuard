@@ -56,9 +56,30 @@ export const SERVICES = [
 ];
 
 export const SERVICE_AREAS = [
-  "Asheville", "Marshall", "Mars Hill", "Weaverville", "Candler", "Hendersonville",
-  "Maggie Valley", "Burnsville", "Leicester", "Hot Springs", "Enka", "Woodfin",
-  "Fairview", "Walnut Creek", "Fletcher", "Arden"
+  "Asheville",
+  "Arden",
+  "Biltmore Forest",
+  "Black Mountain",
+  "Candler",
+  "Canton",
+  "Enka",
+  "Fairview",
+  "Fletcher",
+  "Flat Rock",
+  "Hendersonville",
+  "Hot Springs",
+  "Lake Lure",
+  "Leicester",
+  "Maggie Valley",
+  "Mars Hill",
+  "Marshall",
+  "Mills River",
+  "Montreat",
+  "Skyland",
+  "Swannanoa",
+  "Waynesville",
+  "Weaverville",
+  "Woodfin"
 ];
 
 export const TESTIMONIALS = [
