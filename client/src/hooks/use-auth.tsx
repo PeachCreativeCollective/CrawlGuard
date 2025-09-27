@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: SelectUser) => {
       setUser(user);
       localStorage.setItem('crawlguard_user', JSON.stringify(user));
+      queryClient.invalidateQueries();
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
