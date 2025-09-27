@@ -1,6 +1,6 @@
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import { registerRoutes } from "./routes";
-import { log } from "./vite";
+import { log } from "./logger";
 
 let adminSeedPromise: Promise<void> | null = null;
 
