@@ -430,7 +430,11 @@ export default function Admin() {
 
   // Fetch contact submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery<ContactSubmission[]>({
-    queryKey: ["/api/contact-submissions"]
+    queryKey: ["/api/contact-submissions"],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnReconnect: "always",
+    refetchOnWindowFocus: "always",
   });
 
   // Fetch current user to check admin status
