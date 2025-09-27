@@ -1,4 +1,5 @@
 import pkg from 'pg';
+import type { Pool as PgPool } from 'pg';
 const { Pool } = pkg;
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
