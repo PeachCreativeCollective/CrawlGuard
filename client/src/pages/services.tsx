@@ -20,6 +20,30 @@ export default function Services() {
     return iconMap[iconName] || Icons.Home;
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "CrawlGuard LLC Waterproofing Services",
+    itemListElement: SERVICES.map((service, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `https://crawlguardllc.com/services/${service.id}`,
+      name: service.name,
+      item: {
+        "@type": "Service",
+        name: service.name,
+        description: service.description,
+        serviceType: service.name,
+        provider: {
+          "@type": "LocalBusiness",
+          name: BUSINESS_INFO.name,
+          telephone: BUSINESS_INFO.phone,
+          areaServed: BUSINESS_INFO.address.full,
+        },
+      },
+    })),
+  };
+
   return (
     <>
       <SEOHead
