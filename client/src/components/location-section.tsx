@@ -66,7 +66,7 @@ export function LocationSection({ className }: LocationSectionProps) {
             <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-lg border border-gray-200" data-testid="location-map">
               <iframe
                 title="CrawlGuard LLC service area map"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-82.5615%2C35.5851%2C-82.5415%2C35.6051&layer=mapnik&marker=35.5951%2C-82.5515"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=-82.85%2C35.3%2C-82.25%2C35.9&layer=mapnik&marker=35.5951%2C-82.5515"
                 className="w-full h-full border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
@@ -74,7 +74,7 @@ export function LocationSection({ className }: LocationSectionProps) {
             </div>
             <div className="mt-3 text-sm text-gray-500">
               <a
-                href="https://www.openstreetmap.org/?mlat=35.5951&mlon=-82.5515#map=15/35.5951/-82.5515"
+                href="https://www.openstreetmap.org/?mlat=35.5951&mlon=-82.5515#map=11/35.5951/-82.5515"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-crawlguard-primary hover:underline"
