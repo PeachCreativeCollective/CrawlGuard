@@ -1,37 +1,50 @@
-import serverless from 'serverless-http';
-import express from 'express';
-
-let appInstance = null;
-
-async function createApp() {
-  if (appInstance) return appInstance;
-  
-  // Dynamic import for routes - use compiled version in production
-  const { registerRoutes } = await import('../../dist/server/routes.js');
-  
-  const app = express();
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: false }));
-
-  // Setup routes
-  await registerRoutes(app);
-  
-  appInstance = app;
-  return app;
-}
-
 export const handler = async (event, context) => {
+  const { httpMethod, path, body, queryStringParameters, headers } = event;
+  
+  // Handle CORS
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+
+  // Handle preflight requests
+  if (httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: ''
+    };
+  }
+
   try {
-    const app = await createApp();
-    const serverlessHandler = serverless(app);
-    return await serverlessHandler(event, context);
+    // Basic health check
+    if (path === '/.netlify/functions/api/health') {
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ok', message: 'Netlify function is running' })
+      };
+    }
+
+    // For now, return a message that the full backend is not yet configured
+    return {
+      statusCode: 503,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        error: 'Backend services are being configured',
+        message: 'The full Express.js backend is not yet deployed. Please check back soon.',
+        path: path,
+        method: httpMethod
+      })
+    };
+    
   } catch (error) {
     console.error('Netlify function error:', error);
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         error: 'Internal server error',
         message: error.message 
