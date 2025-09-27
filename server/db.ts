@@ -41,10 +41,6 @@ export let pool: Pool | null = null;
 export let db: ReturnType<typeof drizzle> | null = null;
 
 if (hasDatabase) {
-  if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED) {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  }
-
   const connectionString = prepareConnectionString(rawDbUrl);
 
   // Supabase Postgres requires SSL in most environments
