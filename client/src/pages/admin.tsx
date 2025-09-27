@@ -403,8 +403,9 @@ export default function Admin() {
   const [selectedDateTime, setSelectedDateTime] = useState<{ date: Date; hour?: number } | null>(null);
   const [isAppointmentBookingOpen, setIsAppointmentBookingOpen] = useState(false);
   const [appointmentBookingKey, setAppointmentBookingKey] = useState(0);
-  
+
   const queryClient = useQueryClient();
+  const { logoutMutation } = useAuth();
   const { toast } = useToast();
 
   // Drag and drop sensors
