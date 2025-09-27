@@ -38,7 +38,7 @@ function prepareConnectionString(url: string): string {
   }
 }
 
-export let pool: Pool | null = null;
+export let pool: PgPool | null = null;
 export let db: ReturnType<typeof drizzle> | null = null;
 
 if (hasDatabase) {
