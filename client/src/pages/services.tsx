@@ -101,6 +101,12 @@ export default function Services() {
                         </div>
                       ))}
                     </div>
+                    <Link
+                      href={`/services/${service.id}`}
+                      className="inline-flex items-center text-crawlguard-primary font-semibold hover:underline mt-6"
+                    >
+                      View detailed service →
+                    </Link>
                   </CardContent>
                 </Card>
               );
