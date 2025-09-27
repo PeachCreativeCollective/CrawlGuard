@@ -11,9 +11,12 @@ async function ensureAdminSeeded() {
 
   adminSeedPromise = (async () => {
     try {
-      const { pool } = await import("./db");
-      if (pool) {
-        await pool.query("select 1");
+      const { ensureDatabase, getPool } = await import("./db");
+      if (ensureDatabase()) {
+        const pool = getPool();
+        if (pool) {
+          await pool.query("select 1");
+        }
         const { seedAdminFromEnv } = await import("./seed");
         await seedAdminFromEnv();
         log("admin seed completed");
