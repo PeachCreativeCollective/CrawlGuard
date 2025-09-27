@@ -44,14 +44,17 @@ app.use((req, res, next) => {
 
   // Seed admin user from environment after DB is ready
   try {
-    const { pool } = await import('./db');
-    if (pool) {
-      await pool.query('select 1');
-      const { seedAdminFromEnv } = await import('./seed');
+    const { ensureDatabase, getPool } = await import("./db");
+    if (ensureDatabase()) {
+      const pool = getPool();
+      if (pool) {
+        await pool.query("select 1");
+      }
+      const { seedAdminFromEnv } = await import("./seed");
       await seedAdminFromEnv();
-      log('admin seed completed');
+      log("admin seed completed");
     } else {
-      log('skipping admin seed: no DB pool');
+      log("skipping admin seed: no DB pool");
     }
   } catch (e: any) {
     log(`admin seed skipped: ${e?.message || e}`);
