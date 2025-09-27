@@ -1,6 +1,6 @@
-import { storage } from "./storage";
+import { getStorage } from "./storage";
 import { hashPassword } from "./auth";
-import { db } from "./db";
+import { getDb } from "./db";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
@@ -9,11 +9,13 @@ export async function seedAdminFromEnv() {
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) return;
 
+  const db = getDb();
   if (!db) {
     console.warn("Skipping admin seed: database connection unavailable");
     return;
   }
 
+  const storage = getStorage();
   const existing = await storage.getUserByEmail(email);
   if (!existing) {
     const username = email.split("@")[0];
