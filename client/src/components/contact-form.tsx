@@ -74,8 +74,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
   return (
     <div
       className={cn(
-        "rounded-xl",
-        variant === "default" && "bg-white p-8 shadow-sm"
+        variant === "default" ? "bg-white p-8 rounded-xl shadow-sm" : ""
       )}
       data-testid="contact-form-container"
     >
