@@ -4,7 +4,19 @@ const { Pool } = pkg;
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from '@shared/schema';
 
-const rawDbUrl = process.env.DATABASE_URL || "";
+declare const Netlify: undefined | { env?: { get(name: string): string | undefined } };
+
+function getEnvVar(name: string): string {
+  if (typeof Netlify !== "undefined" && Netlify?.env?.get) {
+    const value = Netlify.env.get(name);
+    if (value) {
+      return value;
+    }
+  }
+  return process.env[name] ?? "";
+}
+
+const rawDbUrl = getEnvVar("DATABASE_URL");
 const isValidDbUrl = /^postgres(ql)?:\/\//i.test(rawDbUrl);
 export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
 
