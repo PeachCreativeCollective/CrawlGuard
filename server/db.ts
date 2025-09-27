@@ -20,6 +20,10 @@ const rawDbUrl = getEnvVar("DATABASE_URL");
 const isValidDbUrl = /^postgres(ql)?:\/\//i.test(rawDbUrl);
 export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
 
+if (!hasDatabase) {
+  console.warn("[db] DATABASE_URL is missing or invalid; using in-memory storage");
+}
+
 function prepareConnectionString(url: string): string {
   try {
     const parsed = new URL(url);
