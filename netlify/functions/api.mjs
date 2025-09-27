@@ -164,24 +164,30 @@ export const handler = async (event, context) => {
     }
 
     // User endpoint (for checking authentication status)
-    if (apiPath === '/user' && httpMethod === 'GET') {
+    if ((apiPath === '/user' || apiPath === '/api/user' || path.includes('/user')) && httpMethod === 'GET') {
       return {
         statusCode: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Session management not available in serverless' })
+        body: JSON.stringify({ error: 'Session management not available in serverless environment' })
       };
     }
 
-    // Default response for unhandled routes
+    // Default response for unhandled routes - include full debug info
     return {
       statusCode: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         error: 'Endpoint not found',
-        originalPath: path,
-        parsedPath: apiPath,
-        method: httpMethod,
-        available_endpoints: ['/health', '/login (POST)', '/api/login (POST)']
+        debug: {
+          originalPath: path,
+          parsedPath: apiPath,
+          method: httpMethod,
+          rawUrl: rawUrl || 'not available',
+          queryParams: queryStringParameters || {},
+          headers: headers || {}
+        },
+        available_endpoints: ['/health', '/login (POST)', '/api/login (POST)', '/user (GET)', '/api/user (GET)'],
+        message: 'Check the debug info above to see exactly what was received'
       })
     };
     
