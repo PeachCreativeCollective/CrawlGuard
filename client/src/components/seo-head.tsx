@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import defaultOgImage from "@/assets/CG3_1755280257029.webp";
 
 interface SEOHeadProps {
   title?: string;
@@ -18,7 +19,7 @@ export function SEOHead({
   canonicalUrl = "https://crawlguardllc.com",
   ogTitle,
   ogDescription,
-  ogImage = "https://crawlguardllc.com/og-image.jpg",
+  ogImage = defaultOgImage,
   structuredData
 }: SEOHeadProps) {
   return (
