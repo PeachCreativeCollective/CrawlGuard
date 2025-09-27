@@ -93,7 +93,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-14 items-start">
             <div className="hero-content-slide-right">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 md:mb-6 leading-tight hero-title-fade" data-testid="hero-title">
                 Expert Crawl Space <span className="text-crawlguard-primary">Waterproofing</span> in Asheville, NC
@@ -145,7 +145,7 @@ export default function Home() {
               </div>
             </div>
             <div className="hero-content-slide-right">
-              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/40">
+              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/40 w-full">
                 <h2 className="text-2xl font-bold text-crawlguard-dark mb-2">Request Your Inspection</h2>
                 <p className="text-gray-600 mb-6">
                   Fast response from Asheville waterproofing specialists. Tell us about your moisture concern and we will reach out within one business day.
