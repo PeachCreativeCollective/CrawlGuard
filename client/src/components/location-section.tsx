@@ -16,7 +16,7 @@ export function LocationSection({ className }: LocationSectionProps) {
               CrawlGuard LLC
             </h2>
             <p className="text-lg text-gray-600">
-              Trusted crawl space and basement waterproofing experts serving Asheville and the surrounding Western North Carolina communities.
+              Trusted crawl space and basement waterproofing experts serving the greater Asheville metro, Henderson and Haywood counties, and Western North Carolina communities.
             </p>
             <div className="space-y-4">
               <div className="flex items-start space-x-3" data-testid="location-address">
