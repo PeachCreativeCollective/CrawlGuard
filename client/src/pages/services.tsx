@@ -26,6 +26,7 @@ export default function Services() {
         title="Waterproofing Services - CrawlGuard LLC Asheville, NC"
         description="Professional crawl space encapsulation, basement waterproofing, mold remediation, and moisture control services in Asheville, NC. Free estimates available."
         keywords="crawl space encapsulation, basement waterproofing, mold remediation, vapor barriers, sump pumps, French drains, Asheville NC"
+        canonicalUrl="https://crawlguardllc.com/services"
       />
 
       {/* Hero Section */}
