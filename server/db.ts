@@ -7,6 +7,31 @@ const rawDbUrl = process.env.DATABASE_URL || "";
 const isValidDbUrl = /^postgres(ql)?:\/\//i.test(rawDbUrl);
 export const hasDatabase = Boolean(rawDbUrl) && isValidDbUrl;
 
+function prepareConnectionString(url: string): string {
+  try {
+    const parsed = new URL(url);
+
+    // Ensure Supabase pooler connections include project routing
+    if (parsed.hostname.includes("pooler.supabase.com") && !parsed.searchParams.has("options")) {
+      const username = parsed.username || "";
+      const segments = username.split(".");
+      const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
+
+      if (projectRef) {
+        parsed.searchParams.set("options", `project=${projectRef}`);
+      }
+    }
+
+    if (!parsed.searchParams.has("sslmode")) {
+      parsed.searchParams.set("sslmode", "require");
+    }
+
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 export let pool: Pool | null = null;
 export let db: ReturnType<typeof drizzle> | null = null;
 
@@ -15,9 +40,11 @@ if (hasDatabase) {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
   }
 
+  const connectionString = prepareConnectionString(rawDbUrl);
+
   // Supabase Postgres requires SSL in most environments
   pool = new Pool({
-    connectionString: rawDbUrl,
+    connectionString,
     max: 10,
     ssl: {
       rejectUnauthorized: false,
