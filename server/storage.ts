@@ -64,6 +64,14 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private get db() {
+    const database = getDatabase();
+    if (!database) {
+      throw new Error("Database connection is not configured");
+    }
+    return database;
+  }
+
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db!.select().from(users).where(eq(users.id, id));
     return user || undefined;
