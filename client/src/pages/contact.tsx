@@ -134,6 +134,8 @@ export default function Contact() {
         </div>
       </section>
 
+      <LocationSection className="bg-crawlguard-light/70" />
+
       {/* Service Areas */}
       <section className="py-20 bg-crawlguard-light" data-testid="service-areas">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
