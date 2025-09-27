@@ -120,6 +120,7 @@ export default function Gallery() {
         title="Project Gallery - CrawlGuard LLC Waterproofing Work in Asheville, NC"
         description="View our waterproofing project gallery showcasing crawl space encapsulation, basement waterproofing, and foundation protection work in Asheville, NC."
         keywords="waterproofing gallery, before after photos, crawl space projects, basement waterproofing examples, Asheville NC"
+        canonicalUrl="https://crawlguardllc.com/gallery"
       />
 
       {/* Hero Section */}
