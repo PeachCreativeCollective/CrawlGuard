@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "wouter";
 
 interface ServiceCardProps {
   title: string;
@@ -8,7 +9,7 @@ interface ServiceCardProps {
   href?: string;
 }
 
-export function ServiceCard({ title, description, icon: Icon, href = "#" }: ServiceCardProps) {
+export function ServiceCard({ title, description, icon: Icon, href = "/services" }: ServiceCardProps) {
   return (
     <Card className="bg-crawlguard-light hover:shadow-lg transition-shadow h-full" data-testid={`service-card-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <CardContent className="p-8">
@@ -21,13 +22,13 @@ export function ServiceCard({ title, description, icon: Icon, href = "#" }: Serv
         <p className="text-gray-600 mb-4" data-testid="service-description">
           {description}
         </p>
-        <a 
+        <Link
           href={href}
           className="text-crawlguard-primary font-semibold hover:underline"
           data-testid="service-link"
         >
           Learn More →
-        </a>
+        </Link>
       </CardContent>
     </Card>
   );
