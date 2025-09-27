@@ -18,18 +18,12 @@ function prepareConnectionString(url: string): string {
       const role = segments[0] ?? username;
       const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
 
-      parsed.username = role;
-
-      if (projectRef && !parsed.searchParams.has("options")) {
-        parsed.searchParams.set("options", `project=${projectRef}`);
-      }
-
-      if (!parsed.searchParams.has("pgbouncer")) {
-        parsed.searchParams.set("pgbouncer", "true");
-      }
-
-      if (!parsed.searchParams.has("connection_limit")) {
-        parsed.searchParams.set("connection_limit", "1");
+      if (projectRef) {
+        parsed.hostname = `db.${projectRef}.supabase.co`;
+        parsed.port = "5432";
+        parsed.username = role;
+        parsed.search = "";
+        parsed.searchParams.set("sslmode", "require");
       }
     }
 
