@@ -93,25 +93,25 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             <div className="hero-content-slide-right">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 md:mb-6 leading-tight hero-title-fade" data-testid="hero-title">
                 Expert Crawl Space <span className="text-crawlguard-primary">Waterproofing</span> in Asheville, NC
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-white mb-4 sm:mb-6 md:mb-8 leading-relaxed hero-description-fade" data-testid="hero-description">
-                Protect your home from water damage, mold, and moisture with our professional waterproofing solutions. 
+                Protect your home from water damage, mold, and moisture with our professional waterproofing solutions.
                 Serving Asheville and surrounding areas with reliable, long-lasting results.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 hero-buttons-fade">
-                <Button 
-                  asChild 
+                <Button
+                  asChild
                   size="lg"
                   className="bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold transform transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                   data-testid="hero-cta-primary"
                 >
                   <Link href="/contact">Get Free Estimate</Link>
                 </Button>
-                <Button 
+                <Button
                   asChild
                   variant="outline"
                   size="lg"
@@ -127,14 +127,14 @@ export default function Home() {
               <div className="mt-6 sm:mt-8 flex flex-wrap gap-4 sm:gap-6 text-sm text-white hero-features-fade">
                 {[
                   "Free Consultations",
-                  "Licensed & Insured", 
+                  "Licensed & Insured",
                   "Local Experts"
                 ].map((feature, index) => (
-                  <div 
-                    key={feature} 
+                  <div
+                    key={feature}
                     className="flex items-center hero-feature-item"
-                    style={{ 
-                      animationDelay: `${1.0 + index * 0.1}s` 
+                    style={{
+                      animationDelay: `${1.0 + index * 0.1}s`
                     }}
                     data-testid={`feature-${feature.toLowerCase().replace(/\s+/g, '-')}`}
                   >
@@ -142,6 +142,15 @@ export default function Home() {
                     {feature}
                   </div>
                 ))}
+              </div>
+            </div>
+            <div className="hero-content-slide-right">
+              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/40">
+                <h2 className="text-2xl font-bold text-crawlguard-dark mb-2">Request Your Inspection</h2>
+                <p className="text-gray-600 mb-6">
+                  Fast response from Asheville waterproofing specialists. Tell us about your moisture concern and we will reach out within one business day.
+                </p>
+                <ContactForm />
               </div>
             </div>
           </div>
