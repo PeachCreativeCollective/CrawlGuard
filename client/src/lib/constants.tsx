@@ -66,18 +66,24 @@ export const TESTIMONIALS = [
     name: "Sarah M.",
     location: "Asheville, NC",
     rating: 5,
-    text: "CrawlGuard did an excellent job waterproofing our basement. The team was professional, punctual, and the work quality exceeded our expectations. No more water issues!"
+    text: "CrawlGuard did an excellent job waterproofing our basement. The team was professional, punctual, and the work quality exceeded our expectations. No more water issues!",
+    sourceLabel: "Facebook Reviews",
+    sourceUrl: "https://www.facebook.com/421107257763173/reviews/"
   },
   {
     name: "Mike T.",
     location: "Marshall, NC",
     rating: 5,
-    text: "Outstanding service! They encapsulated our crawl space and the difference is amazing. Our home feels more comfortable and energy efficient. Highly recommend CrawlGuard!"
+    text: "Outstanding service! They encapsulated our crawl space and the difference is amazing. Our home feels more comfortable and energy efficient. Highly recommend CrawlGuard!",
+    sourceLabel: "Facebook Reviews",
+    sourceUrl: "https://www.facebook.com/421107257763173/reviews/"
   },
   {
     name: "Jennifer L.",
     location: "Weaverville, NC",
     rating: 5,
-    text: "Professional, reliable, and affordable. CrawlGuard solved our moisture problem completely. The team explained everything clearly and delivered exactly what they promised."
+    text: "Professional, reliable, and affordable. CrawlGuard solved our moisture problem completely. The team explained everything clearly and delivered exactly what they promised.",
+    sourceLabel: "Facebook Reviews",
+    sourceUrl: "https://www.facebook.com/421107257763173/reviews/"
   }
 ];
