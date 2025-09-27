@@ -1,4 +1,3 @@
-import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowUpRight, Star } from "lucide-react";
 
