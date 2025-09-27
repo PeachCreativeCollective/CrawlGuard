@@ -6,8 +6,8 @@ let appInstance = null;
 async function createApp() {
   if (appInstance) return appInstance;
   
-  // Dynamic import for routes
-  const { registerRoutes } = await import('../../server/routes.js');
+  // Dynamic import for routes - use compiled version in production
+  const { registerRoutes } = await import('../../dist/server/routes.js');
   
   const app = express();
   app.use(express.json());
