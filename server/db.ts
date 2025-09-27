@@ -12,13 +12,24 @@ function prepareConnectionString(url: string): string {
     const parsed = new URL(url);
 
     // Ensure Supabase pooler connections include project routing
-    if (parsed.hostname.includes("pooler.supabase.com") && !parsed.searchParams.has("options")) {
+    if (parsed.hostname.includes("pooler.supabase.com")) {
       const username = parsed.username || "";
       const segments = username.split(".");
+      const role = segments[0] ?? username;
       const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
 
-      if (projectRef) {
+      parsed.username = role;
+
+      if (projectRef && !parsed.searchParams.has("options")) {
         parsed.searchParams.set("options", `project=${projectRef}`);
+      }
+
+      if (!parsed.searchParams.has("pgbouncer")) {
+        parsed.searchParams.set("pgbouncer", "true");
+      }
+
+      if (!parsed.searchParams.has("connection_limit")) {
+        parsed.searchParams.set("connection_limit", "1");
       }
     }
 
