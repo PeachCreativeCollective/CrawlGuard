@@ -1,9 +1,11 @@
 import pg from 'pg';
+import pg from 'pg';
 import { scrypt, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
 const { Client } = pg;
 const scryptAsync = promisify(scrypt);
+const databaseUrl = process.env.DATABASE_URL || '';
 
 const prepareConnectionString = (url) => {
   try {
@@ -16,7 +18,7 @@ const prepareConnectionString = (url) => {
       const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
 
       if (projectRef) {
-        parsed.hostname = `db.${projectRef}.supabase.co`;
+        parsed.hostname = 'db.' + projectRef + '.supabase.co';
         parsed.port = '5432';
         parsed.username = role;
         parsed.search = '';
@@ -29,18 +31,19 @@ const prepareConnectionString = (url) => {
     }
 
     return parsed.toString();
-  } catch {
+  } catch (error) {
+    console.error('Failed to prepare connection string:', error);
     return url;
   }
 };
 
 // Database connection
 const createDbClient = () => {
-  if (!process.env.DATABASE_URL) {
+  if (!databaseUrl) {
     throw new Error('DATABASE_URL is not configured');
   }
 
-  const connectionString = prepareConnectionString(process.env.DATABASE_URL);
+  const connectionString = prepareConnectionString(databaseUrl);
   const sslConfig = connectionString.includes('supabase.co')
     ? { rejectUnauthorized: false }
     : false;
