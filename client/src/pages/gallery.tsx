@@ -170,11 +170,13 @@ export default function Gallery() {
                     onClick={() => setSelectedImage(image)}
                     data-testid={`gallery-image-${image.id}`}
                   >
-                    <img 
+                    <img
                       src={image.src}
                       alt={image.alt}
                       className="w-full h-64 object-cover rounded-lg shadow-md group-hover:shadow-xl transition-shadow"
                       data-testid={`image-${image.id}`}
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="mt-3">
                       <h3 className="font-semibold text-crawlguard-dark" data-testid={`title-${image.id}`}>
@@ -188,10 +190,12 @@ export default function Gallery() {
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[90vh]" data-testid={`modal-${image.id}`}>
                   <div className="space-y-4">
-                    <img 
+                    <img
                       src={image.src}
                       alt={image.alt}
                       className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div>
                       <h3 className="text-xl font-semibold text-crawlguard-dark">
@@ -254,11 +258,13 @@ export default function Gallery() {
               </div>
             </div>
             <div>
-              <img 
+              <img
                 src={cg9Image}
                 alt="Completed CrawlGuard waterproofing project showing protected crawl space"
                 className="rounded-xl shadow-lg w-full h-auto"
                 data-testid="transformation-image"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
