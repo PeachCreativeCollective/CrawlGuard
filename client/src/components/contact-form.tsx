@@ -24,7 +24,11 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
-export function ContactForm() {
+interface ContactFormProps {
+  variant?: "default" | "compact";
+}
+
+export function ContactForm({ variant = "default" }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
