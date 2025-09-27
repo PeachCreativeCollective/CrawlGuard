@@ -296,12 +296,14 @@ export const handler = async (event, context) => {
 
       } catch (error) {
         console.error('Contact form error:', error);
+        const debugMessage = error instanceof Error ? error.message : String(error);
         return {
           statusCode: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             success: false,
-            message: "Sorry, there was a problem submitting your request. Please try again or call us directly."
+            message: "Sorry, there was a problem submitting your request. Please try again or call us directly.",
+            debug: debugMessage,
           })
         };
       }
