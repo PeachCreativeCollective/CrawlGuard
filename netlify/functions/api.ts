@@ -1,12 +1,33 @@
 import serverlessHttp from "serverless-http";
-import { createApp } from "../../server/app";
 
 const FUNCTION_PREFIX = "/.netlify/functions/api";
 
 let cachedHandler: ReturnType<typeof serverlessHttp> | null = null;
 
+type NetlifyEnv = {
+  get(name: string): string | undefined;
+};
+
+declare const Netlify: undefined | { env?: NetlifyEnv };
+
+function hydrateProcessEnvFromNetlify() {
+  if (typeof Netlify === "undefined" || !Netlify?.env?.get) {
+    return;
+  }
+
+  const keys = ["DATABASE_URL", "ADMIN_EMAIL", "ADMIN_PASSWORD", "SESSION_SECRET"] as const;
+  for (const key of keys) {
+    const value = Netlify.env.get(key);
+    if (value && value !== "undefined" && (!process.env[key] || process.env[key] === "")) {
+      process.env[key] = value;
+    }
+  }
+}
+
 async function getHandler() {
   if (!cachedHandler) {
+    hydrateProcessEnvFromNetlify();
+    const { createApp } = await import("../../server/app");
     const app = await createApp();
     cachedHandler = serverlessHttp(app);
   }
