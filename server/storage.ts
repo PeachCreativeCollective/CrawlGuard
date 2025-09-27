@@ -464,4 +464,19 @@ class MemoryStorage implements IStorage {
   async deleteGalleryImage(id: string) { this.gallery = this.gallery.filter(g => g.id !== id); }
 }
 
-export const storage: IStorage = hasDatabase ? new DatabaseStorage() : new MemoryStorage();
+let storageInstance: IStorage | null = null;
+
+export function getStorage(): IStorage {
+  if (storageInstance) {
+    return storageInstance;
+  }
+
+  if (ensureDatabase()) {
+    storageInstance = new DatabaseStorage();
+  } else {
+    console.warn("[storage] Using in-memory storage backend");
+    storageInstance = new MemoryStorage();
+  }
+
+  return storageInstance;
+}
