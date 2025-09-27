@@ -72,10 +72,20 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
   };
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-sm" data-testid="contact-form-container">
+    <div
+      className={cn(
+        "rounded-xl",
+        variant === "default" && "bg-white p-8 shadow-sm"
+      )}
+      data-testid="contact-form-container"
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" data-testid="contact-form">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className={cn("space-y-6", variant === "compact" && "space-y-4")}
+          data-testid="contact-form"
+        >
+          <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", variant === "compact" && "gap-4")}>
             <FormField
               control={form.control}
               name="name"
