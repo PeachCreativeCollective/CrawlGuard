@@ -2,9 +2,9 @@ import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEOHead } from "@/components/seo-head";
-import { ServiceCard } from "@/components/service-card";
-import { SERVICES } from "@/lib/constants";
+import { BUSINESS_INFO, SERVICES } from "@/lib/constants";
 import { Link } from "wouter";
+import { CheckCircle } from "lucide-react";
 import * as Icons from "lucide-react";
 
 export default function Services() {
