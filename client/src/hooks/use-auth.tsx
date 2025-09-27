@@ -84,8 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // In serverless mode, just clear local storage
-      return Promise.resolve();
+      await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
       setUser(null);
