@@ -266,6 +266,36 @@ export const handler = async (event, context) => {
       }
     }
 
+    // Contact submissions endpoint (admin)
+    const isContactSubmissionsEndpoint = (
+      apiPath === '/contact-submissions' ||
+      apiPath === '/api/contact-submissions'
+    ) && httpMethod === 'GET';
+
+    if (isContactSubmissionsEndpoint) {
+      return {
+        statusCode: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Authentication required - admin endpoints not available in serverless mode' })
+      };
+    }
+
+    // Leads endpoint (admin)
+    const isLeadsEndpoint = (
+      apiPath === '/leads' ||
+      apiPath === '/api/leads' ||
+      apiPath.startsWith('/leads/') ||
+      apiPath.startsWith('/api/leads/')
+    );
+
+    if (isLeadsEndpoint) {
+      return {
+        statusCode: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Authentication required - admin endpoints not available in serverless mode' })
+      };
+    }
+
     // User endpoint (for checking authentication status)
     if ((apiPath === '/user' || apiPath === '/api/user' || path.includes('/user')) && httpMethod === 'GET') {
       return {
@@ -289,7 +319,17 @@ export const handler = async (event, context) => {
           queryParams: queryStringParameters || {},
           headers: headers || {}
         },
-        available_endpoints: ['/health', '/login (POST)', '/api/login (POST)', '/contact (POST)', '/api/contact (POST)', '/user (GET)', '/api/user (GET)'],
+        available_endpoints: [
+          '/health',
+          '/login (POST)',
+          '/api/login (POST)',
+          '/contact (POST)',
+          '/api/contact (POST)',
+          '/user (GET)',
+          '/api/user (GET)',
+          '/contact-submissions (GET) - requires auth',
+          '/leads (GET/POST/PATCH/DELETE) - requires auth'
+        ],
         message: 'Check the debug info above to see exactly what was received'
       })
     };
