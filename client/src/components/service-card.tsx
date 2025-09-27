@@ -1,4 +1,3 @@
-import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "wouter";
