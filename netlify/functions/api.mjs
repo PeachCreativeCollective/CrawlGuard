@@ -155,10 +155,11 @@ export const handler = async (event, context) => {
       return {
         statusCode: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          status: 'ok', 
+        body: JSON.stringify({
+          status: 'ok',
           message: 'API is running',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          databaseConfigured: Boolean(databaseUrl),
         })
       };
     }
