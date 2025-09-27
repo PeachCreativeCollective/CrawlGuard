@@ -68,7 +68,7 @@ export const TESTIMONIALS = [
     rating: 5,
     text: "CrawlGuard did an excellent job waterproofing our basement. The team was professional, punctual, and the work quality exceeded our expectations. No more water issues!",
     sourceLabel: "Facebook Reviews",
-    sourceUrl: "https://www.facebook.com/421107257763173/reviews/"
+    sourceUrl: "https://www.facebook.com/421107257763173/reviews/",
   },
   {
     name: "Mike T.",
@@ -76,7 +76,7 @@ export const TESTIMONIALS = [
     rating: 5,
     text: "Outstanding service! They encapsulated our crawl space and the difference is amazing. Our home feels more comfortable and energy efficient. Highly recommend CrawlGuard!",
     sourceLabel: "Facebook Reviews",
-    sourceUrl: "https://www.facebook.com/421107257763173/reviews/"
+    sourceUrl: "https://www.facebook.com/421107257763173/reviews/",
   },
   {
     name: "Jennifer L.",
