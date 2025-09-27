@@ -1,10 +1,41 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
-  if (!res.ok) {
-    const text = (await res.clone().text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+  if (res.ok) {
+    return;
   }
+
+  let message = res.statusText || "Request failed";
+
+  if (!res.bodyUsed) {
+    try {
+      const clone = res.clone();
+      const contentType = clone.headers.get("content-type") ?? "";
+
+      if (contentType.includes("application/json")) {
+        const data = await clone.json();
+        if (typeof data === "string") {
+          message = data;
+        } else if (data && typeof data === "object") {
+          const { message: dataMessage } = data as { message?: unknown };
+          if (typeof dataMessage === "string" && dataMessage.trim().length > 0) {
+            message = dataMessage;
+          } else {
+            message = JSON.stringify(data);
+          }
+        }
+      } else {
+        const text = await clone.text();
+        if (text.trim().length > 0) {
+          message = text;
+        }
+      }
+    } catch (error) {
+      message = res.statusText || "Request failed";
+    }
+  }
+
+  throw new Error(`${res.status}: ${message}`);
 }
 
 export async function apiRequest(
