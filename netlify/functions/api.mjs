@@ -1,5 +1,4 @@
 import { Client } from 'pg';
-import { Client } from 'pg';
 import { scrypt, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
