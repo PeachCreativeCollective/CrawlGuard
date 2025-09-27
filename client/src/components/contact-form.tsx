@@ -230,16 +230,19 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
             )}
           />
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isSubmitting}
-            className="w-full bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold text-lg py-4"
+            className={cn(
+              "w-full bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold text-lg py-4",
+              variant === "compact" && "text-base py-3"
+            )}
             data-testid="button-submit"
           >
             {isSubmitting ? "Sending..." : "Send Message & Schedule Estimate"}
           </Button>
-          
-          <p className="text-sm text-gray-500 text-center">
+
+          <p className={cn("text-sm text-gray-500 text-center", variant === "compact" && "text-xs")}>
             This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.
           </p>
         </form>
