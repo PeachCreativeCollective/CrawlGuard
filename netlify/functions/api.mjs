@@ -32,6 +32,39 @@ async function getUserByEmail(client, email) {
   return result.rows[0] || null;
 }
 
+// Create contact submission
+async function createContactSubmission(client, data) {
+  const { name, email, phone, address, zipCode, service, message } = data;
+
+  const result = await client.query(`
+    INSERT INTO contact_submissions
+    (id, name, email, phone, address, zip_code, service, message, created_at)
+    VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, NOW())
+    RETURNING *
+  `, [name, email, phone || null, address || null, zipCode, service || null, message || null]);
+
+  return result.rows[0];
+}
+
+// Simple validation for contact form
+function validateContactSubmission(data) {
+  const errors = [];
+
+  if (!data.name || data.name.length < 2) {
+    errors.push({ field: 'name', message: 'Name must be at least 2 characters' });
+  }
+
+  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    errors.push({ field: 'email', message: 'Please enter a valid email address' });
+  }
+
+  if (!data.zipCode || data.zipCode.length < 5) {
+    errors.push({ field: 'zipCode', message: 'Zip code must be at least 5 characters' });
+  }
+
+  return errors;
+}
+
 export const handler = async (event, context) => {
   // Log the entire event for debugging
   console.log('Netlify function called with event:', JSON.stringify(event, null, 2));
@@ -163,6 +196,76 @@ export const handler = async (event, context) => {
       }
     }
 
+    // Contact form submission endpoint
+    const isContactEndpoint = (
+      apiPath === '/contact' ||
+      apiPath === '/api/contact' ||
+      path.includes('/contact')
+    ) && httpMethod === 'POST';
+
+    if (isContactEndpoint) {
+      if (!body) {
+        return {
+          statusCode: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            success: false,
+            message: 'Request body is required'
+          })
+        };
+      }
+
+      try {
+        const data = JSON.parse(body);
+
+        // Validate the contact form data
+        const validationErrors = validateContactSubmission(data);
+        if (validationErrors.length > 0) {
+          return {
+            statusCode: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: false,
+              message: 'Please check all required fields.',
+              errors: validationErrors
+            })
+          };
+        }
+
+        // Connect to database and create submission
+        const client = createDbClient();
+        try {
+          await client.connect();
+
+          const submission = await createContactSubmission(client, data);
+
+          return {
+            statusCode: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              message: "Thank you for your inquiry! We'll contact you within 24 hours.",
+              id: submission.id
+            })
+          };
+
+        } finally {
+          await client.end();
+        }
+
+      } catch (error) {
+        console.error('Contact form error:', error);
+        return {
+          statusCode: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            success: false,
+            message: "Sorry, there was a problem submitting your request. Please try again or call us directly."
+          })
+        };
+      }
+    }
+
     // User endpoint (for checking authentication status)
     if ((apiPath === '/user' || apiPath === '/api/user' || path.includes('/user')) && httpMethod === 'GET') {
       return {
@@ -186,7 +289,7 @@ export const handler = async (event, context) => {
           queryParams: queryStringParameters || {},
           headers: headers || {}
         },
-        available_endpoints: ['/health', '/login (POST)', '/api/login (POST)', '/user (GET)', '/api/user (GET)'],
+        available_endpoints: ['/health', '/login (POST)', '/api/login (POST)', '/contact (POST)', '/api/contact (POST)', '/user (GET)', '/api/user (GET)'],
         message: 'Check the debug info above to see exactly what was received'
       })
     };
