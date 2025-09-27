@@ -73,18 +73,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db!.select().from(users).where(eq(users.id, id));
+    const [user] = await this.db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db!.select().from(users).where(eq(users.username, username));
+    const [user] = await this.db.select().from(users).where(eq(users.username, username));
     return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const normalized = email.toLowerCase();
-    const [user] = await db!
+    const [user] = await this.db
       .select()
       .from(users)
       .where(sql`lower(${users.email}) = ${normalized}`);
@@ -98,7 +98,7 @@ export class DatabaseStorage implements IStorage {
       isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
     } as any;
 
-    const [user] = await db!
+    const [user] = await this.db
       .insert(users)
       .values(userData)
       .returning();
@@ -106,26 +106,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db!.select().from(users);
+    return await this.db.select().from(users);
   }
 
   async deleteUser(id: string): Promise<void> {
-    await db!.delete(users).where(eq(users.id, id));
+    await this.db.delete(users).where(eq(users.id, id));
   }
 
   async updateUserPassword(id: string, password: string): Promise<void> {
     const { hashPassword } = await import("./auth");
     const hashedPassword = await hashPassword(password);
-    await db!.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
+    await this.db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
   }
 
   async getUserCount(): Promise<number> {
-    const result = await db!.select({ count: sql<number>`count(*)` }).from(users);
+    const result = await this.db.select({ count: sql<number>`count(*)` }).from(users);
     return result[0].count;
   }
 
   async createContactSubmission(insertSubmission: InsertContactSubmission): Promise<ContactSubmission> {
-    const [submission] = await db!
+    const [submission] = await this.db
       .insert(contactSubmissions)
       .values(insertSubmission)
       .returning();
@@ -133,7 +133,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
-    return await db!
+    return await this.db
       .select()
       .from(contactSubmissions)
       .orderBy(desc(contactSubmissions.createdAt));
@@ -144,7 +144,7 @@ export class DatabaseStorage implements IStorage {
     if (dbData.scheduledDate && typeof dbData.scheduledDate === "string") {
       dbData.scheduledDate = new Date(dbData.scheduledDate);
     }
-    const [lead] = await db!
+    const [lead] = await this.db
       .insert(leads)
       .values(dbData)
       .returning();
@@ -152,11 +152,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLeads(): Promise<Lead[]> {
-    return await db!.select().from(leads).orderBy(desc(leads.createdAt));
+    return await this.db.select().from(leads).orderBy(desc(leads.createdAt));
   }
 
   async getLeadById(id: string): Promise<Lead | undefined> {
-    const [lead] = await db!.select().from(leads).where(eq(leads.id, id));
+    const [lead] = await this.db.select().from(leads).where(eq(leads.id, id));
     return lead || undefined;
   }
 
@@ -165,7 +165,7 @@ export class DatabaseStorage implements IStorage {
     if (dbUpdates.scheduledDate && typeof dbUpdates.scheduledDate === "string") {
       dbUpdates.scheduledDate = new Date(dbUpdates.scheduledDate);
     }
-    const [lead] = await db!
+    const [lead] = await this.db
       .update(leads)
       .set(dbUpdates)
       .where(eq(leads.id, id))
@@ -174,11 +174,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteLead(id: string): Promise<void> {
-    await db!.delete(leads).where(eq(leads.id, id));
+    await this.db.delete(leads).where(eq(leads.id, id));
   }
 
   async getLeadsByStatus(status: string): Promise<Lead[]> {
-    return await db!
+    return await this.db
       .select()
       .from(leads)
       .where(eq(leads.status, status))
@@ -186,25 +186,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWorkingHours(userId: string): Promise<WorkingHours[]> {
-    return db!.select().from(workingHours).where(eq(workingHours.userId, userId));
+    return this.db.select().from(workingHours).where(eq(workingHours.userId, userId));
   }
 
   async upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours> {
-    const existingHours = await db!
+    const existingHours = await this.db
       .select()
       .from(workingHours)
       .where(and(eq(workingHours.userId, userId), eq(workingHours.dayOfWeek, dayOfWeek)))
       .limit(1);
 
     if (existingHours.length > 0) {
-      const [result] = await db!
+      const [result] = await this.db
         .update(workingHours)
         .set({ ...hours, updatedAt: new Date() })
         .where(and(eq(workingHours.userId, userId), eq(workingHours.dayOfWeek, dayOfWeek)))
         .returning();
       return result;
     } else {
-      const [result] = await db!
+      const [result] = await this.db
         .insert(workingHours)
         .values({ userId, dayOfWeek, ...hours, updatedAt: new Date() })
         .returning();
@@ -213,11 +213,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTimeBlocks(userId: string): Promise<TimeBlock[]> {
-    return db!.select().from(timeBlocks).where(eq(timeBlocks.userId, userId));
+    return this.db.select().from(timeBlocks).where(eq(timeBlocks.userId, userId));
   }
 
   async createTimeBlock(timeBlockData: InsertTimeBlock & { userId: string }): Promise<TimeBlock> {
-    const [result] = await db!
+    const [result] = await this.db
       .insert(timeBlocks)
       .values({
         ...timeBlockData,
@@ -244,7 +244,7 @@ export class DatabaseStorage implements IStorage {
       updateData.endDateTime =
         typeof updates.endDateTime === "string" ? new Date(updates.endDateTime) : updates.endDateTime;
     }
-    const [result] = await db!
+    const [result] = await this.db
       .update(timeBlocks)
       .set(updateData)
       .where(eq(timeBlocks.id, id))
@@ -253,18 +253,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteTimeBlock(id: string): Promise<void> {
-    await db!.delete(timeBlocks).where(eq(timeBlocks.id, id));
+    await this.db.delete(timeBlocks).where(eq(timeBlocks.id, id));
   }
 
   async getGalleryImages(): Promise<GalleryImage[]> {
-    return db!
+    return this.db
       .select()
       .from(galleryImages)
       .orderBy(desc(galleryImages.displayOrder), desc(galleryImages.createdAt));
   }
 
   async getPublishedGalleryImages(): Promise<GalleryImage[]> {
-    return db!
+    return this.db
       .select()
       .from(galleryImages)
       .where(eq(galleryImages.isPublished, true))
@@ -272,17 +272,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getGalleryImageById(id: string): Promise<GalleryImage | undefined> {
-    const [image] = await db!.select().from(galleryImages).where(eq(galleryImages.id, id));
+    const [image] = await this.db.select().from(galleryImages).where(eq(galleryImages.id, id));
     return image || undefined;
   }
 
   async createGalleryImage(imageData: InsertGalleryImage): Promise<GalleryImage> {
-    const [result] = await db!.insert(galleryImages).values(imageData).returning();
+    const [result] = await this.db.insert(galleryImages).values(imageData).returning();
     return result;
   }
 
   async updateGalleryImage(id: string, updates: UpdateGalleryImage): Promise<GalleryImage> {
-    const [result] = await db!
+    const [result] = await this.db
       .update(galleryImages)
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(galleryImages.id, id))
@@ -291,7 +291,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteGalleryImage(id: string): Promise<void> {
-    await db!.delete(galleryImages).where(eq(galleryImages.id, id));
+    await this.db.delete(galleryImages).where(eq(galleryImages.id, id));
   }
 }
 
