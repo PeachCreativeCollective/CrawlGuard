@@ -691,8 +691,14 @@ export default function Admin() {
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add Lead
                 </Button>
-                <Button 
-                  onClick={() => logoutMutation.mutate()}
+                <Button
+                  onClick={() =>
+                    logoutMutation.mutate(undefined, {
+                      onSuccess: () => {
+                        window.location.href = "/auth";
+                      },
+                    })
+                  }
                   variant="outline"
                   className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                   data-testid="button-logout"
