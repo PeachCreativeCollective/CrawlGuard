@@ -450,17 +450,6 @@ export default function Admin() {
     enabled: currentUser?.isAdmin === true
   });
 
-  // Logout mutation
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/logout", { method: "POST" });
-      if (!response.ok) throw new Error("Failed to logout");
-    },
-    onSuccess: () => {
-      window.location.href = "/auth";
-    }
-  });
-
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
