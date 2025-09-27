@@ -59,6 +59,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
           description: result.message,
         });
         form.reset();
+        queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
       } else {
         throw new Error(result.message);
       }
