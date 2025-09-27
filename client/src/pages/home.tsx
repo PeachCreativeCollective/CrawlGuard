@@ -146,12 +146,9 @@ export default function Home() {
               </div>
             </div>
             <div className="hero-content-slide-right">
-              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/40 w-full">
-                <h2 className="text-2xl font-bold text-crawlguard-dark mb-2">Request Your Inspection</h2>
-                <p className="text-gray-600 mb-6">
-                  Fast response from Asheville waterproofing specialists. Tell us about your moisture concern and we will reach out within one business day.
-                </p>
-                <ContactForm />
+              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-5 sm:p-6 border border-white/40 w-full">
+                <h2 className="text-2xl font-bold text-crawlguard-dark mb-4">Request Your Inspection</h2>
+                <ContactForm variant="compact" />
               </div>
             </div>
           </div>
