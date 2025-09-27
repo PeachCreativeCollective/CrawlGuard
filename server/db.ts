@@ -57,8 +57,9 @@ if (hasDatabase) {
   // Test connection once at startup for clearer diagnostics
   pool.query('select 1').then(() => {
     console.log('Database connection OK');
-  }).catch((err) => {
-    console.error('Database connection failed:', err?.message || err);
+  }).catch((err: unknown) => {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Database connection failed:', message);
   });
 } else {
   const reason = rawDbUrl
