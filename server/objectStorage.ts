@@ -121,17 +121,13 @@ export class ObjectStorageService {
 
   // Gets the upload URL for a gallery image.
   async getGalleryImageUploadURL(): Promise<string> {
-    const publicSearchPaths = this.getPublicObjectSearchPaths();
-    if (publicSearchPaths.length === 0) {
-      throw new Error("No public search paths configured");
-    }
-
+    const baseDir = this.resolveUploadBaseDir();
+    const normalizedBaseDir = baseDir.endsWith("/") ? baseDir.slice(0, -1) : baseDir;
     const imageId = randomUUID();
-    const fullPath = `${publicSearchPaths[0]}/gallery/${imageId}`;
+    const fullPath = `${normalizedBaseDir}/gallery/${imageId}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
-    // Sign URL for PUT method with TTL
     return signObjectURL({
       bucketName,
       objectName,
@@ -145,69 +141,58 @@ export class ObjectStorageService {
     if (!rawPath.startsWith("https://storage.googleapis.com/")) {
       return rawPath;
     }
-  
-    // Extract the path from the URL by removing query parameters and domain
+
     const url = new URL(rawPath);
     const rawObjectPath = url.pathname;
-  
-    const publicSearchPaths = this.getPublicObjectSearchPaths();
+
+    const publicSearchPaths = this.getPublicObjectPathsSafe();
     for (const searchPath of publicSearchPaths) {
-      if (rawObjectPath.startsWith(searchPath)) {
-        // Extract the file path relative to the search path
-        const relativePath = rawObjectPath.slice(searchPath.length + 1);
+      const normalizedSearchPath = searchPath.endsWith("/") ? searchPath : `${searchPath}/`;
+      if (rawObjectPath.startsWith(normalizedSearchPath)) {
+        const relativePath = rawObjectPath.slice(normalizedSearchPath.length);
         return `/public-objects/${relativePath}`;
       }
     }
-  
+
+    const privateDir = this.getOptionalPrivateObjectDir();
+    if (privateDir) {
+      const normalizedPrivateDir = privateDir.endsWith("/") ? privateDir : `${privateDir}/`;
+      if (rawObjectPath.startsWith(normalizedPrivateDir)) {
+        const relativePath = rawObjectPath.slice(normalizedPrivateDir.length);
+        return `/gallery/${relativePath}`;
+      }
+    }
+
     return rawObjectPath;
   }
 
-  // Gets the upload URL for a gallery image.
-  async getGalleryImageUploadURL(): Promise<string> {
-    const privateObjectDir = this.getPrivateObjectDir();
-    if (!privateObjectDir) {
+  private resolveUploadBaseDir(): string {
+    const privateDir = this.getOptionalPrivateObjectDir();
+    if (privateDir) {
+      return privateDir;
+    }
+
+    const publicPaths = this.getPublicObjectPathsSafe();
+    if (publicPaths.length === 0) {
       throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
-          "tool and set PRIVATE_OBJECT_DIR env var."
+        "No object storage paths configured. Set either PRIVATE_OBJECT_DIR or PUBLIC_OBJECT_SEARCH_PATHS."
       );
     }
 
-    const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/gallery/${objectId}`;
-
-    const { bucketName, objectName } = parseObjectPath(fullPath);
-
-    // Sign URL for PUT method with TTL
-    return signObjectURL({
-      bucketName,
-      objectName,
-      method: "PUT",
-      ttlSec: 900,
-    });
+    return publicPaths[0];
   }
 
-  // Normalizes gallery image path from upload URL to object path.
-  normalizeGalleryImagePath(rawPath: string): string {
-    if (!rawPath.startsWith("https://storage.googleapis.com/")) {
-      return rawPath;
-    }
-  
-    // Extract the path from the URL by removing query parameters and domain
-    const url = new URL(rawPath);
-    const rawObjectPath = url.pathname;
-  
-    let objectEntityDir = this.getPrivateObjectDir();
-    if (!objectEntityDir.endsWith("/")) {
-      objectEntityDir = `${objectEntityDir}/`;
-    }
-  
-    if (!rawObjectPath.startsWith(objectEntityDir)) {
-      return rawObjectPath;
-    }
+  private getOptionalPrivateObjectDir(): string | null {
+    const raw = (process.env.PRIVATE_OBJECT_DIR || "").trim();
+    return raw.length > 0 ? raw : null;
+  }
 
-    // Extract the entity ID from the path and return gallery path
-    const entityId = rawObjectPath.slice(objectEntityDir.length);
-    return `/gallery/${entityId}`;
+  private getPublicObjectPathsSafe(): string[] {
+    try {
+      return this.getPublicObjectSearchPaths();
+    } catch {
+      return [];
+    }
   }
 }
 
