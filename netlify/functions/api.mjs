@@ -52,12 +52,18 @@ export const handler = async (event, context) => {
     };
   }
 
-  // Parse the API route - handle both direct function calls and redirected paths
-  let apiPath = path.replace('/.netlify/functions/api', '');
+  // Parse the API route - handle multiple possible formats
+  let apiPath;
 
-  // Handle redirected paths from /api/* -> /.netlify/functions/api/*
-  if (apiPath.startsWith('/api/')) {
-    apiPath = apiPath.replace('/api', '');
+  if (path.includes('/.netlify/functions/api')) {
+    // Direct function call: /.netlify/functions/api/login -> /login
+    apiPath = path.replace('/.netlify/functions/api', '');
+  } else if (path.startsWith('/api/')) {
+    // Redirected call: /api/login -> /login
+    apiPath = path.replace('/api', '');
+  } else {
+    // Direct path: /login -> /login
+    apiPath = path;
   }
 
   // Ensure we have a leading slash
@@ -65,7 +71,7 @@ export const handler = async (event, context) => {
     apiPath = '/' + apiPath;
   }
 
-  console.log('Processing path:', path, '-> apiPath:', apiPath);
+  console.log('Processing request - Original path:', path, 'Parsed path:', apiPath, 'Method:', httpMethod);
   
   try {
     // Health check endpoint
