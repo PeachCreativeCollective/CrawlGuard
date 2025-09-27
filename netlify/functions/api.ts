@@ -1,5 +1,4 @@
 import serverlessHttp from "serverless-http";
-import type { HandlerEvent, HandlerContext } from "netlify/functions";
 import { createApp } from "../../server/app";
 
 const FUNCTION_PREFIX = "/.netlify/functions/api";
@@ -14,7 +13,19 @@ async function getHandler() {
   return cachedHandler;
 }
 
-function normalizeEvent(event: HandlerEvent): HandlerEvent {
+type NetlifyEvent = {
+  path?: string | null;
+  rawUrl?: string;
+  rawPath?: string;
+  [key: string]: any;
+};
+
+interface NetlifyContext {
+  callbackWaitsForEmptyEventLoop: boolean;
+  [key: string]: any;
+}
+
+function normalizeEvent(event: NetlifyEvent): NetlifyEvent {
   const normalized = { ...event };
   if (normalized.path?.startsWith(FUNCTION_PREFIX)) {
     const suffix = normalized.path.slice(FUNCTION_PREFIX.length) || "";
@@ -33,7 +44,7 @@ function normalizeEvent(event: HandlerEvent): HandlerEvent {
   return normalized;
 }
 
-export const handler = async (event: HandlerEvent, context: HandlerContext) => {
+export const handler = async (event: NetlifyEvent, context: NetlifyContext) => {
   context.callbackWaitsForEmptyEventLoop = false;
   const normalizedEvent = normalizeEvent(event);
   const handler = await getHandler();
