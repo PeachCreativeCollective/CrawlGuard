@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { CheckCircle, Phone, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ContactForm } from "@/components/contact-form";
 import { LocationSection } from "@/components/location-section";
 import { SEOHead } from "@/components/seo-head";
 import { ServiceCard } from "@/components/service-card";
