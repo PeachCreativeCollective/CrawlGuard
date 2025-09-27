@@ -43,6 +43,7 @@ import { GalleryManagement } from "@/components/gallery-management";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
