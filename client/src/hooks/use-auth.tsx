@@ -33,8 +33,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
+
+  React.useEffect(() => {
+    let isActive = true;
+
+    const syncSession = async () => {
+      try {
+        const res = await apiRequest("GET", "/api/user");
+        const currentUser = await res.json();
+        if (!isActive) return;
+
+        setUser(currentUser);
+        localStorage.setItem('crawlguard_user', JSON.stringify(currentUser));
+        setError(null);
+      } catch (err) {
+        if (!isActive) return;
+
+        setUser(null);
+        localStorage.removeItem('crawlguard_user');
+
+        if (err instanceof Error && !err.message.startsWith("401")) {
+          setError(err);
+        } else {
+          setError(null);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    syncSession();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginUser) => {
