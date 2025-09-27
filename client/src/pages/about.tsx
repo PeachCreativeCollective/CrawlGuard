@@ -13,6 +13,7 @@ export default function About() {
         title="About CrawlGuard LLC - Asheville, NC Waterproofing Experts"
         description="Learn about CrawlGuard LLC's mission, expertise, and commitment to protecting homes in Asheville, NC. Professional waterproofing services since 2008."
         keywords="CrawlGuard LLC, about us, waterproofing company, Asheville NC, local business, professional contractors"
+        canonicalUrl="https://crawlguardllc.com/about"
       />
 
       {/* Hero Section */}
