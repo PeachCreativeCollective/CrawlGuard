@@ -69,6 +69,8 @@ export default function Home() {
     return iconMap[iconName] || Icons.Home;
   };
 
+  const reviewsUrl = `${BUSINESS_INFO.socialMedia.facebook}/reviews/`;
+
   return (
     <>
       <SEOHead
@@ -217,22 +219,21 @@ export default function Home() {
             {TESTIMONIALS.map((testimonial) => (
               <TestimonialCard
                 key={testimonial.name}
-                name={testimonial.name}
-                location={testimonial.location}
-                rating={testimonial.rating}
-                text={testimonial.text}
+                {...testimonial}
               />
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <Link 
-              href="/contact"
+            <a
+              href={reviewsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-crawlguard-primary font-semibold text-lg hover:underline"
               data-testid="testimonials-cta"
             >
-              Read More Reviews →
-            </Link>
+              Read Verified Reviews →
+            </a>
           </div>
         </div>
       </section>
