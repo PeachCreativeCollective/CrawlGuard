@@ -15,7 +15,7 @@ if (hasDatabase) {
   pool = new Pool({
     connectionString: rawDbUrl,
     max: 10,
-    ssl: { rejectUnauthorized: false },
+    ssl: rawDbUrl.includes('supabase.com') ? { rejectUnauthorized: false } : false,
   });
   db = drizzle(pool, { schema });
   // Test connection once at startup for clearer diagnostics
