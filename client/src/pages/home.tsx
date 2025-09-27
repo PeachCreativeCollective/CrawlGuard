@@ -93,7 +93,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/60"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-14 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 xl:gap-14 items-start">
             <div className="hero-content-slide-right">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 md:mb-6 leading-tight hero-title-fade" data-testid="hero-title">
                 Expert Crawl Space <span className="text-crawlguard-primary">Waterproofing</span> in Asheville, NC
