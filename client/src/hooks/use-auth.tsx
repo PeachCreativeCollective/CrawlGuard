@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext } from "react";
+import * as React from "react";
 import {
   useQuery,
   useMutation,
@@ -22,14 +23,18 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useQuery<SelectUser | undefined, Error>({
-    queryKey: ["/api/user"],
-    retry: false,
+  // Use localStorage for user persistence in serverless environment
+  const [user, setUser] = React.useState<SelectUser | null>(() => {
+    try {
+      const savedUser = localStorage.getItem('crawlguard_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
   });
+
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginUser) => {
@@ -37,7 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+      setUser(user);
+      localStorage.setItem('crawlguard_user', JSON.stringify(user));
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
@@ -58,11 +64,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+      setUser(user);
+      localStorage.setItem('crawlguard_user', JSON.stringify(user));
       toast({
         title: "Account created!",
-        description: user.isAdmin 
-          ? "You are now the admin of this system." 
+        description: user.isAdmin
+          ? "You are now the admin of this system."
           : "Your account has been created successfully.",
       });
     },
@@ -77,10 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      // In serverless mode, just clear local storage
+      return Promise.resolve();
     },
     onSuccess: () => {
-      queryClient.setQueryData(["/api/user"], null);
+      setUser(null);
+      localStorage.removeItem('crawlguard_user');
       // Clear all cached data on logout
       queryClient.clear();
       toast({
@@ -100,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user: user ?? null,
+        user,
         isLoading,
         error,
         loginMutation,
