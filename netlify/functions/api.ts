@@ -1,5 +1,4 @@
 import serverlessHttp from "serverless-http";
-import serverlessHttp from "serverless-http";
 import { createApp } from "../../server/app";
 
 const FUNCTION_PREFIX = "/.netlify/functions/api";
