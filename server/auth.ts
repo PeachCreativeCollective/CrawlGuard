@@ -4,11 +4,11 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { getStorage } from "./storage";
 import { User as SelectUser, insertUserSchema, loginSchema } from "@shared/schema";
 import connectPg from "connect-pg-simple";
 import createMemoryStore from "memorystore";
-import { pool } from "./db";
+import { getPool } from "./db";
 
 declare global {
   namespace Express {
@@ -34,6 +34,8 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   const MemoryStore = createMemoryStore(session);
+  const pool = getPool();
+  const storage = getStorage();
   const usePgStore = Boolean(pool);
 
   const sessionSettings: session.SessionOptions = {
