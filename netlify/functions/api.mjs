@@ -33,7 +33,10 @@ async function getUserByEmail(client, email) {
 }
 
 export const handler = async (event, context) => {
-  const { httpMethod, path, body, headers } = event;
+  // Log the entire event for debugging
+  console.log('Netlify function called with event:', JSON.stringify(event, null, 2));
+
+  const { httpMethod, path, body, headers, rawUrl, queryStringParameters } = event;
   
   // CORS headers
   const corsHeaders = {
@@ -88,7 +91,14 @@ export const handler = async (event, context) => {
     }
 
     // Login endpoint - handle multiple possible path formats
-    if ((apiPath === '/login' || apiPath === '/api/login') && httpMethod === 'POST') {
+    const isLoginEndpoint = (
+      apiPath === '/login' ||
+      apiPath === '/api/login' ||
+      path.includes('/login') ||
+      (rawUrl && rawUrl.includes('/login'))
+    ) && httpMethod === 'POST';
+
+    if (isLoginEndpoint) {
       if (!body) {
         return {
           statusCode: 400,
