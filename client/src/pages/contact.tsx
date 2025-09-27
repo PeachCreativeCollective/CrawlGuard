@@ -1,6 +1,7 @@
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { SEOHead } from "@/components/seo-head";
 import { ContactForm } from "@/components/contact-form";
+import { LocationSection } from "@/components/location-section";
 import { BUSINESS_INFO } from "@/lib/constants";
 
 export default function Contact() {
