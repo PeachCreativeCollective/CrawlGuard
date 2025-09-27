@@ -2,7 +2,7 @@ import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { SEOHead } from "@/components/seo-head";
 import { ContactForm } from "@/components/contact-form";
 import { LocationSection } from "@/components/location-section";
-import { BUSINESS_INFO } from "@/lib/constants";
+import { BUSINESS_INFO, SERVICE_AREAS } from "@/lib/constants";
 
 export default function Contact() {
   return (
@@ -144,17 +144,13 @@ export default function Contact() {
               Serving These Areas
             </h2>
             <p className="text-lg text-gray-600" data-testid="service-areas-description">
-              Professional waterproofing services throughout Western North Carolina
+              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-            {[
-              "Asheville", "Marshall", "Mars Hill", "Weaverville", "Candler", "Hendersonville",
-              "Maggie Valley", "Burnsville", "Leicester", "Hot Springs", "Enka", "Woodfin",
-              "Fairview", "Walnut Creek", "Fletcher", "Arden"
-            ].map((area) => (
-              <div 
+            {SERVICE_AREAS.map((area) => (
+              <div
                 key={area}
                 className="bg-white p-4 rounded-lg text-center shadow-sm hover:shadow-md transition-shadow"
                 data-testid={`service-area-${area.toLowerCase().replace(/\s+/g, '-')}`}
