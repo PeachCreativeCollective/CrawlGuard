@@ -123,7 +123,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", variant === "compact" && "gap-4")}>
             <FormField
               control={form.control}
               name="zipCode"
