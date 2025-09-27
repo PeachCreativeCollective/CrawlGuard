@@ -32,6 +32,7 @@ interface ContactFormProps {
 export function ContactForm({ variant = "default" }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
