@@ -156,7 +156,7 @@ export default function Home() {
               Our Waterproofing Services
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="services-description">
-              Comprehensive solutions to protect your home from water damage, mold, and moisture issues throughout Western North Carolina.
+              Comprehensive solutions to protect your home from water damage, mold, and moisture issues across the greater Asheville metro and Western North Carolina.
             </p>
           </div>
 
@@ -182,10 +182,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-crawlguard-dark mb-4" data-testid="areas-title">
-              Serving Asheville & Surrounding Areas
+              Serving the Greater Asheville Metro
             </h2>
             <p className="text-lg text-gray-600" data-testid="areas-description">
-              Professional waterproofing services throughout Western North Carolina
+              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties
             </p>
           </div>
           
