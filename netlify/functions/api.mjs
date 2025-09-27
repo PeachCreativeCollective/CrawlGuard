@@ -81,8 +81,8 @@ export const handler = async (event, context) => {
       };
     }
 
-    // Login endpoint
-    if (apiPath === '/login' && httpMethod === 'POST') {
+    // Login endpoint - handle multiple possible path formats
+    if ((apiPath === '/login' || apiPath === '/api/login') && httpMethod === 'POST') {
       if (!body) {
         return {
           statusCode: 400,
@@ -160,11 +160,12 @@ export const handler = async (event, context) => {
     return {
       statusCode: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Endpoint not found',
-        path: apiPath,
+        originalPath: path,
+        parsedPath: apiPath,
         method: httpMethod,
-        available_endpoints: ['/health', '/login (POST)']
+        available_endpoints: ['/health', '/login (POST)', '/api/login (POST)']
       })
     };
     
