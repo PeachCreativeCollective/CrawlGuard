@@ -2,11 +2,24 @@ import serverless from 'serverless-http';
 import express from 'express';
 import { registerRoutes } from '../../server/routes.js';
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+let appInstance = null;
 
-// Setup routes
-await registerRoutes(app);
+async function createApp() {
+  if (appInstance) return appInstance;
 
-export const handler = serverless(app);
+  const app = express();
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
+
+  // Setup routes
+  await registerRoutes(app);
+
+  appInstance = app;
+  return app;
+}
+
+export const handler = async (event, context) => {
+  const app = await createApp();
+  const serverlessHandler = serverless(app);
+  return serverlessHandler(event, context);
+};
