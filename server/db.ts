@@ -87,13 +87,6 @@ function initializeDatabase(): boolean {
   }
 
   try {
-    neonConfig.fetchConnectionCache = true;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn("[db] Unable to enable Neon fetch cache:", message);
-  }
-
-  try {
     database = drizzle(connectionString, { schema });
 
     const neonClient = neon(connectionString);
