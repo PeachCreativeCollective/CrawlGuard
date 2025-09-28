@@ -53,7 +53,6 @@ function prepareConnectionString(url: string): string {
 }
 
 let pool: PgPool | null = null;
-let sqlClient: NeonQueryFunction<any, any> | null = null;
 let database: DatabaseInstance | null = null;
 let initialized = false;
 
