@@ -85,34 +85,77 @@ function initializeDatabase(): boolean {
     return database !== null;
   }
 
-  initialized = true;
-  const connectionString = resolveConnectionString();
-  if (!connectionString) {
+  const connectionCandidates = resolveConnectionStrings();
+  if (connectionCandidates.length === 0) {
+    pool = null;
+    database = null;
+    initialized = true;
     return false;
   }
 
-  pool = new Pool({
-    connectionString,
-    max: 10,
-    ssl: {
-      rejectUnauthorized: false,
-      checkServerIdentity: () => undefined,
-    },
-  });
+  let fallbackTriggered = false;
 
-  database = drizzle(pool, { schema });
+  const attempt = (index: number): boolean => {
+    if (index >= connectionCandidates.length) {
+      return false;
+    }
 
-  pool
-    .query("select 1")
-    .then(() => {
-      console.log("[db] Connection established");
-    })
-    .catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error("[db] Connection test failed:", message);
-    });
+    const connectionString = connectionCandidates[index];
 
-  return true;
+    try {
+      const candidatePool = new Pool({
+        connectionString,
+        max: 10,
+        ssl: {
+          rejectUnauthorized: false,
+          checkServerIdentity: () => undefined,
+        },
+      });
+
+      const candidateDb = drizzle(candidatePool, { schema });
+
+      candidatePool
+        .query("select 1")
+        .then(() => {
+          console.log(`[db] Connection established (strategy ${index + 1}/${connectionCandidates.length})`);
+        })
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err);
+          console.error(`[db] Connection test failed (strategy ${index + 1}):`, message);
+
+          if (!fallbackTriggered && index + 1 < connectionCandidates.length) {
+            fallbackTriggered = true;
+            candidatePool.end().catch(() => {});
+            pool = null;
+            database = null;
+            initialized = false;
+
+            const fallbackSuccess = attempt(index + 1);
+            if (!fallbackSuccess) {
+              console.error("[db] All database connection attempts failed");
+            }
+          }
+        });
+
+      pool = candidatePool;
+      database = candidateDb;
+      initialized = true;
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[db] Failed to initialize database (strategy ${index + 1}):`, message);
+      return attempt(index + 1);
+    }
+  };
+
+  const success = attempt(0);
+  if (!success) {
+    pool = null;
+    database = null;
+    initialized = true;
+  }
+
+  return success;
 }
 
 export function ensureDatabase(): boolean {
