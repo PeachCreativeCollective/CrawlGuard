@@ -1,12 +1,12 @@
-import pkg from "pg";
+import { Pool } from "pg";
 import type { Pool as PgPool } from "pg";
-const { Pool } = pkg;
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { neon, neonConfig, type NeonQueryFunction } from "@neondatabase/serverless";
+import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "@shared/schema";
 
 declare const Netlify: undefined | { env?: { get(name: string): string | undefined } };
 
-type DatabaseInstance = NodePgDatabase<typeof schema>;
+type DatabaseInstance = NeonDatabase<typeof schema>;
 
 type EnvAccessor = {
   get(name: string): string | undefined;
