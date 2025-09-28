@@ -1,16 +1,12 @@
-import pg from "pg";
+import pkg from "pg";
 import type { Pool as PgPool } from "pg";
-const { Pool } = pg;
-import { neon, neonConfig } from "@neondatabase/serverless";
-import ws from "ws";
-import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
+const { Pool } = pkg;
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
-
-neonConfig.webSocketConstructor = ws as unknown as typeof WebSocket;
 
 declare const Netlify: undefined | { env?: { get(name: string): string | undefined } };
 
-type DatabaseInstance = NeonDatabase<typeof schema>;
+type DatabaseInstance = NodePgDatabase<typeof schema>;
 
 type EnvAccessor = {
   get(name: string): string | undefined;
@@ -86,46 +82,28 @@ function initializeDatabase(): boolean {
     return false;
   }
 
-  try {
-    database = drizzle(connectionString, { schema });
+  pool = new Pool({
+    connectionString,
+    max: 10,
+    ssl: {
+      rejectUnauthorized: false,
+      checkServerIdentity: () => undefined,
+    },
+  });
 
-    const neonClient = neon(connectionString);
-    neonClient`select 1`
-      .then(() => {
-        console.log("[db] Connection established");
-      })
-      .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error("[db] Connection test failed:", message);
-      });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error("[db] Failed to initialize database client:", message);
-    database = null;
-  }
+  database = drizzle(pool, { schema });
 
-  try {
-    pool = new Pool({
-      connectionString,
-      max: 5,
-      idleTimeoutMillis: 60_000,
-      ssl: {
-        rejectUnauthorized: false,
-        checkServerIdentity: () => undefined,
-      },
-    });
-
-    pool.query("select 1").catch((err: unknown) => {
+  pool
+    .query("select 1")
+    .then(() => {
+      console.log("[db] Connection established");
+    })
+    .catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
-      console.error("[db] pg pool health check failed:", message);
+      console.error("[db] Connection test failed:", message);
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error("[db] Failed to initialize pg pool:", message);
-    pool = null;
-  }
 
-  return database !== null;
+  return true;
 }
 
 export function ensureDatabase(): boolean {
