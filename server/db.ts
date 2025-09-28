@@ -90,9 +90,9 @@ function initializeDatabase(): boolean {
   }
 
   try {
-    const neonClient = neon(connectionString);
-    database = drizzle(neonClient, { schema });
+    database = drizzle(connectionString, { schema });
 
+    const neonClient = neon(connectionString);
     neonClient`select 1`
       .then(() => {
         console.log("[db] Connection established");
