@@ -27,23 +27,9 @@ function prepareConnectionString(url: string): string {
   try {
     const parsed = new URL(url);
 
-    if (parsed.hostname.includes("pooler.supabase.com")) {
-      const username = parsed.username || "";
-      const segments = username.split(".");
-      const role = segments[0] ?? username;
-      const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
-
-      if (projectRef) {
-        parsed.hostname = `db.${projectRef}.supabase.co`;
-        parsed.port = "5432";
-        parsed.username = role;
-        parsed.search = "";
-        parsed.searchParams.set("sslmode", "no-verify");
-      }
-    }
-
-    if (!parsed.searchParams.has("sslmode")) {
-      parsed.searchParams.set("sslmode", "no-verify");
+    const sslMode = parsed.searchParams.get("sslmode");
+    if (!sslMode || sslMode === "disable" || sslMode === "allow" || sslMode === "prefer") {
+      parsed.searchParams.set("sslmode", "require");
     }
 
     return parsed.toString();
