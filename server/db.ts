@@ -32,6 +32,13 @@ function prepareConnectionString(url: string): string {
       parsed.searchParams.set("sslmode", "require");
     }
 
+    for (const key of ["sslcert", "sslkey", "sslrootcert"]) {
+      const value = parsed.searchParams.get(key);
+      if (value === null || value.trim() === "") {
+        parsed.searchParams.delete(key);
+      }
+    }
+
     return parsed.toString();
   } catch {
     return url;
