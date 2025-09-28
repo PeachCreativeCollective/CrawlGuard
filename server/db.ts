@@ -1,5 +1,6 @@
-import { Pool } from "pg";
+import pg from "pg";
 import type { Pool as PgPool } from "pg";
+const { Pool } = pg;
 import { neon, neonConfig } from "@neondatabase/serverless";
 import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "@shared/schema";
