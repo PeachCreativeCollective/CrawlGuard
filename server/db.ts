@@ -27,10 +27,7 @@ function prepareConnectionString(url: string): string {
   try {
     const parsed = new URL(url);
 
-    const sslMode = parsed.searchParams.get("sslmode");
-    if (!sslMode || sslMode === "disable" || sslMode === "allow" || sslMode === "prefer") {
-      parsed.searchParams.set("sslmode", "require");
-    }
+    parsed.searchParams.set("sslmode", "no-verify");
 
     for (const key of ["sslcert", "sslkey", "sslrootcert"]) {
       const value = parsed.searchParams.get(key);
