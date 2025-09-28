@@ -27,14 +27,21 @@ function prepareConnectionString(url: string): string {
   try {
     const parsed = new URL(url);
 
-    parsed.searchParams.set("sslmode", "no-verify");
+    if (parsed.hostname.includes("pooler.supabase.com")) {
+      const username = parsed.username || "";
+      const segments = username.split(".");
+      const role = segments[0] ?? username;
+      const projectRef = segments.length > 1 ? segments[segments.length - 1] : undefined;
 
-    for (const key of ["sslcert", "sslkey", "sslrootcert"]) {
-      const value = parsed.searchParams.get(key);
-      if (value === null || value.trim() === "") {
-        parsed.searchParams.delete(key);
+      if (projectRef) {
+        parsed.hostname = `db.${projectRef}.supabase.co`;
+        parsed.port = "5432";
+        parsed.username = role;
+        parsed.search = "";
       }
     }
+
+    parsed.searchParams.set("sslmode", "no-verify");
 
     return parsed.toString();
   } catch {
