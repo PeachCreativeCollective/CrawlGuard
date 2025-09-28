@@ -2,8 +2,11 @@ import pg from "pg";
 import type { Pool as PgPool } from "pg";
 const { Pool } = pg;
 import { neon, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
 import { drizzle, type NeonDatabase } from "drizzle-orm/neon-serverless";
 import * as schema from "@shared/schema";
+
+neonConfig.webSocketConstructor = ws as unknown as typeof WebSocket;
 
 declare const Netlify: undefined | { env?: { get(name: string): string | undefined } };
 
