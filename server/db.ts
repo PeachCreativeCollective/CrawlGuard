@@ -53,19 +53,31 @@ let pool: PgPool | null = null;
 let database: DatabaseInstance | null = null;
 let initialized = false;
 
-function resolveConnectionString(): string | null {
+function resolveConnectionStrings(): string[] {
   const raw = readEnv("DATABASE_URL");
   if (!raw) {
     console.warn("[db] DATABASE_URL is not set. Falling back to in-memory storage");
-    return null;
+    return [];
   }
 
   if (!/^postgres(ql)?:\/\//i.test(raw)) {
     console.warn('[db] DATABASE_URL is invalid. Expected a "postgres://" URI. Using in-memory storage');
-    return null;
+    return [];
   }
 
-  return prepareConnectionString(raw);
+  const trimmed = raw.trim();
+  const prepared = prepareConnectionString(trimmed);
+  const candidates: string[] = [];
+
+  if (prepared && prepared.length > 0 && prepared !== trimmed) {
+    candidates.push(prepared);
+  }
+
+  if (!candidates.includes(trimmed)) {
+    candidates.push(trimmed);
+  }
+
+  return candidates;
 }
 
 function initializeDatabase(): boolean {
