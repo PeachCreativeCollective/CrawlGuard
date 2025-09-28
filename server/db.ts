@@ -83,28 +83,53 @@ function initializeDatabase(): boolean {
     return false;
   }
 
-  pool = new Pool({
-    connectionString,
-    max: 10,
-    ssl: {
-      rejectUnauthorized: false,
-      checkServerIdentity: () => undefined,
-    },
-  });
+  try {
+    neonConfig.fetchConnectionCache = true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("[db] Unable to enable Neon fetch cache:", message);
+  }
 
-  database = drizzle(pool, { schema });
+  try {
+    sqlClient = neon(connectionString);
+    database = drizzle(sqlClient, { schema });
 
-  pool
-    .query("select 1")
-    .then(() => {
-      console.log("[db] Connection established");
-    })
-    .catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error("[db] Connection test failed:", message);
+    sqlClient`select 1`
+      .then(() => {
+        console.log("[db] Connection established");
+      })
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("[db] Connection test failed:", message);
+      });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[db] Failed to initialize database client:", message);
+    database = null;
+  }
+
+  try {
+    pool = new Pool({
+      connectionString,
+      max: 5,
+      idleTimeoutMillis: 60_000,
+      ssl: {
+        rejectUnauthorized: false,
+        checkServerIdentity: () => undefined,
+      },
     });
 
-  return true;
+    pool.query("select 1").catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[db] pg pool health check failed:", message);
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[db] Failed to initialize pg pool:", message);
+    pool = null;
+  }
+
+  return database !== null;
 }
 
 export function ensureDatabase(): boolean {
