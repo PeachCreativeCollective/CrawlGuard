@@ -3,25 +3,9 @@ import type { Pool as PgPool } from "pg";
 const { Pool } = pkg;
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
-
-declare const Netlify: undefined | { env?: { get(name: string): string | undefined } };
+import { readEnv } from "./env";
 
 type DatabaseInstance = NodePgDatabase<typeof schema>;
-
-type EnvAccessor = {
-  get(name: string): string | undefined;
-};
-
-function readEnv(name: string): string {
-  const netlifyEnv: EnvAccessor | undefined =
-    typeof Netlify !== "undefined" ? Netlify?.env : undefined;
-  const valueFromNetlify = netlifyEnv?.get?.(name);
-  if (valueFromNetlify && valueFromNetlify !== "undefined") {
-    return valueFromNetlify;
-  }
-  const valueFromProcess = process.env[name];
-  return valueFromProcess ?? "";
-}
 
 function prepareConnectionString(url: string): string {
   try {
