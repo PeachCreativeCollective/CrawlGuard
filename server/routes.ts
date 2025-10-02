@@ -13,8 +13,8 @@ import {
   updateTimeBlockSchema,
   insertGalleryImageSchema,
   updateGalleryImageSchema,
-  type User,
 } from "@shared/schema";
+import { updateSupabasePassword, type SafeUser } from "./supabaseAuthService";
 import { z } from "zod";
 
 export function registerRoutes(app: Express): void {
@@ -187,7 +187,7 @@ export function registerRoutes(app: Express): void {
   // User management routes (admin only)
   app.get("/api/users", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       if (!currentUser.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
       }
@@ -202,7 +202,7 @@ export function registerRoutes(app: Express): void {
 
   app.delete("/api/users/:id", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       if (!currentUser.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
       }
@@ -232,7 +232,7 @@ export function registerRoutes(app: Express): void {
 
   app.patch("/api/users/:id/reset-password", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       if (!currentUser.isAdmin) {
         return res.status(403).json({ message: "Admin access required" });
       }
@@ -244,7 +244,12 @@ export function registerRoutes(app: Express): void {
         return res.status(400).json({ message: "Password must be at least 8 characters" });
       }
 
-      await storage.updateUserPassword(userId, password);
+      const userToReset = await storage.getUser(userId);
+      if (!userToReset) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await updateSupabasePassword(userToReset.email, password);
       res.json({ success: true, message: "Password reset successfully" });
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -293,7 +298,7 @@ export function registerRoutes(app: Express): void {
   // Working Hours API Routes
   app.get("/api/working-hours/:userId", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const userId = req.params.userId;
 
       if (userId !== currentUser.id && !currentUser.isAdmin) {
@@ -310,7 +315,7 @@ export function registerRoutes(app: Express): void {
 
   app.put("/api/working-hours/:dayOfWeek", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const dayOfWeek = req.params.dayOfWeek;
       console.log("Working hours update request:", { dayOfWeek, body: req.body });
       const validatedData = insertWorkingHoursSchema.parse(req.body);
@@ -335,7 +340,7 @@ export function registerRoutes(app: Express): void {
   // Time Blocks API Routes
   app.get("/api/time-blocks/:userId", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const userId = req.params.userId;
 
       if (userId !== currentUser.id && !currentUser.isAdmin) {
@@ -352,7 +357,7 @@ export function registerRoutes(app: Express): void {
 
   app.post("/api/time-blocks", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const validatedData = insertTimeBlockSchema.parse(req.body);
 
       const timeBlock = await storage.createTimeBlock({
@@ -372,7 +377,7 @@ export function registerRoutes(app: Express): void {
 
   app.patch("/api/time-blocks/:id", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const timeBlockId = req.params.id;
       const validatedData = updateTimeBlockSchema.parse(req.body);
 
@@ -397,7 +402,7 @@ export function registerRoutes(app: Express): void {
 
   app.delete("/api/time-blocks/:id", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const timeBlockId = req.params.id;
 
       const existingBlocks = await storage.getTimeBlocks(currentUser.id);
@@ -569,7 +574,7 @@ export function registerRoutes(app: Express): void {
 
   app.post("/api/admin/gallery", requireAuth, async (req, res) => {
     try {
-      const currentUser = req.user as User;
+      const currentUser = req.user as SafeUser;
       const validatedData = insertGalleryImageSchema.parse(req.body);
 
       const imageData = {
