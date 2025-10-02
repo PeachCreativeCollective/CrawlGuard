@@ -97,7 +97,7 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const normalizedEmail = insertUser.email.toLowerCase();
-    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase() ?? "crawlguardllc@gmail.com";
+    const adminEmail = readEnvOr("ADMIN_EMAIL", "crawlguardllc@gmail.com").toLowerCase();
 
     const userData = {
       ...insertUser,
@@ -331,7 +331,7 @@ class MemoryStorage implements IStorage {
   async getUserByEmail(email: string) { return this.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
   async createUser(insertUser: InsertUser) {
     const normalizedEmail = insertUser.email.toLowerCase();
-    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase() ?? "crawlguardllc@gmail.com";
+    const adminEmail = readEnvOr("ADMIN_EMAIL", "crawlguardllc@gmail.com").toLowerCase();
 
     const user: User = {
       id: randomUUID(),
