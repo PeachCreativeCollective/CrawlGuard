@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   
   // Use localStorage for user persistence in serverless environment
-  const [user, setUser] = React.useState<SelectUser | null>(() => {
+  const [user, setUser] = React.useState<PublicUser | null>(() => {
     try {
       const savedUser = localStorage.getItem('crawlguard_user');
       return savedUser ? JSON.parse(savedUser) : null;
