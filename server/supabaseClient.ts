@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { requireEnv } from "./env";
 
 let serviceClient: SupabaseClient | null = null;
 
@@ -7,12 +8,8 @@ export function getSupabaseServiceClient(): SupabaseClient {
     return serviceClient;
   }
 
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !key) {
-    throw new Error("Supabase service credentials are not configured");
-  }
+  const url = requireEnv("SUPABASE_URL");
+  const key = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
 
   serviceClient = createClient(url, key, {
     auth: {
