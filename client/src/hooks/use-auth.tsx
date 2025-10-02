@@ -11,7 +11,7 @@ import {
 } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient, hasSupabaseConfig } from "@/lib/supabaseClient";
 
 const AUTH_STORAGE_KEY = "crawlguard_user";
 
@@ -73,11 +73,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     let active = true;
 
+    if (!hasSupabaseConfig()) {
+      setError(
+        new Error(
+          "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
+        )
+      );
+      setIsLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    const supabase = getSupabaseClient();
+
     const init = async () => {
       try {
         await supabase.auth.getSession();
         if (!active) return;
         await syncUser();
+      } catch (err) {
+        setError(err as Error);
       } finally {
         if (active) {
           setIsLoading(false);
@@ -85,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, _session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async () => {
       try {
         await syncUser();
       } catch (err) {
@@ -107,6 +123,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginUser) => {
+      if (!hasSupabaseConfig()) {
+        throw new Error(
+          "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
+        );
+      }
+
+      const supabase = getSupabaseClient();
       const { error } = await supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
@@ -124,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      setUser(currentUser);
+      setUser(currentUser ?? null);
     },
     onError: (err: Error) => {
       toast({
@@ -137,7 +160,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (payload: InsertUser) => {
+      if (!hasSupabaseConfig()) {
+        throw new Error(
+          "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
+        );
+      }
+
       const parsed = insertUserSchema.parse(payload);
+      const supabase = getSupabaseClient();
       const { error } = await supabase.auth.signUp({
         email: parsed.email,
         password: parsed.password,
@@ -161,7 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ? "You are now the admin of this system."
           : "Your account has been created successfully.",
       });
-      setUser(newUser);
+      setUser(newUser ?? null);
     },
     onError: (err: Error) => {
       toast({
@@ -174,6 +204,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
+      if (!hasSupabaseConfig()) {
+        setUser(null);
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        return;
+      }
+
+      const supabase = getSupabaseClient();
       const { error } = await supabase.auth.signOut();
       if (error) {
         throw new Error(error.message);
