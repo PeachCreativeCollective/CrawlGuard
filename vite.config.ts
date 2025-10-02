@@ -13,8 +13,28 @@ const SENSITIVE_ENV_KEYS = [
 
 type SensitiveEnvKey = (typeof SENSITIVE_ENV_KEYS)[number];
 
+const SENSITIVE_ENV_BACKUP_SYMBOL = Symbol.for("builder:sensitive-env-backup");
+
+type SensitiveEnvBackup = Record<SensitiveEnvKey, string | undefined>;
+
+function getSensitiveEnvBackup(): SensitiveEnvBackup {
+  const globalThisAny = globalThis as Record<string | symbol, unknown>;
+  const existing = globalThisAny[SENSITIVE_ENV_BACKUP_SYMBOL] as SensitiveEnvBackup | undefined;
+  if (existing) {
+    return existing;
+  }
+  const created = Object.create(null) as SensitiveEnvBackup;
+  globalThisAny[SENSITIVE_ENV_BACKUP_SYMBOL] = created;
+  return created;
+}
+
 function scrubSensitiveEnvVars() {
+  const backup = getSensitiveEnvBackup();
   for (const key of SENSITIVE_ENV_KEYS) {
+    const value = process.env[key as SensitiveEnvKey];
+    if (typeof value === "string") {
+      backup[key as SensitiveEnvKey] = value;
+    }
     process.env[key as SensitiveEnvKey] = undefined;
   }
 }
