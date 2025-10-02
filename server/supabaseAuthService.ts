@@ -29,7 +29,7 @@ export async function ensureLocalUser(email: string, options: { username?: strin
   let user = await storage.getUserByEmail(normalizedEmail);
 
   if (!user) {
-    const hashed = await hashPassword(options.password ?? crypto.randomUUID());
+    const hashed = await hashPassword(options.password ?? randomUUID());
     user = await storage.createUser({
       username,
       email: normalizedEmail,
