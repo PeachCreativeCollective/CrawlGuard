@@ -107,6 +107,7 @@ export const updateLeadSchema = createInsertSchema(leads).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type LoginUser = z.infer<typeof loginSchema>;
 export type User = typeof users.$inferSelect;
+export type PublicUser = Omit<User, "password">;
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type InsertLead = z.infer<typeof insertLeadSchema>;
