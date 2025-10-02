@@ -1,4 +1,5 @@
 import type { User } from "@shared/schema";
+import { randomUUID } from "crypto";
 import { getStorage } from "./storage";
 import { hashPassword } from "./passwords";
 import { getSupabaseServiceClient } from "./supabaseClient";
