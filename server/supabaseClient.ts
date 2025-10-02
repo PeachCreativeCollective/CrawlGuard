@@ -11,6 +11,22 @@ const clientOptions = {
   },
 } as const;
 
+function resolveSupabaseUrl(): string {
+  const direct = readEnv("SUPABASE_URL");
+  if (direct) {
+    return direct;
+  }
+
+  const fromVite = readEnv("VITE_SUPABASE_URL");
+  if (fromVite) {
+    return fromVite;
+  }
+
+  throw new Error(
+    "Supabase authentication requires SUPABASE_URL or VITE_SUPABASE_URL to be configured",
+  );
+}
+
 function resolveAuthKey(): string {
   const serviceRoleKey = readEnv("SUPABASE_SERVICE_ROLE_KEY");
   if (serviceRoleKey) {
@@ -32,7 +48,7 @@ export function getSupabaseServiceClient(): SupabaseClient {
     return serviceClient;
   }
 
-  const url = requireEnv("SUPABASE_URL");
+  const url = resolveSupabaseUrl();
   const key = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
 
   serviceClient = createClient(url, key, clientOptions);
@@ -45,7 +61,7 @@ export function getSupabaseAuthClient(): SupabaseClient {
     return authClient;
   }
 
-  const url = requireEnv("SUPABASE_URL");
+  const url = resolveSupabaseUrl();
   const key = resolveAuthKey();
 
   authClient = createClient(url, key, clientOptions);
