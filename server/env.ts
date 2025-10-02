@@ -33,12 +33,30 @@ function readFromProcess(name: string): string | undefined {
   return normalize(value ?? undefined);
 }
 
+const SENSITIVE_ENV_BACKUP_SYMBOL = Symbol.for("builder:sensitive-env-backup");
+
+function readFromBackup(name: string): string | undefined {
+  const globalThisAny = globalThis as Record<string | symbol, unknown>;
+  const backup = globalThisAny[SENSITIVE_ENV_BACKUP_SYMBOL] as Record<string, unknown> | undefined;
+  if (!backup) {
+    return undefined;
+  }
+  const value = backup[name];
+  return normalize(typeof value === "string" ? value : undefined);
+}
+
 export function readEnv(name: string): string | undefined {
   const valueFromNetlify = readFromNetlify(name);
   if (valueFromNetlify !== undefined) {
     return valueFromNetlify;
   }
-  return readFromProcess(name);
+
+  const fromProcess = readFromProcess(name);
+  if (fromProcess !== undefined) {
+    return fromProcess;
+  }
+
+  return readFromBackup(name);
 }
 
 export function readEnvOr(name: string, fallback: string): string {
