@@ -38,16 +38,30 @@ async function throwIfResNotOk(res: Response) {
   throw new Error(`${res.status}: ${message}`);
 }
 
+async function buildAuthHeaders(hasBody: boolean): Promise<Record<string, string>> {
+  const headers: Record<string, string> = hasBody ? { "Content-Type": "application/json" } : {};
+  const { supabase } = await import("./supabaseClient");
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.access_token) {
+    headers["Authorization"] = `Bearer ${session.access_token}`;
+  }
+
+  return headers;
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const headers = await buildAuthHeaders(Boolean(data));
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
   });
 
   await throwIfResNotOk(res);
