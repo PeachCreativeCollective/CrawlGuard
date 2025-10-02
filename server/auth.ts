@@ -6,6 +6,7 @@ import { getSupabaseUserFromToken, sanitizeUser } from "./supabaseAuthService";
 declare global {
   namespace Express {
     interface Request {
+      user?: SafeUser;
       supabaseUser?: SupabaseAuthUser | null;
       accessToken?: string | null;
     }
