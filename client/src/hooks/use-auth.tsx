@@ -219,6 +219,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!hasSupabaseConfig()) {
         setUser(null);
         localStorage.removeItem(AUTH_STORAGE_KEY);
+        setAccessToken(null);
         return;
       }
 
