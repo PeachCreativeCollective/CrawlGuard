@@ -3,10 +3,12 @@ import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 import { log } from "./logger";
+import { attachUser } from "./auth";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(attachUser);
 
 app.use((req, res, next) => {
   const start = Date.now();
