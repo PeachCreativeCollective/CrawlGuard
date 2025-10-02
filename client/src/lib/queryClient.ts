@@ -1,5 +1,6 @@
 import { QueryClient, type QueryFunction } from "@tanstack/react-query";
 import { getSupabaseClient, hasSupabaseConfig } from "./supabaseClient";
+import { getAccessToken, setAccessToken } from "./authTokenStore";
 
 async function throwIfResNotOk(res: Response) {
   if (res.ok) {
