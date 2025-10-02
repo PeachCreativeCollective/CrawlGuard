@@ -1,4 +1,4 @@
-import type { User } from "@shared/schema";
+import type { PublicUser, User } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { getStorage } from "./storage";
 import { hashPassword } from "./passwords";
@@ -6,7 +6,7 @@ import { getSupabaseServiceClient } from "./supabaseClient";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase() ?? null;
 
-export type SafeUser = Omit<User, "password">;
+export type SafeUser = PublicUser;
 
 function assertUser<T>(value: T | null | undefined, message: string): T {
   if (!value) {
@@ -18,7 +18,7 @@ function assertUser<T>(value: T | null | undefined, message: string): T {
 export function sanitizeUser(user: User): SafeUser {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...rest } = user;
-  return rest;
+  return rest as SafeUser;
 }
 
 export async function ensureLocalUser(email: string, options: { username?: string; password?: string } = {}): Promise<User> {
