@@ -1,4 +1,4 @@
-import type { QueryFunction } from "@tanstack/react-query";
+import { QueryClient, type QueryFunction } from "@tanstack/react-query";
 import { supabase } from "./supabaseClient";
 
 async function throwIfResNotOk(res: Response) {
