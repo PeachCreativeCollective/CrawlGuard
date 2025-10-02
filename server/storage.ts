@@ -26,6 +26,7 @@ import {
 import { ensureDatabase, getDb as getDatabase } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { hashPassword } from "./passwords";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -35,6 +36,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   deleteUser(id: string): Promise<void>;
   updateUserPassword(id: string, password: string): Promise<void>;
+  setUserAdminStatus(id: string, isAdmin: boolean): Promise<void>;
   getUserCount(): Promise<number>;
 
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
@@ -92,10 +94,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    const normalizedEmail = insertUser.email.toLowerCase();
+    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase() ?? "crawlguardllc@gmail.com";
+
     const userData = {
       ...insertUser,
-      email: insertUser.email.toLowerCase(),
-      isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
+      email: normalizedEmail,
+      isAdmin: normalizedEmail === adminEmail,
     } as any;
 
     const [user] = await this.db
@@ -114,9 +119,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserPassword(id: string, password: string): Promise<void> {
-    const { hashPassword } = await import("./auth");
     const hashedPassword = await hashPassword(password);
-    await this.db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
+    await this.db
+      .update(users)
+      .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(users.id, id));
+  }
+
+  async setUserAdminStatus(id: string, isAdmin: boolean): Promise<void> {
+    await this.db
+      .update(users)
+      .set({ isAdmin, updatedAt: new Date() })
+      .where(eq(users.id, id));
   }
 
   async getUserCount(): Promise<number> {
@@ -323,7 +337,18 @@ class MemoryStorage implements IStorage {
   async deleteUser(id: string) { this.users = this.users.filter(u => u.id !== id); }
   async updateUserPassword(id: string, password: string) {
     const u = this.users.find(x => x.id === id);
-    if (u) { u.password = password; u.updatedAt = new Date() as any; }
+    if (u) {
+      u.password = password;
+      u.updatedAt = new Date() as any;
+    }
+  }
+
+  async setUserAdminStatus(id: string, isAdmin: boolean) {
+    const u = this.users.find(x => x.id === id);
+    if (u) {
+      u.isAdmin = isAdmin;
+      u.updatedAt = new Date() as any;
+    }
   }
   async getUserCount() { return this.users.length; }
 
