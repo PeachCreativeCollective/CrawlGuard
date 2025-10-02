@@ -27,6 +27,7 @@ import { ensureDatabase, getDb as getDatabase } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./passwords";
+import { readEnvOr } from "./env";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
