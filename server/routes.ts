@@ -22,6 +22,9 @@ export function registerRoutes(app: Express): void {
 
   app.get("/api/user", (req, res) => {
     if (!req.user) {
+      console.warn("[/api/user] Missing authenticated user", {
+        hasAuthHeader: Boolean(req.headers.authorization),
+      });
       return res.sendStatus(401);
     }
     res.json(req.user);
