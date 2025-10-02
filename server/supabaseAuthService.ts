@@ -4,8 +4,7 @@ import { randomUUID } from "crypto";
 import { getStorage } from "./storage";
 import { hashPassword } from "./passwords";
 import { getSupabaseServiceClient } from "./supabaseClient";
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase() ?? null;
+import { readEnv } from "./env";
 
 export type SafeUser = PublicUser;
 
@@ -15,8 +14,14 @@ export function sanitizeUser(user: User): SafeUser {
   return rest as SafeUser;
 }
 
+function getConfiguredAdminEmail(): string | null {
+  const value = readEnv("ADMIN_EMAIL");
+  return value ? value.toLowerCase() : null;
+}
+
 function shouldMarkAsAdmin(email: string, supabaseUser: SupabaseAuthUser): boolean {
-  if (ADMIN_EMAIL && email === ADMIN_EMAIL) {
+  const adminEmail = getConfiguredAdminEmail();
+  if (adminEmail && email === adminEmail) {
     return true;
   }
 
