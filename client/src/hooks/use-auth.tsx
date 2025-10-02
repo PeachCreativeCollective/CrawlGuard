@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const supabase = getSupabaseClient();
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
       });
@@ -144,7 +144,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(error.message);
       }
 
-      return await syncUser();
+      setAccessToken(data.session?.access_token ?? null);
+      const currentUser = await syncUser();
+
+      if (!currentUser) {
+        throw new Error("Login succeeded but user profile is unavailable. Please try again.");
+      }
+
+      return currentUser;
     },
     onSuccess: (currentUser) => {
       queryClient.invalidateQueries();
