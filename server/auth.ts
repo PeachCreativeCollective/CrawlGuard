@@ -41,6 +41,7 @@ export const attachUser: RequestHandler = async (req, res, next) => {
     req.accessToken = token;
     return next();
   } catch (error) {
+    console.error("[auth] Failed to resolve Supabase user", error);
     return res.status(401).json({ error: (error as Error).message || "Invalid or expired token" });
   }
 };
