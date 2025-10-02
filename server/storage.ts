@@ -36,6 +36,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   deleteUser(id: string): Promise<void>;
   updateUserPassword(id: string, password: string): Promise<void>;
+  updateUsername(id: string, username: string): Promise<void>;
   setUserAdminStatus(id: string, isAdmin: boolean): Promise<void>;
   getUserCount(): Promise<number>;
 
@@ -123,6 +124,13 @@ export class DatabaseStorage implements IStorage {
     await this.db
       .update(users)
       .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(users.id, id));
+  }
+
+  async updateUsername(id: string, username: string): Promise<void> {
+    await this.db
+      .update(users)
+      .set({ username, updatedAt: new Date() })
       .where(eq(users.id, id));
   }
 
@@ -342,6 +350,14 @@ class MemoryStorage implements IStorage {
     const u = this.users.find(x => x.id === id);
     if (u) {
       u.password = await hashPassword(password);
+      u.updatedAt = new Date() as any;
+    }
+  }
+
+  async updateUsername(id: string, username: string) {
+    const u = this.users.find(x => x.id === id);
+    if (u) {
+      u.username = username;
       u.updatedAt = new Date() as any;
     }
   }
