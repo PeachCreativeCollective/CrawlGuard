@@ -37,6 +37,9 @@ export async function createApp(): Promise<Express> {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
 
+  const { attachUser } = await import("./auth");
+  app.use(attachUser);
+
   app.use((req, res, next) => {
     const start = Date.now();
     const path = req.path;
