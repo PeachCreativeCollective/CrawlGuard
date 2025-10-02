@@ -1,4 +1,5 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import type { QueryFunction } from "@tanstack/react-query";
+import { supabase } from "./supabaseClient";
 
 async function throwIfResNotOk(res: Response) {
   if (res.ok) {
@@ -40,7 +41,6 @@ async function throwIfResNotOk(res: Response) {
 
 async function buildAuthHeaders(hasBody: boolean): Promise<Record<string, string>> {
   const headers: Record<string, string> = hasBody ? { "Content-Type": "application/json" } : {};
-  const { supabase } = await import("./supabaseClient");
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -68,7 +68,7 @@ export async function apiRequest(
   return res;
 }
 
-type UnauthorizedBehavior = "returnNull" | "throw";
+ type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
