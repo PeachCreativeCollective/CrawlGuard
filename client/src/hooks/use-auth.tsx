@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      setUser(currentUser ?? null);
+      setUser(currentUser);
     },
     onError: (err: Error) => {
       toast({
