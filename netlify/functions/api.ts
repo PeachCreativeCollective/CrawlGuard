@@ -22,6 +22,9 @@ function hydrateProcessEnvFromNetlify() {
     "SESSION_SECRET",
     "SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_ANON_KEY",
+    "VITE_SUPABASE_URL",
+    "VITE_SUPABASE_ANON_KEY",
   ] as const;
   for (const key of keys) {
     const value = Netlify.env.get(key);
