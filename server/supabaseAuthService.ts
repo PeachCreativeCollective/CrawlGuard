@@ -106,7 +106,10 @@ export async function updateSupabasePassword(email: string, password: string) {
   }
 }
 
-async function findSupabaseUserByEmail(client: SupabaseClient, email: string): Promise<SupabaseAuthUser | null> {
+export async function findSupabaseUserByEmail(
+  client: SupabaseClient,
+  email: string,
+): Promise<SupabaseAuthUser | null> {
   const normalizedEmail = email.trim().toLowerCase();
   let page = 1;
   const perPage = 200;
