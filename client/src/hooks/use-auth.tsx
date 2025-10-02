@@ -12,6 +12,7 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { getSupabaseClient, hasSupabaseConfig } from "@/lib/supabaseClient";
+import { setAccessToken } from "@/lib/authTokenStore";
 
 const AUTH_STORAGE_KEY = "crawlguard_user";
 
