@@ -199,13 +199,9 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  app.delete("/api/users/:id", requireAuth, async (req, res) => {
+  app.delete("/api/users/:id", requireAdmin, async (req, res) => {
     try {
       const currentUser = req.user as SafeUser;
-      if (!currentUser.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const userId = req.params.id;
       const userToDelete = await storage.getUser(userId);
 
