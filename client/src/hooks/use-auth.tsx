@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (user: PublicUser) => {
       setUser(user);
       localStorage.setItem('crawlguard_user', JSON.stringify(user));
       queryClient.invalidateQueries();
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register", credentials);
       return await res.json();
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (user: PublicUser) => {
       setUser(user);
       localStorage.setItem('crawlguard_user', JSON.stringify(user));
       toast({
