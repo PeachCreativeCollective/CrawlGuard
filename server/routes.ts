@@ -225,13 +225,8 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  app.patch("/api/users/:id/reset-password", requireAuth, async (req, res) => {
+  app.patch("/api/users/:id/reset-password", requireAdmin, async (req, res) => {
     try {
-      const currentUser = req.user as SafeUser;
-      if (!currentUser.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const userId = req.params.id;
       const { password } = req.body;
 
