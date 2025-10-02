@@ -189,13 +189,8 @@ export function registerRoutes(app: Express): void {
   );
 
   // User management routes (admin only)
-  app.get("/api/users", requireAuth, async (req, res) => {
+  app.get("/api/users", requireAdmin, async (_req, res) => {
     try {
-      const currentUser = req.user as SafeUser;
-      if (!currentUser.isAdmin) {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const users = await storage.getAllUsers();
       res.json(users);
     } catch (error) {
