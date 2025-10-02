@@ -5,9 +5,15 @@ import { findSupabaseUserByEmail, updateSupabasePassword } from "./supabaseAuthS
 export async function seedAdminFromEnv(): Promise<void> {
   const email = readEnv("ADMIN_EMAIL");
   const password = readEnv("ADMIN_PASSWORD");
+  const serviceRoleKey = readEnv("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!email || !password) {
     console.log("[seed] Skipping admin seed: ADMIN_EMAIL or ADMIN_PASSWORD not configured");
+    return;
+  }
+
+  if (!serviceRoleKey) {
+    console.log("[seed] Skipping admin seed: SUPABASE_SERVICE_ROLE_KEY not configured");
     return;
   }
 
