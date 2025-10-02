@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { getStorage } from "./storage";
-import { setupAuth, requireAuth } from "./auth";
+import { requireAuth, requireAdmin } from "./auth";
 import { googleCalendarService } from "./google-calendar";
 import { ObjectStorageService } from "./objectStorage";
 import {
@@ -18,10 +18,14 @@ import { updateSupabasePassword, type SafeUser } from "./supabaseAuthService";
 import { z } from "zod";
 
 export function registerRoutes(app: Express): void {
-  // Setup authentication
-  setupAuth(app);
-
   const storage = getStorage();
+
+  app.get("/api/user", (req, res) => {
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+    res.json(req.user);
+  });
 
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
