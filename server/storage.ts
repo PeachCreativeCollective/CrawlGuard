@@ -338,7 +338,7 @@ class MemoryStorage implements IStorage {
   async updateUserPassword(id: string, password: string) {
     const u = this.users.find(x => x.id === id);
     if (u) {
-      u.password = password;
+      u.password = await hashPassword(password);
       u.updatedAt = new Date() as any;
     }
   }
