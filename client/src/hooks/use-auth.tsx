@@ -105,7 +105,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async () => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setAccessToken(session?.access_token ?? null);
       try {
         await syncUser();
       } catch (err) {
