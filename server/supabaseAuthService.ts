@@ -9,158 +9,120 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase() ?? null;
 
 export type SafeUser = PublicUser;
 
-function assertUser<T>(value: T | null | undefined, message: string): T {
-  if (!value) {
-    throw new Error(message);
-  }
-  return value;
-}
-
 export function sanitizeUser(user: User): SafeUser {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...rest } = user;
   return rest as SafeUser;
 }
 
-async function findSupabaseUserByEmail(client: SupabaseClient, email: string): Promise<SupabaseAuthUser | null> {
-  const normalizedEmail = email.trim().toLowerCase();
-  const { data, error } = await client.auth.admin.listUsers({ page: 1, perPage: 1000 });
-
-  if (error) {
-    throw new Error(error.message);
+function shouldMarkAsAdmin(email: string, supabaseUser: SupabaseAuthUser): boolean {
+  if (ADMIN_EMAIL && email === ADMIN_EMAIL) {
+    return true;
   }
 
-  return data.users.find((user) => user.email?.toLowerCase() === normalizedEmail) ?? null;
+  const roles = (supabaseUser.app_metadata?.roles || []) as string[];
+  if (Array.isArray(roles) && roles.includes("admin")) {
+    return true;
+  }
+
+  const isAdminFlag = Boolean((supabaseUser.user_metadata as Record<string, unknown> | null)?.isAdmin);
+  return isAdminFlag;
 }
 
-export async function ensureLocalUser(email: string, options: { username?: string; password?: string } = {}): Promise<User> {
+async function upsertLocalUserFromSupabase(supabaseUser: SupabaseAuthUser): Promise<User> {
   const storage = getStorage();
-  const normalizedEmail = email.trim().toLowerCase();
-  const username = options.username?.trim() || normalizedEmail.split("@")[0];
+  const email = supabaseUser.email?.toLowerCase();
 
-  let user = await storage.getUserByEmail(normalizedEmail);
+  if (!email) {
+    throw new Error("Supabase user is missing an email address");
+  }
 
-  if (!user) {
-    const hashed = await hashPassword(options.password ?? randomUUID());
-    user = await storage.createUser({
-      username,
-      email: normalizedEmail,
+  const username = (supabaseUser.user_metadata as Record<string, unknown> | null)?.username as string | undefined;
+  let localUser = await storage.getUserByEmail(email);
+
+  if (!localUser) {
+    const hashed = await hashPassword(randomUUID());
+    localUser = await storage.createUser({
+      username: username || email.split("@")[0],
+      email,
       password: hashed,
     });
-  } else if (options.password) {
-    await storage.updateUserPassword(user.id, options.password);
-    user = assertUser(await storage.getUser(user.id), "Failed to refresh user after password update");
   }
 
-  if (ADMIN_EMAIL && normalizedEmail === ADMIN_EMAIL && !user.isAdmin) {
-    await storage.setUserAdminStatus(user.id, true);
-    user = assertUser(await storage.getUser(user.id), "Failed to refresh user after admin promotion");
+  if (username && localUser.username !== username) {
+    await storage.updateUsername(localUser.id, username);
+    localUser = (await storage.getUser(localUser.id))!;
   }
 
-  return user;
+  const shouldBeAdmin = shouldMarkAsAdmin(email, supabaseUser);
+  if (localUser.isAdmin !== shouldBeAdmin) {
+    await storage.setUserAdminStatus(localUser.id, shouldBeAdmin);
+    localUser = (await storage.getUser(localUser.id))!;
+  }
+
+  return localUser;
 }
 
-export async function signInWithSupabase(email: string, password: string) {
+export async function getSupabaseUserFromToken(token: string): Promise<{
+  supabaseUser: SupabaseAuthUser;
+  localUser: User;
+  safeUser: SafeUser;
+}> {
   const supabase = getSupabaseServiceClient();
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { data, error } = await supabase.auth.getUser(token);
 
   if (error || !data.user) {
-    throw new Error(error?.message || "Invalid email or password");
+    throw new Error(error?.message || "Invalid or expired token");
   }
 
-  const localUser = await ensureLocalUser(email, {
-    username: (data.user.user_metadata as Record<string, unknown> | null)?.username as string | undefined,
-    password,
-  });
-
-  return {
-    supabaseUser: data.user,
-    session: data.session,
-    localUser,
-  };
-}
-
-export async function createSupabaseUser(email: string, password: string, username: string) {
-  const supabase = getSupabaseServiceClient();
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { username },
-  });
-
-  if (error || !data.user) {
-    throw new Error(error?.message || "Unable to create user");
-  }
-
-  const localUser = await ensureLocalUser(email, { username, password });
+  const localUser = await upsertLocalUserFromSupabase(data.user);
   return {
     supabaseUser: data.user,
     localUser,
+    safeUser: sanitizeUser(localUser),
   };
-}
-
-export async function ensureSupabaseAdmin(email: string, password: string) {
-  const supabase = getSupabaseServiceClient();
-  const normalizedEmail = email.trim().toLowerCase();
-
-  const existing = await findSupabaseUserByEmail(supabase, normalizedEmail);
-
-  if (!existing) {
-    const createResult = await supabase.auth.admin.createUser({
-      email: normalizedEmail,
-      password,
-      email_confirm: true,
-      user_metadata: { seeded: true },
-    });
-
-    if (createResult.error || !createResult.data.user) {
-      throw new Error(createResult.error?.message || "Failed to seed admin user");
-    }
-  } else {
-    const update = await supabase.auth.admin.updateUserById(existing.id, {
-      password,
-      email_confirm: true,
-    });
-
-    if (update.error) {
-      throw new Error(update.error.message);
-    }
-  }
-
-  const localUser = await ensureLocalUser(normalizedEmail, {
-    username: normalizedEmail.split("@")[0],
-    password,
-  });
-
-  if (ADMIN_EMAIL && normalizedEmail === ADMIN_EMAIL && !localUser.isAdmin) {
-    const storage = getStorage();
-    await storage.setUserAdminStatus(localUser.id, true);
-  }
 }
 
 export async function updateSupabasePassword(email: string, password: string) {
   const supabase = getSupabaseServiceClient();
   const normalizedEmail = email.trim().toLowerCase();
-  const supabaseUser = await findSupabaseUserByEmail(supabase, normalizedEmail);
+  const user = await findSupabaseUserByEmail(supabase, normalizedEmail);
 
-  if (!supabaseUser) {
+  if (!user) {
     throw new Error("Supabase user not found");
   }
 
-  const update = await supabase.auth.admin.updateUserById(supabaseUser.id, {
+  const update = await supabase.auth.admin.updateUserById(user.id, {
     password,
   });
 
   if (update.error) {
     throw new Error(update.error.message);
   }
+}
 
-  await ensureLocalUser(normalizedEmail, {
-    username: (supabaseUser.user_metadata as Record<string, unknown> | null)?.username as string | undefined,
-    password,
-  });
+async function findSupabaseUserByEmail(client: SupabaseClient, email: string): Promise<SupabaseAuthUser | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+  let page = 1;
+  const perPage = 200;
+
+  while (true) {
+    const { data, error } = await client.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const match = data.users.find((user) => user.email?.toLowerCase() === normalizedEmail);
+    if (match) {
+      return match;
+    }
+
+    if (data.users.length < perPage) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return null;
 }
