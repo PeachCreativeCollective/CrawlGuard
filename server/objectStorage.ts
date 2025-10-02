@@ -1,6 +1,7 @@
 import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";
+import { readEnv, readEnvOr } from "./env";
 
 const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
 
@@ -37,7 +38,7 @@ export class ObjectStorageService {
 
   // Gets the public object search paths.
   getPublicObjectSearchPaths(): Array<string> {
-    const pathsStr = process.env.PUBLIC_OBJECT_SEARCH_PATHS || "";
+    const pathsStr = readEnvOr("PUBLIC_OBJECT_SEARCH_PATHS", "");
     const paths = Array.from(
       new Set(
         pathsStr
@@ -57,7 +58,7 @@ export class ObjectStorageService {
 
   // Gets the private object directory.
   getPrivateObjectDir(): string {
-    const dir = process.env.PRIVATE_OBJECT_DIR || "";
+    const dir = readEnvOr("PRIVATE_OBJECT_DIR", "");
     if (!dir) {
       throw new Error(
         "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
@@ -183,7 +184,7 @@ export class ObjectStorageService {
   }
 
   private getOptionalPrivateObjectDir(): string | null {
-    const raw = (process.env.PRIVATE_OBJECT_DIR || "").trim();
+    const raw = (readEnv("PRIVATE_OBJECT_DIR") || "").trim();
     return raw.length > 0 ? raw : null;
   }
 
