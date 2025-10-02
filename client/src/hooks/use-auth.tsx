@@ -126,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [syncUser]);
 
-  const loginMutation = useMutation({
+  const loginMutation = useMutation<PublicUser, Error, LoginUser>({
     mutationFn: async (credentials: LoginUser) => {
       if (!hasSupabaseConfig()) {
         throw new Error(
