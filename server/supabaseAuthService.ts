@@ -3,7 +3,7 @@ import type { PublicUser, User } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { getStorage } from "./storage";
 import { hashPassword } from "./passwords";
-import { getSupabaseServiceClient } from "./supabaseClient";
+import { getSupabaseAuthClient, getSupabaseServiceClient } from "./supabaseClient";
 import { readEnv } from "./env";
 
 export type SafeUser = PublicUser;
@@ -73,7 +73,7 @@ export async function getSupabaseUserFromToken(token: string): Promise<{
   localUser: User;
   safeUser: SafeUser;
 }> {
-  const supabase = getSupabaseServiceClient();
+  const supabase = getSupabaseAuthClient();
   const { data, error } = await supabase.auth.getUser(token);
 
   if (error || !data.user) {
