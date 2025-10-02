@@ -1,120 +1,172 @@
-import { createContext, ReactNode, useContext } from "react";
 import * as React from "react";
 import {
-  useQuery,
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
-import { insertUserSchema, PublicUser, InsertUser, LoginUser } from "@shared/schema";
-import { apiRequest, queryClient } from "../lib/queryClient";
+import {
+  insertUserSchema,
+  PublicUser,
+  InsertUser,
+  LoginUser,
+} from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabaseClient";
+
+const AUTH_STORAGE_KEY = "crawlguard_user";
 
 type AuthContextType = {
   user: PublicUser | null;
   isLoading: boolean;
   error: Error | null;
-  loginMutation: UseMutationResult<PublicUser, Error, LoginUser>;
+  loginMutation: UseMutationResult<PublicUser | null, Error, LoginUser>;
   logoutMutation: UseMutationResult<void, Error, void>;
-  registerMutation: UseMutationResult<PublicUser, Error, InsertUser>;
+  registerMutation: UseMutationResult<PublicUser | null, Error, InsertUser>;
 };
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = React.createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+async function fetchCurrentUser(): Promise<PublicUser | null> {
+  try {
+    const res = await apiRequest("GET", "/api/user");
+    return await res.json();
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("401")) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
-  
-  // Use localStorage for user persistence in serverless environment
   const [user, setUser] = React.useState<PublicUser | null>(() => {
     try {
-      const savedUser = localStorage.getItem('crawlguard_user');
-      return savedUser ? JSON.parse(savedUser) : null;
+      const savedUser = localStorage.getItem(AUTH_STORAGE_KEY);
+      return savedUser ? (JSON.parse(savedUser) as PublicUser) : null;
     } catch {
       return null;
     }
   });
-
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
 
+  const syncUser = React.useCallback(async () => {
+    try {
+      const currentUser = await fetchCurrentUser();
+      setUser(currentUser);
+      if (currentUser) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+      setError(null);
+      return currentUser;
+    } catch (err) {
+      setError(err as Error);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      setUser(null);
+      throw err;
+    }
+  }, []);
+
   React.useEffect(() => {
-    let isActive = true;
+    let active = true;
 
-    const syncSession = async () => {
+    const init = async () => {
       try {
-        const res = await apiRequest("GET", "/api/user");
-        const currentUser = await res.json();
-        if (!isActive) return;
-
-        setUser(currentUser);
-        localStorage.setItem('crawlguard_user', JSON.stringify(currentUser));
-        setError(null);
-      } catch (err) {
-        if (!isActive) return;
-
-        setUser(null);
-        localStorage.removeItem('crawlguard_user');
-
-        if (err instanceof Error && !err.message.startsWith("401")) {
-          setError(err);
-        } else {
-          setError(null);
-        }
+        await supabase.auth.getSession();
+        if (!active) return;
+        await syncUser();
       } finally {
-        if (isActive) {
+        if (active) {
           setIsLoading(false);
         }
       }
     };
 
-    syncSession();
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, _session) => {
+      try {
+        await syncUser();
+      } catch (err) {
+        if (err instanceof Error && err.message.startsWith("401")) {
+          setError(null);
+        } else {
+          setError(err as Error);
+        }
+      }
+    });
+
+    void init();
 
     return () => {
-      isActive = false;
+      active = false;
+      listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [syncUser]);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginUser) => {
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return await syncUser();
     },
-    onSuccess: (user: PublicUser) => {
-      setUser(user);
-      localStorage.setItem('crawlguard_user', JSON.stringify(user));
+    onSuccess: (currentUser) => {
       queryClient.invalidateQueries();
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
+      setUser(currentUser);
     },
-    onError: (error: Error) => {
+    onError: (err: Error) => {
       toast({
         title: "Login failed",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     },
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+    mutationFn: async (payload: InsertUser) => {
+      const parsed = insertUserSchema.parse(payload);
+      const { error } = await supabase.auth.signUp({
+        email: parsed.email,
+        password: parsed.password,
+        options: {
+          data: { username: parsed.username },
+          emailRedirectTo: window.location.origin,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return await syncUser();
     },
-    onSuccess: (user: PublicUser) => {
-      setUser(user);
-      localStorage.setItem('crawlguard_user', JSON.stringify(user));
+    onSuccess: (newUser) => {
+      queryClient.invalidateQueries();
       toast({
         title: "Account created!",
-        description: user.isAdmin
+        description: newUser?.isAdmin
           ? "You are now the admin of this system."
           : "Your account has been created successfully.",
       });
+      setUser(newUser);
     },
-    onError: (error: Error) => {
+    onError: (err: Error) => {
       toast({
         title: "Registration failed",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     },
@@ -122,22 +174,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw new Error(error.message);
+      }
     },
     onSuccess: () => {
       setUser(null);
-      localStorage.removeItem('crawlguard_user');
-      // Clear all cached data on logout
+      localStorage.removeItem(AUTH_STORAGE_KEY);
       queryClient.clear();
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
       });
     },
-    onError: (error: Error) => {
+    onError: (err: Error) => {
       toast({
         title: "Logout failed",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     },
@@ -160,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
