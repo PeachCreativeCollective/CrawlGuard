@@ -1,3 +1,4 @@
+import type { SupabaseClient, User as SupabaseAuthUser } from "@supabase/supabase-js";
 import type { PublicUser, User } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { getStorage } from "./storage";
@@ -19,6 +20,17 @@ export function sanitizeUser(user: User): SafeUser {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...rest } = user;
   return rest as SafeUser;
+}
+
+async function findSupabaseUserByEmail(client: SupabaseClient, email: string): Promise<SupabaseAuthUser | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const { data, error } = await client.auth.admin.listUsers({ page: 1, perPage: 1000 });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.users.find((user) => user.email?.toLowerCase() === normalizedEmail) ?? null;
 }
 
 export async function ensureLocalUser(email: string, options: { username?: string; password?: string } = {}): Promise<User> {
@@ -95,9 +107,9 @@ export async function ensureSupabaseAdmin(email: string, password: string) {
   const supabase = getSupabaseServiceClient();
   const normalizedEmail = email.trim().toLowerCase();
 
-  const existing = await supabase.auth.admin.getUserByEmail(normalizedEmail);
+  const existing = await findSupabaseUserByEmail(supabase, normalizedEmail);
 
-  if (!existing.data?.user) {
+  if (!existing) {
     const createResult = await supabase.auth.admin.createUser({
       email: normalizedEmail,
       password,
@@ -109,8 +121,7 @@ export async function ensureSupabaseAdmin(email: string, password: string) {
       throw new Error(createResult.error?.message || "Failed to seed admin user");
     }
   } else {
-    const { id } = existing.data.user;
-    const update = await supabase.auth.admin.updateUserById(id, {
+    const update = await supabase.auth.admin.updateUserById(existing.id, {
       password,
       email_confirm: true,
     });
@@ -134,13 +145,13 @@ export async function ensureSupabaseAdmin(email: string, password: string) {
 export async function updateSupabasePassword(email: string, password: string) {
   const supabase = getSupabaseServiceClient();
   const normalizedEmail = email.trim().toLowerCase();
-  const lookup = await supabase.auth.admin.getUserByEmail(normalizedEmail);
+  const supabaseUser = await findSupabaseUserByEmail(supabase, normalizedEmail);
 
-  if (!lookup.data?.user) {
+  if (!supabaseUser) {
     throw new Error("Supabase user not found");
   }
 
-  const update = await supabase.auth.admin.updateUserById(lookup.data.user.id, {
+  const update = await supabase.auth.admin.updateUserById(supabaseUser.id, {
     password,
   });
 
@@ -149,7 +160,7 @@ export async function updateSupabasePassword(email: string, password: string) {
   }
 
   await ensureLocalUser(normalizedEmail, {
-    username: (lookup.data.user.user_metadata as Record<string, unknown> | null)?.username as string | undefined,
+    username: (supabaseUser.user_metadata as Record<string, unknown> | null)?.username as string | undefined,
     password,
   });
 }
