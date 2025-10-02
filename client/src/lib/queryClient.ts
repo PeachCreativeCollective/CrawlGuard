@@ -46,12 +46,19 @@ async function buildAuthHeaders(hasBody: boolean): Promise<Record<string, string
     return headers;
   }
 
+  const cachedToken = getAccessToken();
+  if (cachedToken) {
+    headers["Authorization"] = `Bearer ${cachedToken}`;
+    return headers;
+  }
+
   const supabase = getSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (session?.access_token) {
+    setAccessToken(session.access_token);
     headers["Authorization"] = `Bearer ${session.access_token}`;
   }
 
