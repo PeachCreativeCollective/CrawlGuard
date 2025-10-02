@@ -15,7 +15,14 @@ function hydrateProcessEnvFromNetlify() {
     return;
   }
 
-  const keys = ["DATABASE_URL", "ADMIN_EMAIL", "ADMIN_PASSWORD", "SESSION_SECRET"] as const;
+  const keys = [
+    "DATABASE_URL",
+    "ADMIN_EMAIL",
+    "ADMIN_PASSWORD",
+    "SESSION_SECRET",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+  ] as const;
   for (const key of keys) {
     const value = Netlify.env.get(key);
     if (value && value !== "undefined" && (!process.env[key] || process.env[key] === "")) {
