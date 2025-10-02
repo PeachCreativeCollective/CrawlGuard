@@ -321,12 +321,15 @@ class MemoryStorage implements IStorage {
   async getUserByUsername(username: string) { return this.users.find(u => u.username === username); }
   async getUserByEmail(email: string) { return this.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
   async createUser(insertUser: InsertUser) {
+    const normalizedEmail = insertUser.email.toLowerCase();
+    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase() ?? "crawlguardllc@gmail.com";
+
     const user: User = {
       id: randomUUID(),
       username: insertUser.username,
-      email: insertUser.email.toLowerCase(),
+      email: normalizedEmail,
       password: insertUser.password,
-      isAdmin: insertUser.email.toLowerCase() === "crawlguardllc@gmail.com",
+      isAdmin: normalizedEmail === adminEmail,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as User;
