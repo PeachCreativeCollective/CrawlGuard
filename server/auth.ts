@@ -2,33 +2,22 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Express } from "express";
 import session from "express-session";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
-import { promisify } from "util";
-import { getStorage } from "./storage";
-import { User as SelectUser, insertUserSchema, loginSchema } from "@shared/schema";
 import connectPg from "connect-pg-simple";
 import createMemoryStore from "memorystore";
 import { getPool } from "./db";
+import { getStorage } from "./storage";
+import { insertUserSchema } from "@shared/schema";
+import {
+  createSupabaseUser,
+  sanitizeUser,
+  signInWithSupabase,
+  type SafeUser,
+} from "./supabaseAuthService";
 
 declare global {
   namespace Express {
-    interface User extends SelectUser {}
+    interface User extends SafeUser {}
   }
-}
-
-const scryptAsync = promisify(scrypt);
-
-export async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
-}
-
-async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
 export function setupAuth(app: Express) {
@@ -42,12 +31,13 @@ export function setupAuth(app: Express) {
     secret: process.env.SESSION_SECRET || "crawlguard-session-secret-key",
     resave: false,
     saveUninitialized: false,
-    store: usePgStore && pool
-      ? new PostgresSessionStore({
-          pool,
-          createTableIfMissing: true,
-        })
-      : new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }),
+    store:
+      usePgStore && pool
+        ? new PostgresSessionStore({
+            pool,
+            createTableIfMissing: true,
+          })
+        : new MemoryStore({ checkPeriod: 24 * 60 * 60 * 1000 }),
     cookie: {
       secure: false,
       httpOnly: true,
@@ -61,75 +51,72 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(
-      { usernameField: "email" },
-      async (email, password, done) => {
-        try {
-          const user = await storage.getUserByEmail(email.trim().toLowerCase());
-          if (!user || !(await comparePasswords(password, user.password))) {
-            return done(null, false, { message: "Invalid email or password" });
-          }
-          return done(null, user);
-        } catch (error) {
-          return done(error);
-        }
+    new LocalStrategy({ usernameField: "email" }, async (email, password, done) => {
+      try {
+        const { localUser } = await signInWithSupabase(email.trim().toLowerCase(), password);
+        const safeUser = sanitizeUser(localUser);
+        return done(null, safeUser);
+      } catch (error: any) {
+        const message = error?.message || "Invalid email or password";
+        return done(null, false, { message });
       }
-    )
+    })
   );
 
-  passport.serializeUser((user, done) => done(null, user.id));
+  passport.serializeUser((user: SafeUser, done) => done(null, user.id));
   passport.deserializeUser(async (id: string, done) => {
     try {
       const user = await storage.getUser(id);
-      done(null, user);
+      if (!user) {
+        return done(null, false);
+      }
+      const safeUser = sanitizeUser(user);
+      done(null, safeUser);
     } catch (error) {
-      done(error);
+      done(error as Error);
     }
   });
 
   app.post("/api/register", async (req, res, next) => {
     try {
       const validatedData = insertUserSchema.parse(req.body);
+      const normalizedEmail = validatedData.email.trim().toLowerCase();
 
-      const existingUser = await storage.getUserByEmail(validatedData.email);
+      const existingUser = await storage.getUserByEmail(normalizedEmail);
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
       }
 
-      const user = await storage.createUser({
-        ...validatedData,
-        password: await hashPassword(validatedData.password),
-      });
+      const { localUser } = await createSupabaseUser(
+        normalizedEmail,
+        validatedData.password,
+        validatedData.username
+      );
 
-      req.login(user, (err) => {
+      const safeUser = sanitizeUser(localUser);
+
+      req.login(safeUser, (err) => {
         if (err) return next(err);
-        res.status(201).json({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          isAdmin: user.isAdmin,
-        });
+        res.status(201).json(safeUser);
       });
-    } catch (error) {
-      res.status(400).json({ error: "Invalid registration data" });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid registration data" });
+      }
+      res.status(400).json({ error: error?.message || "Registration failed" });
     }
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: SelectUser, info: any) => {
+    passport.authenticate("local", (err: any, user: SafeUser, info: any) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ error: info?.message || "Authentication failed" });
       }
 
-      req.login(user, (err) => {
-        if (err) return next(err);
-        res.json({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          isAdmin: user.isAdmin,
-        });
+      req.login(user, (loginErr) => {
+        if (loginErr) return next(loginErr);
+        res.json(user);
       });
     })(req, res, next);
   });
@@ -146,24 +133,13 @@ export function setupAuth(app: Express) {
       return res.sendStatus(401);
     }
     const user = req.user!;
-    res.json({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
+    res.json(user);
   });
 
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      const safeUsers = users.map((user) => ({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        createdAt: user.createdAt,
-      }));
+      const safeUsers = users.map((user) => sanitizeUser(user));
       res.json(safeUsers);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch users" });
