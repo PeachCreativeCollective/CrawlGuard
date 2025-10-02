@@ -20,7 +20,7 @@ type AuthContextType = {
   user: PublicUser | null;
   isLoading: boolean;
   error: Error | null;
-  loginMutation: UseMutationResult<PublicUser | null, Error, LoginUser>;
+  loginMutation: UseMutationResult<PublicUser, Error, LoginUser>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<PublicUser | null, Error, InsertUser>;
 };
