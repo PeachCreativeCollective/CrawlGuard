@@ -41,6 +41,11 @@ async function throwIfResNotOk(res: Response) {
 
 async function buildAuthHeaders(hasBody: boolean): Promise<Record<string, string>> {
   const headers: Record<string, string> = hasBody ? { "Content-Type": "application/json" } : {};
+  if (!hasSupabaseConfig()) {
+    return headers;
+  }
+
+  const supabase = getSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
