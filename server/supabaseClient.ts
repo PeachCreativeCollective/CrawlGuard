@@ -121,9 +121,13 @@ function getSupabaseFetch(): typeof globalThis.fetch {
     const certificate = loadCaCertificate();
     if (certificate) {
       const dispatcher = new Agent({ connect: { ca: certificate } });
-      const fetchWithAgent = ((input: RequestInfo, init?: RequestInit) =>
-        undiciFetch(input as any, { ...(init as any), dispatcher })
-      ) as typeof globalThis.fetch;
+      const fetchWithAgent = ((
+        input: Parameters<typeof undiciFetch>[0],
+        init?: Parameters<typeof undiciFetch>[1],
+      ) => {
+        const nextInit = init ? { ...init, dispatcher } : { dispatcher };
+        return undiciFetch(input, nextInit);
+      }) as typeof globalThis.fetch;
       cachedFetch = fetchWithAgent;
       fetchUsesCustomCa = true;
       console.log("[tls] Custom fetch configured with additional CA trust store");
