@@ -264,17 +264,10 @@ function getSupabaseFetch(): typeof globalThis.fetch {
 
   try {
     const certificateBundle = loadCaCertificate();
-    const dispatcher = ensureCustomDispatcher(certificateBundle);
-    const fetchWithAgent = ((
-      input: Parameters<typeof undiciFetch>[0],
-      init?: Parameters<typeof undiciFetch>[1],
-    ) => {
-      const nextInit = init ? { ...init, dispatcher } : { dispatcher };
-      return undiciFetch(input, nextInit);
-    }) as typeof globalThis.fetch;
-    cachedFetch = fetchWithAgent;
+    ensureCustomDispatcher(certificateBundle);
+    cachedFetch = globalThis.fetch.bind(globalThis);
     fetchUsesCustomCa = true;
-    console.log("[tls] Custom fetch configured with additional CA trust store");
+    console.log("[tls] Global fetch ensured to use custom CA trust store");
     return cachedFetch;
   } catch (error) {
     console.error("[tls] Failed to configure custom CA for Supabase", error);
