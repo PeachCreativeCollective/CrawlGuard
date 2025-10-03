@@ -25,12 +25,21 @@ function extractBearerToken(headerValue: string | undefined): string | null {
 }
 
 export const attachUser: RequestHandler = async (req, res, next) => {
-  const token = extractBearerToken(req.headers.authorization);
+  const authHeader = req.headers.authorization;
+  const token = extractBearerToken(authHeader);
+
+  if (authHeader && !token) {
+    console.warn("[auth] Malformed Authorization header received", {
+      headerLength: authHeader.length,
+      headerPreview: authHeader.slice(0, 10),
+    });
+  }
+
+  req.accessToken = token ?? null;
 
   if (!token) {
     req.user = undefined as any;
     req.supabaseUser = null;
-    req.accessToken = null;
     return next();
   }
 
@@ -38,11 +47,16 @@ export const attachUser: RequestHandler = async (req, res, next) => {
     const { supabaseUser, safeUser } = await getSupabaseUserFromToken(token);
     req.user = safeUser;
     req.supabaseUser = supabaseUser;
-    req.accessToken = token;
     return next();
   } catch (error) {
-    console.error("[auth] Failed to resolve Supabase user", error);
-    return res.status(401).json({ error: (error as Error).message || "Invalid or expired token" });
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[auth] Failed to resolve Supabase user", {
+      message,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return res
+      .status(401)
+      .json({ error: "AUTH_SUPABASE_RESOLUTION_FAILED", message: message || "Invalid or expired token" });
   }
 };
 
