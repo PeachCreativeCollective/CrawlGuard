@@ -214,30 +214,50 @@ function loadCaCertificate(): string {
   const direct = readEnv("SUPABASE_CA_CERT");
   if (direct) {
     console.log("[tls] Using CA certificate from SUPABASE_CA_CERT environment variable");
-    return normalizeMultiline(direct);
+    const fragments = dedupeCertificates(
+      splitCertificateBundle(normalizeMultiline(direct)),
+    );
+    return fragments.join("\n");
+  }
+
+  const fragments: string[] = [];
+  const addCertificatesFromContent = (content: string | null, logOnError: boolean) => {
+    if (!content) {
+      return;
+    }
+    if (logOnError && content.trim().length === 0) {
+      return;
+    }
+    fragments.push(...splitCertificateBundle(normalizeMultiline(content)));
+  };
+
+  const explicitPath = readEnv("SUPABASE_CA_CERT_PATH") ?? readEnv("NODE_EXTRA_CA_CERTS");
+  if (explicitPath) {
+    addCertificatesFromContent(readCertificateFromPath(explicitPath, true), true);
   }
 
   const moduleDir = fileURLToPath(new URL(".", import.meta.url));
-  const defaultCandidate = resolve(moduleDir, "../certs/isrg-root-x1.pem");
-  const workingDirCandidate = resolve(process.cwd(), "certs/isrg-root-x1.pem");
+  const moduleCandidates = [
+    resolve(moduleDir, "../certs/gts-root-r4.pem"),
+    resolve(moduleDir, "../certs/isrg-root-x1.pem"),
+  ];
+  const workingDirCandidates = [
+    resolve(process.cwd(), "certs/gts-root-r4.pem"),
+    resolve(process.cwd(), "certs/isrg-root-x1.pem"),
+  ];
 
-  const candidates: Array<{ path: string; logOnError: boolean }> = [];
-  const explicitPath = readEnv("SUPABASE_CA_CERT_PATH") ?? readEnv("NODE_EXTRA_CA_CERTS");
-  if (explicitPath) {
-    candidates.push({ path: explicitPath, logOnError: true });
-  }
-  candidates.push({ path: defaultCandidate, logOnError: false });
-  candidates.push({ path: workingDirCandidate, logOnError: false });
-
-  for (const candidate of candidates) {
-    const content = readCertificateFromPath(candidate.path, candidate.logOnError);
-    if (content) {
-      return content;
-    }
+  for (const candidate of [...moduleCandidates, ...workingDirCandidates]) {
+    addCertificatesFromContent(readCertificateFromPath(candidate, false), false);
   }
 
-  console.log("[tls] Falling back to built-in ISRG Root X1 certificate");
-  return ISRG_ROOT_X1_CERT;
+  const unique = dedupeCertificates(fragments);
+  if (unique.length > 0) {
+    console.log("[tls] Using CA bundle from filesystem", { certificates: unique.length });
+    return unique.join("\n");
+  }
+
+  console.log("[tls] Falling back to built-in CA bundle (GTS Root R4 + ISRG Root X1)");
+  return DEFAULT_CA_BUNDLE;
 }
 
 function getSupabaseFetch(): typeof globalThis.fetch {
