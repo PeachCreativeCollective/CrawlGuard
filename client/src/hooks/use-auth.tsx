@@ -16,6 +16,16 @@ import { setAccessToken } from "@/lib/authTokenStore";
 
 const AUTH_STORAGE_KEY = "crawlguard_user";
 
+let lastProfileFetchDiagnostic: string | null = null;
+
+function setLastProfileFetchDiagnostic(message: string | null) {
+  lastProfileFetchDiagnostic = message ?? null;
+}
+
+function getLastProfileFetchDiagnostic(): string | null {
+  return lastProfileFetchDiagnostic;
+}
+
 type AuthContextType = {
   user: PublicUser | null;
   isLoading: boolean;
@@ -30,12 +40,16 @@ export const AuthContext = React.createContext<AuthContextType | null>(null);
 async function fetchCurrentUser(): Promise<PublicUser | null> {
   try {
     const res = await apiRequest("GET", "/api/user");
+    setLastProfileFetchDiagnostic(null);
     return await res.json();
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith("401")) {
+    const message = error instanceof Error ? error.message : String(error);
+    setLastProfileFetchDiagnostic(message);
+    if (message.startsWith("401")) {
+      console.warn("[auth] Profile request returned 401", { message });
       return null;
     }
-    throw error;
+    throw error instanceof Error ? error : new Error(message);
   }
 }
 
@@ -51,19 +65,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<Error | null>(null);
+  const lastProfileErrorRef = React.useRef<string | null>(null);
 
   const syncUser = React.useCallback(async () => {
     try {
       const currentUser = await fetchCurrentUser();
+      lastProfileErrorRef.current = getLastProfileFetchDiagnostic();
       setUser(currentUser);
       if (currentUser) {
         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
       } else {
         localStorage.removeItem(AUTH_STORAGE_KEY);
       }
+      if (!currentUser && lastProfileErrorRef.current) {
+        console.warn("[auth] No user returned during sync", {
+          diagnostic: lastProfileErrorRef.current,
+        });
+      }
       setError(null);
       return currentUser;
     } catch (err) {
+      lastProfileErrorRef.current = getLastProfileFetchDiagnostic();
+      console.error("[auth] Failed to synchronize user profile", err);
       setError(err as Error);
       localStorage.removeItem(AUTH_STORAGE_KEY);
       setUser(null);
@@ -148,7 +171,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentUser = await syncUser();
 
       if (!currentUser) {
-        throw new Error("Login succeeded but user profile is unavailable. Please try again.");
+        const diagnostic = lastProfileErrorRef.current;
+        const baseMessage = "Login succeeded but user profile is unavailable.";
+        const detail = diagnostic
+          ? ` Last profile sync error: ${diagnostic}`
+          : " Please try again.";
+        console.error("[auth] Login completed without profile", {
+          diagnostic,
+        });
+        throw new Error(baseMessage + detail);
       }
 
       return currentUser;
@@ -162,6 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(currentUser);
     },
     onError: (err: Error) => {
+      console.error("[auth] Login failed", err);
       toast({
         title: "Login failed",
         description: err.message,
