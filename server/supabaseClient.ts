@@ -221,11 +221,8 @@ function loadCaCertificate(): string {
   }
 
   const fragments: string[] = [];
-  const addCertificatesFromContent = (content: string | null, logOnError: boolean) => {
+  const addCertificatesFromContent = (content: string | null) => {
     if (!content) {
-      return;
-    }
-    if (logOnError && content.trim().length === 0) {
       return;
     }
     fragments.push(...splitCertificateBundle(normalizeMultiline(content)));
@@ -233,7 +230,7 @@ function loadCaCertificate(): string {
 
   const explicitPath = readEnv("SUPABASE_CA_CERT_PATH") ?? readEnv("NODE_EXTRA_CA_CERTS");
   if (explicitPath) {
-    addCertificatesFromContent(readCertificateFromPath(explicitPath, true), true);
+    addCertificatesFromContent(readCertificateFromPath(explicitPath, true));
   }
 
   const moduleDir = fileURLToPath(new URL(".", import.meta.url));
