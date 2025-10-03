@@ -22,10 +22,26 @@ export function registerRoutes(app: Express): void {
 
   app.get("/api/user", (req, res) => {
     if (!req.user) {
+      const hasAuthHeader = Boolean(req.headers.authorization);
+      const tokenPreview =
+        req.headers.authorization && req.headers.authorization.startsWith("Bearer ")
+          ? `${req.headers.authorization.slice(7, 15)}…`
+          : undefined;
+      const supabaseResolved = Boolean(req.supabaseUser);
       console.warn("[/api/user] Missing authenticated user", {
-        hasAuthHeader: Boolean(req.headers.authorization),
+        hasAuthHeader,
+        tokenPreview,
+        supabaseResolved,
+        accessTokenPresent: Boolean(req.accessToken),
       });
-      return res.sendStatus(401);
+      return res.status(401).json({
+        error: "AUTH_USER_MISSING",
+        message: "Authenticated Supabase user was not attached to the request.",
+        details: {
+          hasAuthHeader,
+          supabaseResolved,
+        },
+      });
     }
     res.json(req.user);
   });
