@@ -12,6 +12,9 @@ let authClient: SupabaseClient | null = null;
 
 let cachedFetch: typeof globalThis.fetch | null = null;
 let fetchUsesCustomCa = false;
+let customDispatcher: Agent | null = null;
+let globalDispatcherConfigured = false;
+let httpsAgentConfigured = false;
 
 const GTS_ROOT_R4_CERT = `-----BEGIN CERTIFICATE-----
 MIIDejCCAmKgAwIBAgIQf+UwvzMTQ77dghYQST2KGzANBgkqhkiG9w0BAQsFADBX
