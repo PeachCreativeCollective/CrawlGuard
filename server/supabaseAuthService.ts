@@ -1,7 +1,7 @@
 import type { SupabaseClient, User as SupabaseAuthUser } from "@supabase/supabase-js";
 import type { PublicUser, User } from "@shared/schema";
 import { randomUUID } from "crypto";
-import { getStorage } from "./storage";
+import { getStorage, type IStorage } from "./storage";
 import { hashPassword } from "./passwords";
 import { getSupabaseAuthClient, getSupabaseServiceClient } from "./supabaseClient";
 import { readEnv } from "./env";
@@ -34,6 +34,45 @@ function shouldMarkAsAdmin(email: string, supabaseUser: SupabaseAuthUser): boole
   return isAdminFlag;
 }
 
+function sanitizeUsernameCandidate(candidate: string | undefined, email: string): string {
+  const defaultBase = email.split("@")[0] ?? "user";
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .replace(/-{2,}/g, "-");
+
+  const fromCandidate = typeof candidate === "string" && candidate.trim().length > 0 ? normalize(candidate) : "";
+  if (fromCandidate.length > 0) {
+    return fromCandidate;
+  }
+
+  const fallback = normalize(defaultBase);
+  return fallback.length > 0 ? fallback : "user";
+}
+
+async function ensureUniqueUsername(
+  storage: IStorage,
+  desired: string | undefined,
+  email: string,
+  currentUserId?: string,
+): Promise<string> {
+  const base = sanitizeUsernameCandidate(desired, email);
+  let candidate = base;
+  let attempt = 0;
+
+  while (true) {
+    const existing = await storage.getUserByUsername(candidate);
+    if (!existing || existing.id === currentUserId) {
+      return candidate;
+    }
+
+    attempt += 1;
+    candidate = `${base}-${attempt}`;
+  }
+}
+
 async function upsertLocalUserFromSupabase(supabaseUser: SupabaseAuthUser): Promise<User> {
   const storage = getStorage();
   const email = supabaseUser.email?.toLowerCase();
@@ -42,21 +81,25 @@ async function upsertLocalUserFromSupabase(supabaseUser: SupabaseAuthUser): Prom
     throw new Error("Supabase user is missing an email address");
   }
 
-  const username = (supabaseUser.user_metadata as Record<string, unknown> | null)?.username as string | undefined;
+  const metadata = (supabaseUser.user_metadata as Record<string, unknown> | null) ?? null;
+  const desiredUsername = metadata?.username as string | undefined;
+
   let localUser = await storage.getUserByEmail(email);
 
   if (!localUser) {
     const hashed = await hashPassword(randomUUID());
+    const usernameForInsert = await ensureUniqueUsername(storage, desiredUsername, email);
     localUser = await storage.createUser({
-      username: username || email.split("@")[0],
+      username: usernameForInsert,
       email,
       password: hashed,
     });
-  }
-
-  if (username && localUser.username !== username) {
-    await storage.updateUsername(localUser.id, username);
-    localUser = (await storage.getUser(localUser.id))!;
+  } else if (desiredUsername) {
+    const uniqueUsername = await ensureUniqueUsername(storage, desiredUsername, email, localUser.id);
+    if (uniqueUsername !== localUser.username) {
+      await storage.updateUsername(localUser.id, uniqueUsername);
+      localUser = (await storage.getUser(localUser.id))!;
+    }
   }
 
   const shouldBeAdmin = shouldMarkAsAdmin(email, supabaseUser);
