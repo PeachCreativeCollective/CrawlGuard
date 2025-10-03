@@ -56,7 +56,7 @@ function readCertificateFromPath(path: string, logOnError: boolean): string | nu
   try {
     let resolvedPath = path;
     if (path.startsWith("file://")) {
-      resolvedPath = fileURLToPath(path as unknown as URL);
+      resolvedPath = fileURLToPath(new URL(path));
     } else if (!isAbsolute(path)) {
       resolvedPath = resolve(process.cwd(), path);
     }
