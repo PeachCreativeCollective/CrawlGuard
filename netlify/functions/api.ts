@@ -23,6 +23,9 @@ function hydrateProcessEnvFromNetlify() {
     "SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_ANON_KEY",
+    "SUPABASE_CA_CERT",
+    "SUPABASE_CA_CERT_PATH",
+    "NODE_EXTRA_CA_CERTS",
     "VITE_SUPABASE_URL",
     "VITE_SUPABASE_ANON_KEY",
   ] as const;
