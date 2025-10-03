@@ -29,9 +29,10 @@ export const attachUser: RequestHandler = async (req, res, next) => {
   const token = extractBearerToken(authHeader);
 
   if (authHeader && !token) {
+    const [headerPrefix] = authHeader.split(" ");
     console.warn("[auth] Malformed Authorization header received", {
+      headerPrefix,
       headerLength: authHeader.length,
-      headerPreview: authHeader.slice(0, 10),
     });
   }
 
