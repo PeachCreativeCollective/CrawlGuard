@@ -5,7 +5,7 @@ import { isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import https from "node:https";
 import tls from "node:tls";
-import { Agent, fetch as undiciFetch, setGlobalDispatcher } from "undici";
+import { Agent, setGlobalDispatcher } from "undici";
 
 let serviceClient: SupabaseClient | null = null;
 let authClient: SupabaseClient | null = null;
