@@ -244,7 +244,7 @@ function loadCaCertificate(): string {
   ];
 
   for (const candidate of [...moduleCandidates, ...workingDirCandidates]) {
-    addCertificatesFromContent(readCertificateFromPath(candidate, false), false);
+    addCertificatesFromContent(readCertificateFromPath(candidate, false));
   }
 
   const unique = dedupeCertificates(fragments);
