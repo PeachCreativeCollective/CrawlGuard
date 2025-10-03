@@ -278,8 +278,8 @@ function getSupabaseFetch(): typeof globalThis.fetch {
   return cachedFetch;
 }
 
-function buildClientOptions(): SupabaseClientOptions<any, "public", any> {
-  const options: SupabaseClientOptions<any, "public", any> = {
+function buildClientOptions(): SupabaseClientOptions<any> {
+  const options: SupabaseClientOptions<any> = {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
