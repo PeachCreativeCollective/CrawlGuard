@@ -3,7 +3,9 @@ import { readEnv, requireEnv } from "./env";
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Agent, fetch as undiciFetch } from "undici";
+import https from "node:https";
+import tls from "node:tls";
+import { Agent, fetch as undiciFetch, setGlobalDispatcher } from "undici";
 
 let serviceClient: SupabaseClient | null = null;
 let authClient: SupabaseClient | null = null;
