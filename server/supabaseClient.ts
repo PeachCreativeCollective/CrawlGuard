@@ -106,6 +106,110 @@ function readCertificateFromPath(path: string, logOnError: boolean): string | nu
   }
 }
 
+function splitCertificateBundle(bundle: string): string[] {
+  return bundle
+    .split(/(?=-----BEGIN CERTIFICATE-----)/g)
+    .map((chunk) => chunk.trim())
+    .filter((chunk) => chunk.length > 0);
+}
+
+function dedupeCertificates(certificates: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const certificate of certificates) {
+    const trimmed = certificate.trim();
+    if (trimmed.length === 0) {
+      continue;
+    }
+    if (!seen.has(trimmed)) {
+      seen.add(trimmed);
+      result.push(trimmed);
+    }
+  }
+
+  return result;
+}
+
+function configureGlobalUndiciDispatcher(agent: Agent) {
+  if (globalDispatcherConfigured) {
+    return;
+  }
+
+  try {
+    setGlobalDispatcher(agent);
+    globalDispatcherConfigured = true;
+    console.log("[tls] Global undici dispatcher configured with custom CA bundle");
+  } catch (error) {
+    console.warn("[tls] Unable to configure global undici dispatcher", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+function configureHttpsGlobalAgent(bundle: string) {
+  if (httpsAgentConfigured) {
+    return;
+  }
+
+  try {
+    const extras = dedupeCertificates(splitCertificateBundle(bundle));
+    if (extras.length === 0) {
+      httpsAgentConfigured = true;
+      return;
+    }
+
+    const agent = https.globalAgent;
+    const existingCa = agent.options.ca;
+    let baseCertificates: string[];
+
+    if (Array.isArray(existingCa)) {
+      baseCertificates = existingCa.map((entry) =>
+        typeof entry === "string" ? entry : entry.toString(),
+      );
+    } else if (existingCa) {
+      baseCertificates = [
+        typeof existingCa === "string" ? existingCa : existingCa.toString(),
+      ];
+    } else {
+      baseCertificates = [...tls.rootCertificates];
+    }
+
+    let updated = false;
+    for (const cert of extras) {
+      if (!baseCertificates.includes(cert)) {
+        baseCertificates.push(cert);
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      agent.options.ca = baseCertificates;
+      console.log("[tls] https global agent CA bundle extended", {
+        totalCertificates: baseCertificates.length,
+      });
+    } else {
+      console.log("[tls] https global agent already includes supplied CA certificates");
+    }
+  } catch (error) {
+    console.error("[tls] Failed to extend https global agent", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+  } finally {
+    httpsAgentConfigured = true;
+  }
+}
+
+function ensureCustomDispatcher(bundle: string): Agent {
+  if (!customDispatcher) {
+    customDispatcher = new Agent({ connect: { ca: bundle } });
+    console.log("[tls] Custom undici agent created for Supabase requests");
+  }
+  configureHttpsGlobalAgent(bundle);
+  configureGlobalUndiciDispatcher(customDispatcher);
+  return customDispatcher;
+}
+
 function loadCaCertificate(): string {
   const direct = readEnv("SUPABASE_CA_CERT");
   if (direct) {
