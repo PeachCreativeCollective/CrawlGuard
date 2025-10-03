@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient, type SupabaseClientOptions } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient, type SupabaseClientOptions } from "@supabase/supabase-js";
 import { readEnv, requireEnv } from "./env";
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
