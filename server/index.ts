@@ -3,12 +3,11 @@ import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 import { log } from "./logger";
-import { attachUser } from "./auth";
+import { readEnv } from "./env";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(attachUser);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -46,17 +45,22 @@ app.use((req, res, next) => {
 
   // Seed admin user from environment after DB is ready
   try {
-    const { ensureDatabase, getPool } = await import("./db");
-    if (ensureDatabase()) {
-      const pool = getPool();
-      if (pool) {
-        await pool.query("select 1");
-      }
-      const { seedAdminFromEnv } = await import("./seed");
-      await seedAdminFromEnv();
-      log("admin seed completed");
+    const hasServiceRole = Boolean(readEnv("SUPABASE_SERVICE_ROLE_KEY"));
+    if (!hasServiceRole) {
+      log("admin seed skipped: Supabase service role not configured");
     } else {
-      log("skipping admin seed: no DB pool");
+      const { ensureDatabase, getPool } = await import("./db");
+      if (!ensureDatabase()) {
+        log("skipping admin seed: no DB pool");
+      } else {
+        const pool = getPool();
+        if (pool) {
+          await pool.query("select 1");
+        }
+        const { seedAdminFromEnv } = await import("./seed");
+        await seedAdminFromEnv();
+        log("admin seed completed");
+      }
     }
   } catch (e: any) {
     log(`admin seed skipped: ${e?.message || e}`);
