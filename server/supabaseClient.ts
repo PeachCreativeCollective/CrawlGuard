@@ -5,7 +5,7 @@ import { isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import https from "node:https";
 import tls from "node:tls";
-import { Agent, setGlobalDispatcher } from "undici";
+import { Agent, fetch as undiciFetch, setGlobalDispatcher, type Dispatcher } from "undici";
 
 let serviceClient: SupabaseClient | null = null;
 let authClient: SupabaseClient | null = null;
@@ -264,10 +264,17 @@ function getSupabaseFetch(): typeof globalThis.fetch {
 
   try {
     const certificateBundle = loadCaCertificate();
-    ensureCustomDispatcher(certificateBundle);
-    cachedFetch = globalThis.fetch.bind(globalThis);
+    const dispatcher = ensureCustomDispatcher(certificateBundle);
+
+    type RequestInitWithDispatcher = RequestInit & { dispatcher?: Dispatcher };
+
+    cachedFetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+      const finalInit: RequestInitWithDispatcher = init ? { ...init, dispatcher } : { dispatcher };
+      return undiciFetch(input, finalInit);
+    }) as typeof globalThis.fetch;
+
     fetchUsesCustomCa = true;
-    console.log("[tls] Global fetch ensured to use custom CA trust store");
+    console.log("[tls] Custom fetch configured with dedicated dispatcher");
     return cachedFetch;
   } catch (error) {
     console.error("[tls] Failed to configure custom CA for Supabase", error);
