@@ -24,6 +24,22 @@ function extractBearerToken(headerValue: string | undefined): string | null {
   return token;
 }
 
+function isTlsVerificationError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  if (typeof message !== "string" || message.length === 0) {
+    return false;
+  }
+
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("self signed certificate") ||
+    normalized.includes("self-signed certificate") ||
+    normalized.includes("unable to verify the first certificate") ||
+    normalized.includes("certificate verify failed") ||
+    normalized.includes("certificate chain")
+  );
+}
+
 export const attachUser: RequestHandler = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = extractBearerToken(authHeader);
@@ -51,9 +67,21 @@ export const attachUser: RequestHandler = async (req, res, next) => {
     return next();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+
+    if (isTlsVerificationError(error)) {
+      console.error("[auth] TLS error while resolving Supabase user; continuing anonymously", {
+        message,
+        stack,
+      });
+      req.user = undefined as any;
+      req.supabaseUser = null;
+      return next();
+    }
+
     console.error("[auth] Failed to resolve Supabase user", {
       message,
-      stack: error instanceof Error ? error.stack : undefined,
+      stack,
     });
     return res
       .status(401)
