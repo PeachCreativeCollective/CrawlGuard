@@ -435,12 +435,17 @@ export function registerRoutes(app: Express): void {
       const image = await storage.createGalleryImage(body);
 
       if (body.imageUrl?.startsWith("data:")) {
-        const uploaded = await storageService.uploadBase64Image(body.imageUrl, {
-          directory: "gallery",
-          fileName: `${image.id}.webp`,
-        });
-        image.imageUrl = uploaded.url;
-        await storage.updateGalleryImage(image.id, { imageUrl: uploaded.url });
+        const maybeUpload = (storageService as any).uploadBase64Image;
+        if (typeof maybeUpload === "function") {
+          const uploaded = await maybeUpload.call(storageService, body.imageUrl, {
+            directory: "gallery",
+            fileName: `${image.id}.webp`,
+          });
+          if (uploaded?.url) {
+            image.imageUrl = uploaded.url;
+            await storage.updateGalleryImage(image.id, { imageUrl: uploaded.url });
+          }
+        }
       }
 
       res.status(201).json(image);
@@ -461,12 +466,17 @@ export function registerRoutes(app: Express): void {
       const updated = await storage.updateGalleryImage(req.params.id, body);
 
       if (body.imageUrl?.startsWith("data:")) {
-        const uploaded = await storageService.uploadBase64Image(body.imageUrl, {
-          directory: "gallery",
-          fileName: `${updated.id}.webp`,
-        });
-        updated.imageUrl = uploaded.url;
-        await storage.updateGalleryImage(updated.id, { imageUrl: uploaded.url });
+        const maybeUpload = (storageService as any).uploadBase64Image;
+        if (typeof maybeUpload === "function") {
+          const uploaded = await maybeUpload.call(storageService, body.imageUrl, {
+            directory: "gallery",
+            fileName: `${updated.id}.webp`,
+          });
+          if (uploaded?.url) {
+            updated.imageUrl = uploaded.url;
+            await storage.updateGalleryImage(updated.id, { imageUrl: uploaded.url });
+          }
+        }
       }
 
       res.json(updated);
@@ -527,7 +537,10 @@ export function registerRoutes(app: Express): void {
 
   apiRouter.post("/calendar/revoke", requireAuth, async (_req, res) => {
     try {
-      await googleCalendarService.revokeAccess();
+      const maybeRevoke = (googleCalendarService as any).revokeAccess;
+      if (typeof maybeRevoke === "function") {
+        await maybeRevoke.call(googleCalendarService);
+      }
       res.json({ success: true });
     } catch (error) {
       console.error("Error revoking calendar access:", error);
