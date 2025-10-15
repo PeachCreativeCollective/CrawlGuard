@@ -1,7 +1,7 @@
 import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import { registerRoutes } from "./routes";
 import { log } from "./logger";
-import { attachUser } from "./auth";
+import { readEnv } from "./env";
 
 let adminSeedPromise: Promise<void> | null = null;
 
@@ -12,18 +12,25 @@ async function ensureAdminSeeded() {
 
   adminSeedPromise = (async () => {
     try {
-      const { ensureDatabase, getPool } = await import("./db");
-      if (ensureDatabase()) {
-        const pool = getPool();
-        if (pool) {
-          await pool.query("select 1");
-        }
-        const { seedAdminFromEnv } = await import("./seed");
-        await seedAdminFromEnv();
-        log("admin seed completed");
-      } else {
-        log("skipping admin seed: no DB pool");
+      const hasServiceRole = Boolean(readEnv("SUPABASE_SERVICE_ROLE_KEY"));
+      if (!hasServiceRole) {
+        log("admin seed skipped: Supabase service role not configured");
+        return;
       }
+
+      const { ensureDatabase, getPool } = await import("./db");
+      if (!ensureDatabase()) {
+        log("skipping admin seed: no DB pool");
+        return;
+      }
+
+      const pool = getPool();
+      if (pool) {
+        await pool.query("select 1");
+      }
+      const { seedAdminFromEnv } = await import("./seed");
+      await seedAdminFromEnv();
+      log("admin seed completed");
     } catch (error: any) {
       log(`admin seed skipped: ${error?.message || error}`);
     }
@@ -37,8 +44,6 @@ export async function createApp(): Promise<Express> {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
-
-  app.use(attachUser);
 
   app.use((req, res, next) => {
     const start = Date.now();
