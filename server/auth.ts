@@ -9,6 +9,7 @@ declare global {
       user?: SafeUser;
       supabaseUser?: SupabaseAuthUser | null;
       accessToken?: string | null;
+      supabaseResolutionError?: string | null;
     }
 
     interface User extends SafeUser {}
@@ -74,18 +75,18 @@ export const attachUser: RequestHandler = async (req, res, next) => {
         message,
         stack,
       });
-      req.user = undefined as any;
-      req.supabaseUser = null;
-      return next();
+    } else {
+      console.warn("[auth] Failed to resolve Supabase user; proceeding anonymously", {
+        message,
+        stack,
+      });
     }
 
-    console.error("[auth] Failed to resolve Supabase user", {
-      message,
-      stack,
-    });
-    return res
-      .status(401)
-      .json({ error: "AUTH_SUPABASE_RESOLUTION_FAILED", message: message || "Invalid or expired token" });
+    req.user = undefined as any;
+    req.supabaseUser = null;
+    req.supabaseResolutionError = message || null;
+    req.accessToken = null;
+    return next();
   }
 };
 
