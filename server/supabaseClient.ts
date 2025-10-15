@@ -270,7 +270,7 @@ function getSupabaseFetch(): typeof globalThis.fetch {
 
     cachedFetch = ((input: RequestInfo | URL, init?: RequestInit) => {
       const finalInit: RequestInitWithDispatcher = init ? { ...init, dispatcher } : { dispatcher };
-      return undiciFetch(input, finalInit);
+      return undiciFetch(input as any, finalInit as any) as unknown as Promise<Response>;
     }) as typeof globalThis.fetch;
 
     fetchUsesCustomCa = true;
