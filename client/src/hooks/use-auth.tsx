@@ -251,7 +251,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      if (!hasSupabaseConfig()) {
+      const { ensureSupabaseConfig, getSupabaseClient } = await import("@/lib/supabaseClient");
+      if (!(await ensureSupabaseConfig())) {
+        // If Supabase isn't configured, just clear local state client-side
         setUser(null);
         localStorage.removeItem(AUTH_STORAGE_KEY);
         setAccessToken(null);
