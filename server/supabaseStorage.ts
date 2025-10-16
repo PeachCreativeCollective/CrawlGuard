@@ -120,13 +120,16 @@ function mapTimeBlock(row: any | null): TimeBlock | undefined {
     return undefined;
   }
 
+  const start = toDate(row.start_date_time) ?? new Date();
+  const end = toDate(row.end_date_time) ?? new Date();
+
   return {
     id: row.id,
     userId: row.user_id,
     title: row.title,
     description: row.description ?? null,
-    startDateTime: toDate(row.start_date_time) ?? new Date(row.start_date_time),
-    endDateTime: toDate(row.end_date_time) ?? new Date(row.end_date_time),
+    startDateTime: start,
+    endDateTime: end,
     blockType: row.block_type,
     isRecurring: Boolean(row.is_recurring),
     recurringPattern: row.recurring_pattern ?? null,
@@ -375,7 +378,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapUser(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapUser)
+      .filter((row): row is User => Boolean(row));
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -448,7 +453,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapContactSubmission(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapContactSubmission)
+      .filter((row): row is ContactSubmission => Boolean(row));
   }
 
   async createLead(lead: InsertLead): Promise<Lead> {
@@ -472,7 +479,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapLead(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapLead)
+      .filter((row): row is Lead => Boolean(row));
   }
 
   async getLeadById(id: string): Promise<Lead | undefined> {
@@ -517,7 +526,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapLead(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapLead)
+      .filter((row): row is Lead => Boolean(row));
   }
 
   async getWorkingHours(userId: string): Promise<WorkingHours[]> {
@@ -525,7 +536,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapWorkingHours(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapWorkingHours)
+      .filter((row): row is WorkingHours => Boolean(row));
   }
 
   async upsertWorkingHours(userId: string, dayOfWeek: string, hours: InsertWorkingHours): Promise<WorkingHours> {
@@ -550,7 +563,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapTimeBlock(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapTimeBlock)
+      .filter((row): row is TimeBlock => Boolean(row));
   }
 
   async createTimeBlock(timeBlock: InsertTimeBlock & { userId: string }): Promise<TimeBlock> {
@@ -600,7 +615,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapGalleryImage(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapGalleryImage)
+      .filter((row): row is GalleryImage => Boolean(row));
   }
 
   async getPublishedGalleryImages(): Promise<GalleryImage[]> {
@@ -613,7 +630,9 @@ export class SupabaseStorage implements IStorage {
     if (error) {
       throw error;
     }
-    return (data ?? []).map((row) => mapGalleryImage(row)!).filter(Boolean);
+    return (data ?? [])
+      .map(mapGalleryImage)
+      .filter((row): row is GalleryImage => Boolean(row));
   }
 
   async getGalleryImageById(id: string): Promise<GalleryImage | undefined> {
