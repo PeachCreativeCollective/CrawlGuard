@@ -5,26 +5,39 @@ function getRuntimeConfig(): Record<string, string | null> | undefined {
   return (window as any).__RUNTIME_CONFIG as Record<string, string | null> | undefined;
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? getRuntimeConfig()?.VITE_SUPABASE_URL ?? null;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? getRuntimeConfig()?.VITE_SUPABASE_ANON_KEY ?? null;
-
 let supabaseClient: SupabaseClient | null = null;
 
-if (supabaseUrl && supabaseAnonKey) {
-  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-} else {
-  console.warn(
-    "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
-  );
+function resolveSupabaseVars(): { url: string | null; anonKey: string | null } {
+  const urlFromBuild = import.meta.env.VITE_SUPABASE_URL ?? null;
+  const anonFromBuild = import.meta.env.VITE_SUPABASE_ANON_KEY ?? null;
+  if (urlFromBuild || anonFromBuild) {
+    return { url: urlFromBuild, anonKey: anonFromBuild };
+  }
+  const runtime = getRuntimeConfig();
+  return {
+    url: runtime?.VITE_SUPABASE_URL ?? null,
+    anonKey: runtime?.VITE_SUPABASE_ANON_KEY ?? null,
+  };
+}
+
+function initSupabaseClient(): SupabaseClient | null {
+  if (supabaseClient) return supabaseClient;
+  const { url, anonKey } = resolveSupabaseVars();
+  if (url && anonKey) {
+    supabaseClient = createClient(url, anonKey);
+    return supabaseClient;
+  }
+  return null;
 }
 
 export function hasSupabaseConfig(): boolean {
-  return Boolean(supabaseClient);
+  return Boolean(initSupabaseClient());
 }
 
 export function getSupabaseClient(): SupabaseClient {
-  if (!supabaseClient) {
+  const client = initSupabaseClient();
+  if (!client) {
     throw new Error("Supabase credentials are not configured");
   }
-  return supabaseClient;
+  return client;
 }
