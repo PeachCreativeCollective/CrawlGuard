@@ -198,8 +198,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 username: (u.user_metadata as any)?.username ?? (u.email ? u.email.split("@")[0] : "user"),
                 email: u.email ?? "",
                 isAdmin: false,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
               };
               console.warn("[auth] Using client-side Supabase user fallback due to server 401");
               setUser(fallback);
