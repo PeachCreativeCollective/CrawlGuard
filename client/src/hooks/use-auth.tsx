@@ -11,7 +11,7 @@ import {
 } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { setAccessToken } from "@/lib/authTokenStore";
+import { setAccessToken, getAccessToken } from "@/lib/authTokenStore";
 
 const AUTH_STORAGE_KEY = "crawlguard_user";
 
