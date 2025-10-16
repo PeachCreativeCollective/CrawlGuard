@@ -34,6 +34,25 @@ export function hasSupabaseConfig(): boolean {
   return Boolean(initSupabaseClient());
 }
 
+export async function ensureSupabaseConfig(): Promise<boolean> {
+  if (initSupabaseClient()) return true;
+
+  // Try to hydrate runtime config from the server if available
+  if (typeof window !== "undefined") {
+    try {
+      const resp = await fetch("/api/runtime-config");
+      if (resp.ok) {
+        const cfg = await resp.json();
+        (window as any).__RUNTIME_CONFIG = cfg || {};
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return Boolean(initSupabaseClient());
+}
+
 export function getSupabaseClient(): SupabaseClient {
   const client = initSupabaseClient();
   if (!client) {
