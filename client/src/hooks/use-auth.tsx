@@ -152,7 +152,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginMutation = useMutation<PublicUser, Error, LoginUser>({
     mutationFn: async (credentials: LoginUser) => {
-      if (!hasSupabaseConfig()) {
+      const { ensureSupabaseConfig, getSupabaseClient } = await import("@/lib/supabaseClient");
+      if (!(await ensureSupabaseConfig())) {
         throw new Error(
           "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
         );
