@@ -193,7 +193,6 @@ function toLeadInsertPayload(lead: InsertLead) {
     notes: lead.notes ?? null,
     estimated_value: lead.estimatedValue ?? null,
     scheduled_date: scheduledDate,
-    google_calendar_event_id: lead.googleCalendarEventId ?? null,
   });
 }
 
