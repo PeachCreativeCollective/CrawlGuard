@@ -28,6 +28,8 @@ import { eq, desc, and, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./passwords";
 import { readEnvOr } from "./env";
+import { getSupabaseServiceClient } from "./supabaseClient";
+import { SupabaseStorage } from "./supabaseStorage";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -514,6 +516,15 @@ let storageInstance: IStorage | null = null;
 export function getStorage(): IStorage {
   if (storageInstance) {
     return storageInstance;
+  }
+
+  try {
+    getSupabaseServiceClient();
+    storageInstance = new SupabaseStorage();
+    return storageInstance;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("[storage] Supabase storage unavailable; evaluating fallbacks", { message });
   }
 
   if (ensureDatabase()) {
