@@ -11,7 +11,6 @@ import {
 } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { getSupabaseClient, hasSupabaseConfig } from "@/lib/supabaseClient";
 import { setAccessToken } from "@/lib/authTokenStore";
 
 const AUTH_STORAGE_KEY = "crawlguard_user";
@@ -96,23 +95,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     let active = true;
+    let unsubscribe: (() => void) | null = null;
 
-    if (!(await (await import("@/lib/supabaseClient")).ensureSupabaseConfig())) {
-      setError(
-        new Error(
-          "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
-        )
-      );
-      setIsLoading(false);
-      return () => {
-        active = false;
-      };
-    }
+    const setup = async () => {
+      const { ensureSupabaseConfig, getSupabaseClient } = await import("@/lib/supabaseClient");
+      const hasConfig = await ensureSupabaseConfig();
+      if (!hasConfig) {
+        if (!active) return;
+        setError(
+          new Error(
+            "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
+          )
+        );
+        setIsLoading(false);
+        return;
+      }
 
-    const { getSupabaseClient } = await import("@/lib/supabaseClient");
-    const supabase = getSupabaseClient();
+      const supabase = getSupabaseClient();
 
-    const init = async () => {
+      const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        setAccessToken(session?.access_token ?? null);
+        try {
+          await syncUser();
+        } catch (err) {
+          if (err instanceof Error && err.message.startsWith("401")) {
+            setError(null);
+          } else {
+            setError(err as Error);
+          }
+        }
+      });
+
+      unsubscribe = () => listener.subscription.unsubscribe();
+
       try {
         const {
           data: { session },
@@ -121,7 +136,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAccessToken(session?.access_token ?? null);
         await syncUser();
       } catch (err) {
-        setError(err as Error);
+        if (active) {
+          setError(err as Error);
+        }
       } finally {
         if (active) {
           setIsLoading(false);
@@ -129,31 +146,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setAccessToken(session?.access_token ?? null);
-      try {
-        await syncUser();
-      } catch (err) {
-        if (err instanceof Error && err.message.startsWith("401")) {
-          setError(null);
-        } else {
-          setError(err as Error);
-        }
-      }
-    });
-
-    void init();
+    void setup();
 
     return () => {
       active = false;
-      listener.subscription.unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [syncUser]);
 
   const loginMutation = useMutation<PublicUser, Error, LoginUser>({
     mutationFn: async (credentials: LoginUser) => {
       const { ensureSupabaseConfig, getSupabaseClient } = await import("@/lib/supabaseClient");
-      if (!(await ensureSupabaseConfig())) {
+      const hasConfig = await ensureSupabaseConfig();
+      if (!hasConfig) {
         throw new Error(
           "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
         );
@@ -207,7 +214,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (payload: InsertUser) => {
       const { ensureSupabaseConfig, getSupabaseClient } = await import("@/lib/supabaseClient");
-      if (!(await ensureSupabaseConfig())) {
+      const hasConfig = await ensureSupabaseConfig();
+      if (!hasConfig) {
         throw new Error(
           "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
         );
@@ -252,7 +260,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const { ensureSupabaseConfig, getSupabaseClient } = await import("@/lib/supabaseClient");
-      if (!(await ensureSupabaseConfig())) {
+      const hasConfig = await ensureSupabaseConfig();
+      if (!hasConfig) {
         // If Supabase isn't configured, just clear local state client-side
         setUser(null);
         localStorage.removeItem(AUTH_STORAGE_KEY);
