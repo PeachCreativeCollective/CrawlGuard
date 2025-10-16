@@ -2,6 +2,7 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import { registerRoutes } from "./routes";
 import { log } from "./logger";
 import { readEnv } from "./env";
+import { getSupabaseServiceClient } from "./supabaseClient";
 
 let adminSeedPromise: Promise<void> | null = null;
 
@@ -18,16 +19,15 @@ async function ensureAdminSeeded() {
         return;
       }
 
-      const { ensureDatabase, getPool } = await import("./db");
-      if (!ensureDatabase()) {
-        log("skipping admin seed: no DB pool");
+      try {
+        const supabase = getSupabaseServiceClient();
+        await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        log(`admin seed skipped: unable to reach Supabase admin API (${message})`);
         return;
       }
 
-      const pool = getPool();
-      if (pool) {
-        await pool.query("select 1");
-      }
       const { seedAdminFromEnv } = await import("./seed");
       await seedAdminFromEnv();
       log("admin seed completed");
