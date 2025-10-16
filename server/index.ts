@@ -56,7 +56,7 @@ app.use((req, res, next) => {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         log(`admin seed skipped: unable to reach Supabase admin API (${message})`);
-        throw error;
+        return;
       }
 
       const { seedAdminFromEnv } = await import("./seed");
