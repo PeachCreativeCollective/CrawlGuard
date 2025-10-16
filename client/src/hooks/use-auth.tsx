@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     let active = true;
 
-    if (!hasSupabaseConfig()) {
+    if (!(await (await import("@/lib/supabaseClient")).ensureSupabaseConfig())) {
       setError(
         new Error(
           "Supabase credentials are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable authentication."
@@ -109,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
+    const { getSupabaseClient } = await import("@/lib/supabaseClient");
     const supabase = getSupabaseClient();
 
     const init = async () => {
