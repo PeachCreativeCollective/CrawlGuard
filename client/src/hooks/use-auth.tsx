@@ -181,13 +181,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!currentUser) {
         const diagnostic = lastProfileErrorRef.current;
+        console.error("[auth] Login completed without profile", { diagnostic });
+
+        // If profile sync failed due to 401 (server couldn't validate token), attempt
+        // to read the user from the Supabase client as a soft-fallback so the UI remains usable.
+        if (typeof diagnostic === "string" && diagnostic.startsWith("401")) {
+          try {
+            const { getSupabaseClient } = await import("@/lib/supabaseClient");
+            const supabase = getSupabaseClient();
+            const token = getAccessToken();
+            const { data, error } = await supabase.auth.getUser(token ?? undefined);
+            if (!error && data.user) {
+              const u = data.user;
+              const fallback: PublicUser = {
+                id: u.id,
+                username: (u.user_metadata as any)?.username ?? (u.email ? u.email.split("@")[0] : "user"),
+                email: u.email ?? "",
+                isAdmin: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              };
+              console.warn("[auth] Using client-side Supabase user fallback due to server 401");
+              setUser(fallback);
+              localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fallback));
+              return fallback;
+            }
+          } catch (err) {
+            console.warn("[auth] Client-side supabase fallback failed", err);
+          }
+        }
+
         const baseMessage = "Login succeeded but user profile is unavailable.";
-        const detail = diagnostic
-          ? ` Last profile sync error: ${diagnostic}`
-          : " Please try again.";
-        console.error("[auth] Login completed without profile", {
-          diagnostic,
-        });
+        const detail = diagnostic ? ` Last profile sync error: ${diagnostic}` : " Please try again.";
         throw new Error(baseMessage + detail);
       }
 
