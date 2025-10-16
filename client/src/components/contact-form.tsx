@@ -50,7 +50,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await apiRequest("POST", "/api/contact", data);
+      const response = await apiRequest("POST", "/api/contact", data, { timeoutMs: 20000 });
       const result = await response.json();
       
       if (result.success) {
