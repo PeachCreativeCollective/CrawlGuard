@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 import { log } from "./logger";
 import { readEnv } from "./env";
+import { getSupabaseServiceClient } from "./supabaseClient";
 
 const app = express();
 app.use(express.json());
@@ -49,18 +50,18 @@ app.use((req, res, next) => {
     if (!hasServiceRole) {
       log("admin seed skipped: Supabase service role not configured");
     } else {
-      const { ensureDatabase, getPool } = await import("./db");
-      if (!ensureDatabase()) {
-        log("skipping admin seed: no DB pool");
-      } else {
-        const pool = getPool();
-        if (pool) {
-          await pool.query("select 1");
-        }
-        const { seedAdminFromEnv } = await import("./seed");
-        await seedAdminFromEnv();
-        log("admin seed completed");
+      try {
+        const supabase = getSupabaseServiceClient();
+        await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        log(`admin seed skipped: unable to reach Supabase admin API (${message})`);
+        throw error;
       }
+
+      const { seedAdminFromEnv } = await import("./seed");
+      await seedAdminFromEnv();
+      log("admin seed completed");
     }
   } catch (e: any) {
     log(`admin seed skipped: ${e?.message || e}`);
