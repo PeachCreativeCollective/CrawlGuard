@@ -21,6 +21,16 @@ import { z } from "zod";
 export function registerRoutes(app: Express): void {
   const storage = getStorage();
 
+  // Public endpoint to expose non-sensitive runtime configuration to the client
+  // (used when Vite build-time VITE_* variables are not available). Only exposes
+  // the VITE-prefixed Supabase runtime variables which are safe for client use.
+  app.get("/api/runtime-config", (_req, res) => {
+    res.json({
+      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL ?? null,
+      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY ?? null,
+    });
+  });
+
   app.post("/api/contact", async (req, res) => {
     try {
       const validatedData = insertContactSubmissionSchema.parse(req.body);
