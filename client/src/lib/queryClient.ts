@@ -65,20 +65,53 @@ async function buildAuthHeaders(hasBody: boolean): Promise<Record<string, string
   return headers;
 }
 
+export type ApiRequestOptions = {
+  timeoutMs?: number;
+  headers?: Record<string, string>;
+};
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  options?: ApiRequestOptions,
 ): Promise<Response> {
   const headers = await buildAuthHeaders(Boolean(data));
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-  });
+  if (options?.headers) {
+    Object.assign(headers, options.headers);
+  }
 
-  await throwIfResNotOk(res);
-  return res;
+  const timeoutMs = options?.timeoutMs ?? 15000;
+  const supportsAbort = typeof AbortController !== "undefined";
+  const controller = supportsAbort ? new AbortController() : null;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  if (controller && Number.isFinite(timeoutMs) && timeoutMs > 0) {
+    timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeoutMs);
+  }
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      signal: controller?.signal,
+    });
+
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    if (controller && error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Request timed out. Please try again.");
+    }
+    throw error instanceof Error ? error : new Error(String(error));
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
