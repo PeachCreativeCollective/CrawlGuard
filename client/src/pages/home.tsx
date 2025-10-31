@@ -17,7 +17,7 @@ export default function Home() {
     "name": "CrawlGuard LLC",
     "description": "Professional crawl space waterproofing, basement waterproofing, and mold remediation services in Asheville, NC and surrounding areas.",
     "url": "https://crawlguardllc.com",
-    "telephone": "+1-828-206-5924",
+    "telephone": "+1-828-276-3897",
     "email": "CrawlguardLLC@gmail.com",
     "address": {
       "@type": "PostalAddress",
