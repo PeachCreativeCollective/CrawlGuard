@@ -801,7 +801,7 @@ export default function Admin() {
             ))}
           </div>
 
-          <Tabs defaultValue="leads" className="w-full">
+          <Tabs defaultValue="submissions" className="w-full">
             <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-7' : 'grid-cols-6'} bg-white border border-crawlguard-primary/20`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
