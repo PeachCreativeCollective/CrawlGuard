@@ -164,7 +164,7 @@ export class DatabaseStorage implements IStorage {
     return await this.db
       .select()
       .from(contactSubmissions)
-      .where(eq(contactSubmissions.archived, false))
+      .where(sql`${contactSubmissions.archived} IS NULL OR ${contactSubmissions.archived} = false`)
       .orderBy(desc(contactSubmissions.createdAt));
   }
 

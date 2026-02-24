@@ -449,7 +449,7 @@ export class SupabaseStorage implements IStorage {
     const { data, error } = await this.client
       .from("contact_submissions")
       .select("*")
-      .eq("archived", false)
+      .or("archived.is.null,archived.eq.false")
       .order("created_at", { ascending: false });
     if (error) {
       throw error;
