@@ -1,6 +1,6 @@
 export const BUSINESS_INFO = {
   name: "CrawlGuard LLC",
-  phone: "(828) 276-3897",
+  phone: "(828) 206-5924",
   email: "CrawlguardLLC@gmail.com",
   address: {
     city: "Asheville",
