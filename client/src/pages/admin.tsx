@@ -550,9 +550,23 @@ export default function Admin() {
       if (!response.ok) throw new Error("Failed to convert submission");
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      toast({
+        title: "Submission Converted",
+        description: `${data.name} has been converted to a lead.`,
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      // Invalidate both active and archived submissions
       queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions", true] });
+      queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions", false] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to convert submission to lead",
+        variant: "destructive",
+      });
     }
   });
 
