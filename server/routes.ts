@@ -98,6 +98,16 @@ export function registerRoutes(app: Express): void {
     }
   });
 
+  apiRouter.get("/contact-submissions/archived", requireAuth, async (_req, res) => {
+    try {
+      const submissions = await storage.getArchivedContactSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching archived submissions:", error);
+      res.status(500).json({ message: "Failed to fetch archived submissions" });
+    }
+  });
+
   apiRouter.get("/leads", requireAuth, async (req, res) => {
     try {
       const { status } = req.query;
@@ -207,6 +217,26 @@ export function registerRoutes(app: Express): void {
     } catch (error) {
       console.error("Error converting to lead:", error);
       res.status(500).json({ message: "Failed to convert to lead" });
+    }
+  });
+
+  apiRouter.patch("/contact-submissions/:id/archive", requireAuth, async (req, res) => {
+    try {
+      await storage.archiveContactSubmission(req.params.id);
+      res.json({ success: true, message: "Submission archived successfully" });
+    } catch (error) {
+      console.error("Error archiving submission:", error);
+      res.status(500).json({ message: "Failed to archive submission" });
+    }
+  });
+
+  apiRouter.delete("/contact-submissions/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteContactSubmission(req.params.id);
+      res.json({ success: true, message: "Submission deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting submission:", error);
+      res.status(500).json({ message: "Failed to delete submission" });
     }
   });
 

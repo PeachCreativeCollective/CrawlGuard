@@ -45,6 +45,9 @@ export interface IStorage {
 
   createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
   getContactSubmissions(): Promise<ContactSubmission[]>;
+  getArchivedContactSubmissions(): Promise<ContactSubmission[]>;
+  archiveContactSubmission(id: string): Promise<void>;
+  deleteContactSubmission(id: string): Promise<void>;
 
   createLead(lead: InsertLead): Promise<Lead>;
   getLeads(): Promise<Lead[]>;
@@ -161,7 +164,29 @@ export class DatabaseStorage implements IStorage {
     return await this.db
       .select()
       .from(contactSubmissions)
+      .where(eq(contactSubmissions.archived, false))
       .orderBy(desc(contactSubmissions.createdAt));
+  }
+
+  async getArchivedContactSubmissions(): Promise<ContactSubmission[]> {
+    return await this.db
+      .select()
+      .from(contactSubmissions)
+      .where(eq(contactSubmissions.archived, true))
+      .orderBy(desc(contactSubmissions.createdAt));
+  }
+
+  async archiveContactSubmission(id: string): Promise<void> {
+    await this.db
+      .update(contactSubmissions)
+      .set({ archived: true })
+      .where(eq(contactSubmissions.id, id));
+  }
+
+  async deleteContactSubmission(id: string): Promise<void> {
+    await this.db
+      .delete(contactSubmissions)
+      .where(eq(contactSubmissions.id, id));
   }
 
   async createLead(insertLead: InsertLead): Promise<Lead> {
@@ -384,12 +409,31 @@ class MemoryStorage implements IStorage {
       zipCode: data.zipCode,
       service: data.service ?? null as any,
       message: data.message ?? null as any,
+      archived: false,
       createdAt: new Date(),
     } as ContactSubmission;
     this.contactSubs.push(sub);
     return sub;
   }
-  async getContactSubmissions() { return [...this.contactSubs].sort((a,b) => (b.createdAt as any) - (a.createdAt as any)); }
+  async getContactSubmissions() {
+    return [...this.contactSubs]
+      .filter(s => !s.archived)
+      .sort((a,b) => (b.createdAt as any) - (a.createdAt as any));
+  }
+  async getArchivedContactSubmissions() {
+    return [...this.contactSubs]
+      .filter(s => s.archived)
+      .sort((a,b) => (b.createdAt as any) - (a.createdAt as any));
+  }
+  async archiveContactSubmission(id: string) {
+    const sub = this.contactSubs.find(s => s.id === id);
+    if (sub) {
+      sub.archived = true;
+    }
+  }
+  async deleteContactSubmission(id: string) {
+    this.contactSubs = this.contactSubs.filter(s => s.id !== id);
+  }
 
   async createLead(data: InsertLead) {
     const lead: Lead = {

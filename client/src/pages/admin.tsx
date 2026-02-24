@@ -394,6 +394,7 @@ function PasswordResetForm({
 export default function Admin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showArchivedSubmissions, setShowArchivedSubmissions] = useState(false);
   const [isLeadFormOpen, setIsLeadFormOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedLeadForAppointment, setSelectedLeadForAppointment] = useState<Lead | null>(null);
@@ -430,7 +431,13 @@ export default function Admin() {
 
   // Fetch contact submissions
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery<ContactSubmission[]>({
-    queryKey: ["/api/contact-submissions"],
+    queryKey: ["/api/contact-submissions", showArchivedSubmissions],
+    queryFn: async () => {
+      const endpoint = showArchivedSubmissions ? "/api/contact-submissions/archived" : "/api/contact-submissions";
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error("Failed to fetch submissions");
+      return response.json();
+    },
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnReconnect: "always",
@@ -546,6 +553,57 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
+    }
+  });
+
+  // Archive submission
+  const archiveSubmissionMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const response = await fetch(`/api/contact-submissions/${submissionId}/archive`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!response.ok) throw new Error("Failed to archive submission");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Submission Archived",
+        description: "The submission has been archived.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Delete submission
+  const deleteSubmissionMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const response = await fetch(`/api/contact-submissions/${submissionId}`, {
+        method: "DELETE"
+      });
+      if (!response.ok) throw new Error("Failed to delete submission");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Submission Deleted",
+        description: "The submission has been permanently deleted.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/contact-submissions"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   });
 
@@ -888,8 +946,20 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="submissions" className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
                 <h2 className="text-xl font-semibold text-crawlguard-dark">Contact Form Submissions</h2>
+                <Button
+                  variant={showArchivedSubmissions ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowArchivedSubmissions(!showArchivedSubmissions)}
+                  className={showArchivedSubmissions ?
+                    "bg-yellow-600 hover:bg-yellow-700 text-white" :
+                    "border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+                  }
+                  data-testid="toggle-archived-submissions"
+                >
+                  {showArchivedSubmissions ? "Hiding Archived" : "Show Archived"}
+                </Button>
               </div>
 
               {submissionsLoading ? (
@@ -927,16 +997,39 @@ export default function Admin() {
                               </div>
                             )}
                           </div>
-                          <Button
-                            size="sm"
-                            onClick={() => convertToLeadMutation.mutate(submission.id)}
-                            disabled={convertToLeadMutation.isPending}
-                            className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white border-crawlguard-primary w-full sm:w-auto"
-                            data-testid={`convert-submission-${submission.id}`}
-                          >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Convert to Lead
-                          </Button>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Button
+                              size="sm"
+                              onClick={() => convertToLeadMutation.mutate(submission.id)}
+                              disabled={convertToLeadMutation.isPending}
+                              className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white border-crawlguard-primary flex-1 sm:flex-none"
+                              data-testid={`convert-submission-${submission.id}`}
+                            >
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Convert
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => archiveSubmissionMutation.mutate(submission.id)}
+                              disabled={archiveSubmissionMutation.isPending}
+                              className="border-yellow-300 text-yellow-700 hover:bg-yellow-50 flex-1 sm:flex-none"
+                              data-testid={`archive-submission-${submission.id}`}
+                            >
+                              <AlertTriangle className="w-4 h-4 mr-1" />
+                              Archive
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => deleteSubmissionMutation.mutate(submission.id)}
+                              disabled={deleteSubmissionMutation.isPending}
+                              className="border-red-200 text-red-600 hover:bg-red-50 flex-1 sm:flex-none"
+                              data-testid={`delete-submission-${submission.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

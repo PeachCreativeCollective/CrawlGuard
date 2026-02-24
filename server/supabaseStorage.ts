@@ -69,6 +69,7 @@ function mapContactSubmission(row: any | null): ContactSubmission | undefined {
     zipCode: row.zip_code,
     service: row.service ?? null,
     message: row.message ?? null,
+    archived: Boolean(row.archived),
     createdAt: toDate(row.created_at),
   } as ContactSubmission;
 }
@@ -448,6 +449,7 @@ export class SupabaseStorage implements IStorage {
     const { data, error } = await this.client
       .from("contact_submissions")
       .select("*")
+      .eq("archived", false)
       .order("created_at", { ascending: false });
     if (error) {
       throw error;
@@ -455,6 +457,40 @@ export class SupabaseStorage implements IStorage {
     return (data ?? [])
       .map(mapContactSubmission)
       .filter((row): row is ContactSubmission => Boolean(row));
+  }
+
+  async getArchivedContactSubmissions(): Promise<ContactSubmission[]> {
+    const { data, error } = await this.client
+      .from("contact_submissions")
+      .select("*")
+      .eq("archived", true)
+      .order("created_at", { ascending: false });
+    if (error) {
+      throw error;
+    }
+    return (data ?? [])
+      .map(mapContactSubmission)
+      .filter((row): row is ContactSubmission => Boolean(row));
+  }
+
+  async archiveContactSubmission(id: string): Promise<void> {
+    const { error } = await this.client
+      .from("contact_submissions")
+      .update({ archived: true })
+      .eq("id", id);
+    if (error) {
+      throw error;
+    }
+  }
+
+  async deleteContactSubmission(id: string): Promise<void> {
+    const { error } = await this.client
+      .from("contact_submissions")
+      .delete()
+      .eq("id", id);
+    if (error) {
+      throw error;
+    }
   }
 
   async createLead(lead: InsertLead): Promise<Lead> {

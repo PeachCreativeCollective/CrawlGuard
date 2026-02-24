@@ -22,6 +22,7 @@ export const contactSubmissions = pgTable("contact_submissions", {
   zipCode: text("zip_code").notNull(),
   service: text("service"),
   message: text("message"),
+  archived: boolean("archived").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
