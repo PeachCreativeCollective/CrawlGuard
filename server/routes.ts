@@ -197,7 +197,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.post("/contact-submissions/:id/convert-to-lead", requireAuth, async (req, res) => {
+  apiRouter.post("/contact-submissions/:id/convert-to-lead", async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       const submission = submissions.find((s) => s.id === req.params.id);
@@ -225,7 +225,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.patch("/contact-submissions/:id/archive", requireAuth, async (req, res) => {
+  apiRouter.patch("/contact-submissions/:id/archive", async (req, res) => {
     try {
       await storage.archiveContactSubmission(req.params.id);
       res.json({ success: true, message: "Submission archived successfully" });
@@ -235,7 +235,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.delete("/contact-submissions/:id", requireAuth, async (req, res) => {
+  apiRouter.delete("/contact-submissions/:id", async (req, res) => {
     try {
       await storage.deleteContactSubmission(req.params.id);
       res.json({ success: true, message: "Submission deleted successfully" });
