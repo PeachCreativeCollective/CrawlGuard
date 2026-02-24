@@ -430,7 +430,7 @@ export default function Admin() {
   });
 
   // Fetch contact submissions
-  const { data: submissions = [], isLoading: submissionsLoading } = useQuery<ContactSubmission[]>({
+  const { data: submissions = [], isLoading: submissionsLoading, error: submissionsError } = useQuery<ContactSubmission[]>({
     queryKey: ["/api/contact-submissions", showArchivedSubmissions],
     queryFn: async () => {
       const endpoint = showArchivedSubmissions ? "/api/contact-submissions/archived" : "/api/contact-submissions";
@@ -977,6 +977,13 @@ export default function Admin() {
 
               {submissionsLoading ? (
                 <div className="text-center py-8 text-crawlguard-dark/70">Loading submissions...</div>
+              ) : submissionsError ? (
+                <Card className="border-red-300 border-2">
+                  <CardContent className="text-center py-8">
+                    <p className="text-red-600 font-semibold">Error loading submissions</p>
+                    <p className="text-red-500 text-sm mt-2">{submissionsError.message}</p>
+                  </CardContent>
+                </Card>
               ) : submissions.length === 0 ? (
                 <Card className="border-crawlguard-primary/10">
                   <CardContent className="text-center py-8">
