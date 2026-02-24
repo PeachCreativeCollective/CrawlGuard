@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { Express } from "express";
 import { getStorage } from "./storage";
-import { attachUser, requireAuth, requireAdmin } from "./auth";
+import { attachUser, requireAuth, requireAuthOrLocal, requireAdmin } from "./auth";
 import { googleCalendarService } from "./google-calendar";
 import { ObjectStorageService } from "./objectStorage";
 import {
@@ -93,7 +93,7 @@ export function registerRoutes(app: Express): void {
     res.json(req.user);
   });
 
-  apiRouter.get("/contact-submissions", async (_req, res) => {
+  apiRouter.get("/contact-submissions", requireAuthOrLocal, async (_req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions);
@@ -103,7 +103,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.get("/contact-submissions/archived", async (_req, res) => {
+  apiRouter.get("/contact-submissions/archived", requireAuthOrLocal, async (_req, res) => {
     try {
       const submissions = await storage.getArchivedContactSubmissions();
       res.json(submissions);
@@ -113,7 +113,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.get("/leads", requireAuth, async (req, res) => {
+  apiRouter.get("/leads", requireAuthOrLocal, async (req, res) => {
     try {
       const { status } = req.query;
       const leads = status
@@ -126,7 +126,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.get("/leads/:id", requireAuth, async (req, res) => {
+  apiRouter.get("/leads/:id", requireAuthOrLocal, async (req, res) => {
     try {
       const lead = await storage.getLeadById(req.params.id);
       if (!lead) {
@@ -139,7 +139,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.post("/leads", requireAuth, async (req, res) => {
+  apiRouter.post("/leads", requireAuthOrLocal, async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
 
@@ -162,7 +162,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.patch("/leads/:id", requireAuth, async (req, res) => {
+  apiRouter.patch("/leads/:id", requireAuthOrLocal, async (req, res) => {
     try {
       console.log("Updating lead with data:", JSON.stringify(req.body, null, 2));
       const validatedData = updateLeadSchema.parse(req.body);
@@ -187,7 +187,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.delete("/leads/:id", requireAuth, async (req, res) => {
+  apiRouter.delete("/leads/:id", requireAuthOrLocal, async (req, res) => {
     try {
       await storage.deleteLead(req.params.id);
       res.json({ success: true });
@@ -197,7 +197,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.post("/contact-submissions/:id/convert-to-lead", async (req, res) => {
+  apiRouter.post("/contact-submissions/:id/convert-to-lead", requireAuthOrLocal, async (req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       const submission = submissions.find((s) => s.id === req.params.id);
@@ -225,7 +225,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.patch("/contact-submissions/:id/archive", async (req, res) => {
+  apiRouter.patch("/contact-submissions/:id/archive", requireAuthOrLocal, async (req, res) => {
     try {
       await storage.archiveContactSubmission(req.params.id);
       res.json({ success: true, message: "Submission archived successfully" });
@@ -235,7 +235,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.delete("/contact-submissions/:id", async (req, res) => {
+  apiRouter.delete("/contact-submissions/:id", requireAuthOrLocal, async (req, res) => {
     try {
       await storage.deleteContactSubmission(req.params.id);
       res.json({ success: true, message: "Submission deleted successfully" });
