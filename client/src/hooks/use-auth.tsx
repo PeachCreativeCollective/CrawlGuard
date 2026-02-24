@@ -40,15 +40,27 @@ async function fetchCurrentUser(): Promise<PublicUser | null> {
   try {
     const res = await apiRequest("GET", "/api/user");
     setLastProfileFetchDiagnostic(null);
-    return await res.json();
+    const data = await res.json();
+    return data;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const fullError = error instanceof Error ? error : new Error(message);
+
     setLastProfileFetchDiagnostic(message);
-    if (message.startsWith("401")) {
-      console.warn("[auth] Profile request returned 401", { message });
+
+    if (message.includes("401")) {
+      console.warn("[auth] Profile request returned 401", {
+        message,
+        errorName: fullError.name,
+      });
       return null;
     }
-    throw error instanceof Error ? error : new Error(message);
+
+    console.error("[auth] Profile request failed with error", {
+      message,
+      errorName: fullError.name,
+    });
+    throw fullError;
   }
 }
 
@@ -181,11 +193,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!currentUser) {
         const diagnostic = lastProfileErrorRef.current;
-        console.error("[auth] Login completed without profile", { diagnostic });
+        console.warn("[auth] Login completed without server profile", {
+          diagnostic,
+          hasToken: !!getAccessToken(),
+        });
 
         // If profile sync failed due to 401 (server couldn't validate token), attempt
         // to read the user from the Supabase client as a soft-fallback so the UI remains usable.
-        if (typeof diagnostic === "string" && diagnostic.startsWith("401")) {
+        if (diagnostic && diagnostic.includes("401")) {
           try {
             const { getSupabaseClient } = await import("@/lib/supabaseClient");
             const supabase = getSupabaseClient();
@@ -201,7 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 createdAt: new Date(),
                 updatedAt: new Date(),
               };
-              console.warn("[auth] Using client-side Supabase user fallback due to server 401");
+              console.info("[auth] Using client-side Supabase user fallback due to server 401");
               setUser(fallback);
               localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fallback));
               return fallback;
@@ -212,7 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const baseMessage = "Login succeeded but user profile is unavailable.";
-        const detail = diagnostic ? ` Last profile sync error: ${diagnostic}` : " Please try again.";
+        const detail = diagnostic ? ` Server error: ${diagnostic}` : " Please try again.";
         throw new Error(baseMessage + detail);
       }
 

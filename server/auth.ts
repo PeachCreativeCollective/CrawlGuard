@@ -69,16 +69,18 @@ export const attachUser: RequestHandler = async (req, res, next) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack : undefined;
+    const tokenPreview = token ? `${token.slice(0, 10)}…` : "none";
 
     if (isTlsVerificationError(error)) {
       console.error("[auth] TLS error while resolving Supabase user; continuing anonymously", {
         message,
-        stack,
+        tokenPreview,
       });
     } else {
       console.warn("[auth] Failed to resolve Supabase user; proceeding anonymously", {
         message,
-        stack,
+        tokenPreview,
+        errorName: error instanceof Error ? error.name : "unknown",
       });
     }
 

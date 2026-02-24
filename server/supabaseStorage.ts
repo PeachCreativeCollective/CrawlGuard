@@ -173,6 +173,7 @@ function toContactInsertPayload(submission: InsertContactSubmission) {
     zip_code: submission.zipCode,
     service: submission.service ?? null,
     message: submission.message ?? null,
+    archived: false,
   });
 }
 

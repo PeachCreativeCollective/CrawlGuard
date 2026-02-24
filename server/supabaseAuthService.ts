@@ -120,15 +120,30 @@ export async function getSupabaseUserFromToken(token: string): Promise<{
   const { data, error } = await supabase.auth.getUser(token);
 
   if (error || !data.user) {
-    throw new Error(error?.message || "Invalid or expired token");
+    const errorMsg = error?.message || "Invalid or expired token";
+    console.warn("[supabaseAuthService] Token validation failed", {
+      errorMsg,
+      errorCode: error?.status,
+      hasToken: !!token,
+    });
+    throw new Error(errorMsg);
   }
 
-  const localUser = await upsertLocalUserFromSupabase(data.user);
-  return {
-    supabaseUser: data.user,
-    localUser,
-    safeUser: sanitizeUser(localUser),
-  };
+  try {
+    const localUser = await upsertLocalUserFromSupabase(data.user);
+    return {
+      supabaseUser: data.user,
+      localUser,
+      safeUser: sanitizeUser(localUser),
+    };
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("[supabaseAuthService] Failed to upsert user from Supabase", {
+      error: errMsg,
+      userEmail: data.user?.email,
+    });
+    throw err;
+  }
 }
 
 export async function updateSupabasePassword(email: string, password: string) {
