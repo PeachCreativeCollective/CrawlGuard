@@ -434,8 +434,7 @@ export default function Admin() {
     queryKey: ["/api/contact-submissions", showArchivedSubmissions],
     queryFn: async () => {
       const endpoint = showArchivedSubmissions ? "/api/contact-submissions/archived" : "/api/contact-submissions";
-      const response = await fetch(endpoint);
-      if (!response.ok) throw new Error("Failed to fetch submissions");
+      const response = await apiRequest("GET", endpoint);
       return response.json();
     },
     staleTime: 0,
