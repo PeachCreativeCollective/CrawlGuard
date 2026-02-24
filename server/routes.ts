@@ -93,7 +93,7 @@ export function registerRoutes(app: Express): void {
     res.json(req.user);
   });
 
-  apiRouter.get("/contact-submissions", requireAuth, async (_req, res) => {
+  apiRouter.get("/contact-submissions", async (_req, res) => {
     try {
       const submissions = await storage.getContactSubmissions();
       res.json(submissions);
@@ -103,7 +103,7 @@ export function registerRoutes(app: Express): void {
     }
   });
 
-  apiRouter.get("/contact-submissions/archived", requireAuth, async (_req, res) => {
+  apiRouter.get("/contact-submissions/archived", async (_req, res) => {
     try {
       const submissions = await storage.getArchivedContactSubmissions();
       res.json(submissions);
