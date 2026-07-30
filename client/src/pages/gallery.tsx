@@ -226,12 +226,8 @@ export default function Gallery() {
       </section>
 
       {/* Gallery Grid */}
-      <section className="py-6 md:py-20 bg-crawlguard-light" data-testid="gallery-grid">
+      <section className="py-4 md:py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 md:mb-10">
-            <h2 className="text-2xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
-            <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
-          </div>
           <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
             {displayedImages.map((image) => (
               <Dialog key={image.id}>
@@ -295,30 +291,17 @@ export default function Gallery() {
             </div>
           )}
 
-          <div className="text-center mt-6">
-            <Button
-              asChild
-              size="lg"
-              className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white font-semibold"
-              data-testid="gallery-cta"
-            >
-              <Link href="/contact">View More Projects</Link>
-            </Button>
-          </div>
         </div>
       </section>
 
-      <section className="py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
+      <section className="py-10 md:py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6 mb-6 md:mb-10">
             <div>
               <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
                 <Facebook className="h-5 w-5" aria-hidden="true" />
                 <span>Featured Reels</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold" data-testid="featured-reels-title">
-                See CrawlGuard in Action
-              </h2>
             </div>
             <p className="text-white/70 max-w-md md:text-right">
               Watch real project updates and waterproofing tips from the CrawlGuard team.
