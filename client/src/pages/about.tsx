@@ -25,8 +25,7 @@ export default function About() {
                 Protecting Homes Across Western NC
               </h1>
               <p className="text-xl text-gray-600 mb-6" data-testid="about-hero-description">
-                At CrawlGuard LLC, we are committed to protecting homes throughout Asheville, NC, and neighboring communities. 
-                Founded in 2023, CrawlGuard LLC delivers expert waterproofing services for wet basements, crawl space moisture, and foundation issues. We keep your home dry, safe, and mold-free.
+                At CrawlGuard LLC, we are committed to protecting homes throughout Greater Asheville, Western North Carolina, and select communities across the state. Founded in 2023, CrawlGuard LLC delivers expert waterproofing services for wet basements, crawl space moisture, and foundation issues. We keep your home dry, safe, and mold-free.
               </p>
               <div className="space-y-4">
                 {[
