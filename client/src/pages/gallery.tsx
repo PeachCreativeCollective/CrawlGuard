@@ -272,52 +272,28 @@ export default function Gallery() {
       </section>
 
       <section className="py-20 bg-crawlguard-dark text-white" data-testid="facebook-reels-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
-                <Facebook className="h-5 w-5" aria-hidden="true" />
-                <span>Follow Along</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-5" data-testid="facebook-reels-title">
-                See CrawlGuard in Action
-              </h2>
-              <p className="text-lg text-white/75 max-w-2xl mb-8" data-testid="facebook-reels-description">
-                Our Facebook Reels show the people, projects, and waterproofing solutions behind the photos. Visit our page to watch the latest videos from CrawlGuard LLC.
-              </p>
-              <Button
-                asChild
-                size="lg"
-                className="bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold"
-                data-testid="facebook-reels-button"
-              >
-                <a href="https://www.facebook.com/CrawlGuardLLC/reels/" target="_blank" rel="noreferrer">
-                  Watch Our Reels
-                  <Play className="ml-2 h-4 w-4 fill-current" aria-hidden="true" />
-                </a>
-              </Button>
-            </div>
-            <a
-              href="https://www.facebook.com/CrawlGuardLLC/reels/"
-              target="_blank"
-              rel="noreferrer"
-              className="group relative min-h-[260px] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-crawlguard-primary/30 via-crawlguard-dark to-blue-950 p-8 shadow-2xl transition-transform hover:-translate-y-1"
-              data-testid="facebook-reels-card"
-            >
-              <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-crawlguard-primary/20 blur-2xl transition-opacity group-hover:opacity-80" />
-              <div className="relative flex h-full min-h-[196px] flex-col justify-between">
-                <Facebook className="h-12 w-12 text-white" aria-hidden="true" />
-                <div>
-                  <p className="text-2xl font-bold mb-2">CrawlGuard LLC</p>
-                  <p className="text-white/70">Watch our latest project videos and Reels on Facebook</p>
-                </div>
-                <span className="mt-6 inline-flex items-center text-crawlguard-primary font-semibold">
-                  Open Facebook Reels
-                  <Play className="ml-2 h-4 w-4 fill-current transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                </span>
-              </div>
-            </a>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
+            <Facebook className="h-5 w-5" aria-hidden="true" />
+            <span>Follow Along</span>
           </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-5" data-testid="facebook-reels-title">
+            See CrawlGuard in Action
+          </h2>
+          <p className="text-lg text-white/75 max-w-2xl mx-auto mb-8" data-testid="facebook-reels-description">
+            Our Facebook Reels show the people, projects, and waterproofing solutions behind the photos. Visit our page to watch the latest videos from CrawlGuard LLC.
+          </p>
+          <Button
+            asChild
+            size="lg"
+            className="bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold"
+            data-testid="facebook-reels-button"
+          >
+            <a href="https://www.facebook.com/CrawlGuardLLC/reels/" target="_blank" rel="noreferrer">
+              Watch Our Reels
+              <Play className="ml-2 h-4 w-4 fill-current" aria-hidden="true" />
+            </a>
+          </Button>
         </div>
       </section>
 
