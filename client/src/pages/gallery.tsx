@@ -183,12 +183,12 @@ export default function Gallery() {
       />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-20" data-testid="gallery-hero">
+      <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-12 md:py-20" data-testid="gallery-hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-crawlguard-dark mb-6" data-testid="gallery-hero-title">
+          <h1 className="text-4xl md:text-5xl font-bold text-crawlguard-dark mb-3 md:mb-6" data-testid="gallery-hero-title">
             See Our Work
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="gallery-hero-description">
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" data-testid="gallery-hero-description">
             Browse our photo gallery to see the difference professional waterproofing can make for homes 
             throughout Asheville and Western North Carolina.
           </p>
@@ -226,7 +226,7 @@ export default function Gallery() {
       </section>
 
       {/* Gallery Grid */}
-      <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
+      <section className="py-10 md:py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
