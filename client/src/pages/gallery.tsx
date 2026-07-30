@@ -183,12 +183,12 @@ export default function Gallery() {
       />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-12 md:py-20" data-testid="gallery-hero">
+      <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-6 md:py-20" data-testid="gallery-hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-crawlguard-dark mb-3 md:mb-6" data-testid="gallery-hero-title">
+          <h1 className="text-3xl md:text-5xl font-bold text-crawlguard-dark mb-2 md:mb-6" data-testid="gallery-hero-title">
             See Our Work
           </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" data-testid="gallery-hero-description">
+          <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto" data-testid="gallery-hero-description">
             Browse our photo gallery to see the difference professional waterproofing can make for homes 
             throughout Asheville and Western North Carolina.
           </p>
@@ -196,7 +196,7 @@ export default function Gallery() {
       </section>
 
       {/* Category Filter */}
-      <section className="py-8 bg-white border-b" data-testid="gallery-filter">
+      <section className="py-4 md:py-8 bg-white border-b" data-testid="gallery-filter">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-5 gap-1 sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
             {categories.map((category) => {
@@ -211,7 +211,7 @@ export default function Gallery() {
                     setShowAllImages(false);
                   }}
                   aria-pressed={isSelected}
-                  className={`h-auto min-h-11 w-full whitespace-normal rounded-lg px-1 py-2 text-center text-[11px] leading-tight sm:h-12 sm:w-auto sm:px-5 sm:py-2 sm:text-sm ${isSelected
+                  className={`h-auto min-h-9 w-full whitespace-normal rounded-lg px-1 py-1.5 text-center text-[11px] leading-tight sm:h-12 sm:w-auto sm:px-5 sm:py-2 sm:text-sm ${isSelected
                     ? "bg-crawlguard-primary text-white hover:bg-crawlguard-primary/90"
                     : "border-crawlguard-primary bg-white text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
                   }`}
@@ -226,11 +226,11 @@ export default function Gallery() {
       </section>
 
       {/* Gallery Grid */}
-      <section className="py-10 md:py-20 bg-crawlguard-light" data-testid="gallery-grid">
+      <section className="py-6 md:py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
-            <p className="text-gray-600 mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
+          <div className="mb-6 md:mb-10">
+            <h2 className="text-2xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
+            <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
           </div>
           <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
             {displayedImages.map((image) => (
