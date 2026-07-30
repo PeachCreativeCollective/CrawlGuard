@@ -95,6 +95,78 @@ const galleryImages = [
     title: "Dehumidification System",
     description: "Advanced moisture control with professional dehumidifier installation",
     category: "crawl-space"
+  },
+  {
+    id: 11,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2Fe2cb23ab2bf0473fbbff7a9cae2d9523?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 12,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2F71102c0b91df446cbc48b69c5f706a56?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 13,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2F4378c14873444c619b012ac2cfce8cf3?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 14,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2F4c366519159e4edc905a2a77aca1b96e?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 15,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2F44043bcde14a4cc1af7a97709ae373cd?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 16,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2F829933da5aff4830bdd1f0c32e7cdb8a?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 17,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2Fbd6fefcec12647ca89cf5572ead1db75?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 18,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2F0c6b81cebbff4bdc8db285c73b0d5be5?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
+  },
+  {
+    id: 19,
+    src: "https://cdn.builder.io/api/v1/image/assets%2F34bf9dd4adbe478f9667d57bf160df89%2Fcad34a90b75347f583f835bd44b7f591?format=webp&width=800&height=1200",
+    alt: "CrawlGuard LLC waterproofing project photo",
+    title: "Waterproofing Project",
+    description: "A recent CrawlGuard waterproofing project",
+    category: "crawl-space"
   }
 ];
 
