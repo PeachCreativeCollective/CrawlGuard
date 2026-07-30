@@ -198,21 +198,29 @@ export default function Gallery() {
       {/* Category Filter */}
       <section className="py-8 bg-white border-b" data-testid="gallery-filter">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center gap-4">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category.id)}
-                className={selectedCategory === category.id 
-                  ? "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" 
-                  : "border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
-                }
-                data-testid={`filter-${category.id}`}
-              >
-                {category.name}
-              </Button>
-            ))}
+          <div className="grid grid-cols-5 gap-1 sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
+            {categories.map((category) => {
+              const isSelected = selectedCategory === category.id;
+
+              return (
+                <Button
+                  key={category.id}
+                  variant={isSelected ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedCategory(category.id);
+                    setShowAllImages(false);
+                  }}
+                  aria-pressed={isSelected}
+                  className={`h-auto min-h-11 w-full whitespace-normal rounded-lg px-1 py-2 text-center text-[11px] leading-tight sm:h-12 sm:w-auto sm:px-5 sm:py-2 sm:text-sm ${isSelected
+                    ? "bg-crawlguard-primary text-white hover:bg-crawlguard-primary/90"
+                    : "border-crawlguard-primary bg-white text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
+                  }`}
+                  data-testid={`filter-${category.id}`}
+                >
+                  {category.name}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -224,19 +232,20 @@ export default function Gallery() {
             <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
             <p className="text-gray-600 mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
             {displayedImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
-                  <div 
-                    className="group cursor-pointer"
+                  <button
+                    type="button"
+                    className="group w-[82vw] max-w-[340px] shrink-0 snap-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crawlguard-primary focus-visible:ring-offset-4 rounded-lg sm:w-full sm:max-w-none"
                     onClick={() => setSelectedImage(image)}
                     data-testid={`gallery-image-${image.id}`}
                   >
                     <img
                       src={image.src}
                       alt={image.alt}
-                      className="w-full h-64 object-cover rounded-lg shadow-md group-hover:shadow-xl transition-shadow"
+                      className="aspect-[4/3] w-full object-cover rounded-lg shadow-md transition-shadow group-hover:shadow-xl sm:aspect-auto sm:h-64"
                       data-testid={`image-${image.id}`}
                       loading="lazy"
                       decoding="async"
@@ -249,7 +258,7 @@ export default function Gallery() {
                         {image.description}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[90vh]" data-testid={`modal-${image.id}`}>
                   <div className="space-y-4">
@@ -316,9 +325,13 @@ export default function Gallery() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
             {featuredFacebookReels.map((reel, index) => (
-              <article key={reel.id} className="w-full max-w-[280px] mx-auto" data-testid={`gallery-video-${index + 1}`}>
+              <article
+                key={reel.id}
+                className="w-[78vw] max-w-[300px] shrink-0 snap-center sm:w-full sm:max-w-[280px] sm:justify-self-center"
+                data-testid={`gallery-video-${index + 1}`}
+              >
                 <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
                   <iframe
                     src={reel.embedUrl}
