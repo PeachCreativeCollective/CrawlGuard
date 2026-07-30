@@ -732,10 +732,9 @@ export default function Admin() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
+                <h1 className="text-lg sm:text-xl font-bold text-crawlguard-dark" data-testid="admin-title">
                   CrawlGuard Admin Dashboard
                 </h1>
-                <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
               </div>
               <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
                 <Button
@@ -784,13 +783,13 @@ export default function Admin() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-6">
             {getStatusStats().map((stat) => (
               <Card key={stat.label} data-testid={`stat-${stat.label.toLowerCase().replace(' ', '-')}`} 
-                    className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
-                <CardContent className={`p-4 sm:p-6 ${stat.bgColor || 'bg-white'}`}>
-                  <div className={`text-xl sm:text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                  <div className="text-xs sm:text-sm text-crawlguard-dark/70 mt-1">{stat.label}</div>
+                    className="min-w-0 border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
+                <CardContent className={`p-2 sm:p-3 ${stat.bgColor || 'bg-white'}`}>
+                  <div className={`text-lg sm:text-xl font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs leading-tight text-crawlguard-dark/70 mt-1">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
