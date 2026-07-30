@@ -95,6 +95,54 @@ const galleryImages = [
     title: "Dehumidification System",
     description: "Advanced moisture control with professional dehumidifier installation",
     category: "crawl-space"
+  },
+  {
+    id: 11,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/c32aeb85993b4310a79bf856b55a127b?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space encapsulation project",
+    title: "Crawl Space Encapsulation",
+    description: "Moisture-protected crawl space with a sealed vapor barrier",
+    category: "crawl-space"
+  },
+  {
+    id: 12,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/d881659c4ceb4e4abdc731e79b8bea39?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space waterproofing project",
+    title: "Encapsulation Project",
+    description: "Completed crawl space moisture control installation",
+    category: "crawl-space"
+  },
+  {
+    id: 13,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/115ea431186d4e2d99dc608fc254f8b4?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space with sealed walls and insulated ductwork",
+    title: "Sealed Crawl Space",
+    description: "Finished crawl space with sealed walls and protected ductwork",
+    category: "crawl-space"
+  },
+  {
+    id: 14,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/eacf3b9d2c914773aa0d8b169eb0c7df?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space encapsulation with HVAC equipment",
+    title: "HVAC-Ready Encapsulation",
+    description: "Clean encapsulated space surrounding HVAC and drainage systems",
+    category: "crawl-space"
+  },
+  {
+    id: 15,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/ce4b811478bb46e399dc91c10ca483fe?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard wide crawl space encapsulation project",
+    title: "Full Crawl Space Protection",
+    description: "Wide-view project photo showing continuous floor and wall coverage",
+    category: "crawl-space"
+  },
+  {
+    id: 16,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/a4886367430f431e96fcbbdffab7971b?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard finished crawl space vapor barrier installation",
+    title: "Finished Vapor Barrier",
+    description: "Completed vapor barrier installation across the crawl space",
+    category: "crawl-space"
   }
 ];
 
