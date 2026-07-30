@@ -3,6 +3,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "wouter";
+import { Facebook } from "lucide-react";
 import cg1Image from "@assets/CG1_1755280257030.webp";
 import cg2Image from "@assets/CG2_1755280257030.webp";
 import cg3Image from "@assets/CG3_1755280257029.webp";
@@ -146,6 +147,14 @@ const galleryImages = [
   }
 ];
 
+const featuredFacebookReels = [
+  { id: "1062278912803305", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1062278912803305&show_text=false&width=500" },
+  { id: "1517118753181746", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1517118753181746&show_text=false&width=500" },
+  { id: "954581030771601", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F954581030771601&show_text=false&width=500" },
+  { id: "912295750875837", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F912295750875837&show_text=false&width=500" },
+];
+const transformationVideoEmbedUrl = "https://www.youtube.com/embed/tBGqj22J7FI?rel=0";
+
 const categories = [
   { id: "all", name: "All Projects" },
   { id: "crawl-space", name: "Crawl Space" },
@@ -157,10 +166,12 @@ const categories = [
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+  const [showAllImages, setShowAllImages] = useState(false);
 
-  const filteredImages = selectedCategory === "all" 
-    ? galleryImages 
+  const filteredImages = selectedCategory === "all"
+    ? galleryImages
     : galleryImages.filter(image => image.category === selectedCategory);
+  const displayedImages = showAllImages ? filteredImages : filteredImages.slice(0, 9);
 
   return (
     <>
@@ -209,8 +220,12 @@ export default function Gallery() {
       {/* Gallery Grid */}
       <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
+            <p className="text-gray-600 mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredImages.map((image) => (
+            {displayedImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
                   <div 
@@ -257,8 +272,22 @@ export default function Gallery() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <Button 
+          {filteredImages.length > 9 && (
+            <div className="text-center mt-12">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowAllImages((isShowingAll) => !isShowingAll)}
+                className="border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
+                data-testid="gallery-view-more"
+              >
+                {showAllImages ? "Show Fewer Photos" : "View More Photos"}
+              </Button>
+            </div>
+          )}
+
+          <div className="text-center mt-6">
+            <Button
               asChild
               size="lg"
               className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white font-semibold"
@@ -266,6 +295,43 @@ export default function Gallery() {
             >
               <Link href="/contact">View More Projects</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
+                <Facebook className="h-5 w-5" aria-hidden="true" />
+                <span>Featured Reels</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold" data-testid="featured-reels-title">
+                See CrawlGuard in Action
+              </h2>
+            </div>
+            <p className="text-white/70 max-w-md md:text-right">
+              Watch real project updates and waterproofing tips from the CrawlGuard team.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredFacebookReels.map((reel, index) => (
+              <article key={reel.id} className="w-full max-w-[280px] mx-auto" data-testid={`gallery-video-${index + 1}`}>
+                <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
+                  <iframe
+                    src={reel.embedUrl}
+                    title={`CrawlGuard LLC Facebook Reel ${index + 1}`}
+                    className="block aspect-[9/16] w-full"
+                    scrolling="no"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -305,15 +371,19 @@ export default function Gallery() {
                 ))}
               </div>
             </div>
-            <div>
-              <img
-                src={cg9Image}
-                alt="Completed CrawlGuard waterproofing project showing protected crawl space"
-                className="rounded-xl shadow-lg w-full h-auto"
-                data-testid="transformation-image"
-                loading="lazy"
-                decoding="async"
-              />
+            <div className="mx-auto w-full max-w-md">
+              <div className="overflow-hidden rounded-xl bg-black shadow-lg ring-1 ring-crawlguard-dark/10">
+                <iframe
+                  src={transformationVideoEmbedUrl}
+                  title="CrawlGuard LLC YouTube video showing the CrawlGuard difference"
+                  className="block aspect-video w-full"
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                  data-testid="transformation-video"
+                />
+              </div>
             </div>
           </div>
         </div>
