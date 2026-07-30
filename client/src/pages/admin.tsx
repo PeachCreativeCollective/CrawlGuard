@@ -118,7 +118,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                 {lead.name}
               </CardTitle>
             </div>
-            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
+            <div className="hidden sm:flex flex-col sm:flex-row gap-1 flex-shrink-0">
               <Select value={lead.priority} onValueChange={handlePriorityChange}>
                 <SelectTrigger 
                   className={`h-6 text-xs border-0 px-2 py-0 ${priorityColors[lead.priority as keyof typeof priorityColors]} hover:opacity-80`}
@@ -139,7 +139,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
         </CardHeader>
         <CardContent className="px-3 sm:px-4 pt-0">
           <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="hidden sm:flex items-center gap-2 min-w-0">
               <Mail className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
               <span className="truncate text-gray-700">{lead.email}</span>
             </div>
@@ -150,23 +150,23 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
               </div>
             )}
             {lead.address && (
-              <div className="flex items-start gap-2 min-w-0">
+              <div className="hidden sm:flex items-start gap-2 min-w-0">
                 <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0 mt-0.5" />
                 <span className="text-gray-700 leading-tight break-words">{lead.address}</span>
               </div>
             )}
             {lead.zipCode && (
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="hidden sm:flex items-center gap-2 min-w-0">
                 <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
                 <span className="text-gray-700">Zip: {lead.zipCode}</span>
               </div>
             )}
             {lead.service && (
-              <div className="bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs">
+              <div className="hidden sm:block bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs">
                 Service: {lead.service}
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <span className="text-xs text-crawlguard-dark/70">Value: $</span>
               <input
                 type="number"
@@ -177,10 +177,12 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                 step="100"
               />
             </div>
-            {lead.notes && (
+            {lead.notes ? (
               <div className="bg-gray-50 p-2 rounded text-gray-700 text-xs leading-relaxed">
                 {lead.notes.length > 100 ? `${lead.notes.substring(0, 100)}...` : lead.notes}
               </div>
+            ) : (
+              <div className="sm:hidden text-gray-500 text-xs italic">No message provided</div>
             )}
             {lead.scheduledDate && (
               <button
@@ -188,7 +190,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                   e.stopPropagation();
                   onOpenCalendar();
                 }}
-                className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs hover:bg-purple-100 transition-colors cursor-pointer"
+                className="hidden sm:flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs hover:bg-purple-100 transition-colors cursor-pointer"
                 data-testid={`scheduled-date-${lead.id}`}
               >
                 <Calendar className="h-3 w-3 flex-shrink-0" />
