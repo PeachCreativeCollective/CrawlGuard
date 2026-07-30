@@ -330,11 +330,6 @@ export default function Gallery() {
                     loading="lazy"
                   />
                 </div>
-                <div className="mt-4">
-                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-crawlguard-primary">Facebook Reel</span>
-                  <h3 className="font-semibold text-white mt-1">CrawlGuard LLC on Facebook</h3>
-                  <p className="text-white/60 text-sm mt-1">Watch this project Reel from our team</p>
-                </div>
               </article>
             ))}
           </div>
