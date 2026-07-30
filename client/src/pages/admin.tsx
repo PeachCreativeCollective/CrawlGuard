@@ -735,20 +735,20 @@ export default function Admin() {
       <div className="min-h-screen bg-crawlguard-light">
         <div className="bg-white shadow-sm border-b border-crawlguard-primary/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
                   CrawlGuard Admin Dashboard
                 </h1>
                 <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
               </div>
-              <div className="flex items-center gap-3">
-                <Button 
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+                <Button
+                  className="col-span-2 bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white sm:col-span-1"
                   onClick={() => {
                     setSelectedLeadForAppointment(null);
                     setIsAppointmentBookingOpen(true);
-                  }}
-                  className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" 
+                  }} 
                   data-testid="button-book-appointment-header"
                 >
                   <CalendarDays className="h-4 w-4 mr-2" />
@@ -802,34 +802,34 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="submissions" className="w-full">
-            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-7' : 'grid-cols-6'} bg-white border border-crawlguard-primary/20`}>
+            <TabsList className={`grid h-auto min-h-10 w-full grid-cols-2 gap-1 bg-white p-1 border border-crawlguard-primary/20 sm:grid-cols-3 ${currentUser?.isAdmin ? 'md:grid-cols-7' : 'md:grid-cols-6'}`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
               </TabsTrigger>
               <TabsTrigger value="submissions" data-testid="submissions-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Contact Submissions
               </TabsTrigger>
               <TabsTrigger value="calendar" data-testid="calendar-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Calendar
               </TabsTrigger>
               <TabsTrigger value="availability" data-testid="availability-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Availability
               </TabsTrigger>
               <TabsTrigger value="google-calendar" data-testid="google-calendar-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Google Calendar
               </TabsTrigger>
               <TabsTrigger value="gallery" data-testid="gallery-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Gallery
               </TabsTrigger>
               {currentUser?.isAdmin && (
                 <TabsTrigger value="users" data-testid="users-tab"
-                             className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                             className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                   User Management
                 </TabsTrigger>
               )}
