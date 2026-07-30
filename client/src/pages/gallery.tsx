@@ -98,90 +98,50 @@ const galleryImages = [
   },
   {
     id: 11,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/e2cb23ab2bf0473fbbff7a9cae2d9523?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/c32aeb85993b4310a79bf856b55a127b?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space encapsulation project",
+    title: "Crawl Space Encapsulation",
+    description: "Moisture-protected crawl space with a sealed vapor barrier",
     category: "crawl-space"
   },
   {
     id: 12,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/71102c0b91df446cbc48b69c5f706a56?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/d881659c4ceb4e4abdc731e79b8bea39?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space waterproofing project",
+    title: "Encapsulation Project",
+    description: "Completed crawl space moisture control installation",
     category: "crawl-space"
   },
   {
     id: 13,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/4378c14873444c619b012ac2cfce8cf3?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/115ea431186d4e2d99dc608fc254f8b4?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space with sealed walls and insulated ductwork",
+    title: "Sealed Crawl Space",
+    description: "Finished crawl space with sealed walls and protected ductwork",
     category: "crawl-space"
   },
   {
     id: 14,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/4c366519159e4edc905a2a77aca1b96e?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/eacf3b9d2c914773aa0d8b169eb0c7df?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space encapsulation with HVAC equipment",
+    title: "HVAC-Ready Encapsulation",
+    description: "Clean encapsulated space surrounding HVAC and drainage systems",
     category: "crawl-space"
   },
   {
     id: 15,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/44043bcde14a4cc1af7a97709ae373cd?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/ce4b811478bb46e399dc91c10ca483fe?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard wide crawl space encapsulation project",
+    title: "Full Crawl Space Protection",
+    description: "Wide-view project photo showing continuous floor and wall coverage",
     category: "crawl-space"
   },
   {
     id: 16,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/829933da5aff4830bdd1f0c32e7cdb8a?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
-    category: "crawl-space"
-  },
-  {
-    id: 17,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/bd6fefcec12647ca89cf5572ead1db75?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
-    category: "crawl-space"
-  },
-  {
-    id: 18,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/0c6b81cebbff4bdc8db285c73b0d5be5?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
-    category: "crawl-space"
-  },
-  {
-    id: 19,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/cad34a90b75347f583f835bd44b7f591?format=jpg&width=800&height=1200",
-    alt: "CrawlGuard LLC waterproofing project photo",
-    title: "Waterproofing Project",
-    description: "A recent CrawlGuard waterproofing project",
-    category: "crawl-space"
-  },
-  {
-    id: 20,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/77f626cd9b53465584d00e3b91576475?format=jpg&width=800&height=1200",
-    alt: "Completed crawl space encapsulation with HVAC and dehumidification equipment",
-    title: "Complete Crawl Space Encapsulation",
-    description: "Sealed crawl space with insulated ductwork and moisture-control equipment",
-    category: "crawl-space"
-  },
-  {
-    id: 21,
-    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/e83df58771eb45c8ae0ee6b7848c7b39?format=jpg&width=800&height=1200",
-    alt: "Completed crawl space encapsulation with sealed walls and vapor barrier",
-    title: "Sealed Crawl Space",
-    description: "Clean, protected crawl space with a continuous vapor barrier",
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/a4886367430f431e96fcbbdffab7971b?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard finished crawl space vapor barrier installation",
+    title: "Finished Vapor Barrier",
+    description: "Completed vapor barrier installation across the crawl space",
     category: "crawl-space"
   }
 ];
