@@ -167,6 +167,22 @@ const galleryImages = [
     title: "Waterproofing Project",
     description: "A recent CrawlGuard waterproofing project",
     category: "crawl-space"
+  },
+  {
+    id: 20,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/77f626cd9b53465584d00e3b91576475?format=jpg&width=800&height=1200",
+    alt: "Completed crawl space encapsulation with HVAC and dehumidification equipment",
+    title: "Complete Crawl Space Encapsulation",
+    description: "Sealed crawl space with insulated ductwork and moisture-control equipment",
+    category: "crawl-space"
+  },
+  {
+    id: 21,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/e83df58771eb45c8ae0ee6b7848c7b39?format=jpg&width=800&height=1200",
+    alt: "Completed crawl space encapsulation with sealed walls and vapor barrier",
+    title: "Sealed Crawl Space",
+    description: "Clean, protected crawl space with a continuous vapor barrier",
+    category: "crawl-space"
   }
 ];
 
