@@ -147,6 +147,8 @@ const galleryImages = [
   }
 ];
 
+const facebookReelEmbedUrl = "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1062278912803305&show_text=false&width=500";
+
 const categories = [
   { id: "all", name: "All Projects" },
   { id: "crawl-space", name: "Crawl Space" },
@@ -211,6 +213,24 @@ export default function Gallery() {
       <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <article className="group" data-testid="gallery-video-1">
+              <div className="overflow-hidden rounded-lg bg-black shadow-md">
+                <iframe
+                  src={facebookReelEmbedUrl}
+                  title="CrawlGuard LLC Facebook Reel"
+                  className="block aspect-[9/16] w-full"
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+              <div className="mt-3">
+                <h3 className="font-semibold text-crawlguard-dark">CrawlGuard LLC on Facebook</h3>
+                <p className="text-gray-600 text-sm">Watch this project Reel from our team</p>
+              </div>
+            </article>
+
             {filteredImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
