@@ -38,7 +38,6 @@ import { DailyCalendar } from "@/components/daily-calendar";
 import { AvailabilityManager } from "@/components/availability-manager";
 import { AppointmentBooking } from "@/components/appointment-booking";
 import { CustomAppointmentModal } from "@/components/custom-appointment-modal";
-import { GoogleCalendarIntegration } from "@/components/google-calendar-integration";
 import { GalleryManagement } from "@/components/gallery-management";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
@@ -802,7 +801,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="submissions" className="w-full">
-            <TabsList className={`grid h-auto min-h-10 w-full grid-cols-2 gap-1 bg-white p-1 border border-crawlguard-primary/20 sm:grid-cols-3 ${currentUser?.isAdmin ? 'md:grid-cols-7' : 'md:grid-cols-6'}`}>
+            <TabsList className={`grid h-auto min-h-10 w-full grid-cols-2 gap-1 bg-white p-1 border border-crawlguard-primary/20 sm:grid-cols-3 ${currentUser?.isAdmin ? 'md:grid-cols-6' : 'md:grid-cols-5'}`}>
               <TabsTrigger value="leads" data-testid="leads-tab" 
                            className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Lead Management
@@ -818,10 +817,6 @@ export default function Admin() {
               <TabsTrigger value="availability" data-testid="availability-tab"
                            className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
                 Availability
-              </TabsTrigger>
-              <TabsTrigger value="google-calendar" data-testid="google-calendar-tab"
-                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Google Calendar
               </TabsTrigger>
               <TabsTrigger value="gallery" data-testid="gallery-tab"
                            className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
@@ -1379,13 +1374,6 @@ export default function Admin() {
               <div className="bg-white p-6 rounded-lg border border-crawlguard-primary/10">
                 <AvailabilityManager userId={currentUser?.id || ''} />
               </div>
-            </TabsContent>
-
-            <TabsContent value="google-calendar" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-crawlguard-dark">Google Calendar Integration</h2>
-              </div>
-              <GoogleCalendarIntegration />
             </TabsContent>
 
             <TabsContent value="gallery" className="space-y-6">
