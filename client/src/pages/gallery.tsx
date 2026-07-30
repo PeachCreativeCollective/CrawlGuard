@@ -211,46 +211,6 @@ export default function Gallery() {
         </div>
       </section>
 
-      <section className="py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-            <div>
-              <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
-                <Facebook className="h-5 w-5" aria-hidden="true" />
-                <span>Featured Reels</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold" data-testid="featured-reels-title">
-                See CrawlGuard in Action
-              </h2>
-            </div>
-            <p className="text-white/70 max-w-md md:text-right">
-              Watch real project updates and waterproofing tips from the CrawlGuard team.
-            </p>
-          </div>
-
-          <div className="flex justify-center md:justify-start">
-            <article className="w-full max-w-[280px]" data-testid="gallery-video-1">
-              <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
-                <iframe
-                  src={facebookReelEmbedUrl}
-                  title="CrawlGuard LLC Facebook Reel"
-                  className="block aspect-[9/16] w-full"
-                  scrolling="no"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
-              <div className="mt-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-crawlguard-primary">Facebook Reel</span>
-                <h3 className="font-semibold text-white mt-1">CrawlGuard LLC on Facebook</h3>
-                <p className="text-white/60 text-sm mt-1">Watch this project Reel from our team</p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
       {/* Gallery Grid */}
       <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -329,6 +289,46 @@ export default function Gallery() {
             >
               <Link href="/contact">View More Projects</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
+                <Facebook className="h-5 w-5" aria-hidden="true" />
+                <span>Featured Reels</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold" data-testid="featured-reels-title">
+                See CrawlGuard in Action
+              </h2>
+            </div>
+            <p className="text-white/70 max-w-md md:text-right">
+              Watch real project updates and waterproofing tips from the CrawlGuard team.
+            </p>
+          </div>
+
+          <div className="flex justify-center md:justify-start">
+            <article className="w-full max-w-[280px]" data-testid="gallery-video-1">
+              <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
+                <iframe
+                  src={facebookReelEmbedUrl}
+                  title="CrawlGuard LLC Facebook Reel"
+                  className="block aspect-[9/16] w-full"
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+              <div className="mt-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-crawlguard-primary">Facebook Reel</span>
+                <h3 className="font-semibold text-white mt-1">CrawlGuard LLC on Facebook</h3>
+                <p className="text-white/60 text-sm mt-1">Watch this project Reel from our team</p>
+              </div>
+            </article>
           </div>
         </div>
       </section>
