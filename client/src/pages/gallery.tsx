@@ -198,7 +198,7 @@ export default function Gallery() {
       {/* Category Filter */}
       <section className="py-8 bg-white border-b" data-testid="gallery-filter">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0">
+          <div className="grid grid-cols-5 gap-1 sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
             {categories.map((category) => {
               const isSelected = selectedCategory === category.id;
 
@@ -211,7 +211,7 @@ export default function Gallery() {
                     setShowAllImages(false);
                   }}
                   aria-pressed={isSelected}
-                  className={`h-12 shrink-0 snap-start rounded-lg px-5 ${isSelected
+                  className={`h-auto min-h-11 w-full whitespace-normal rounded-lg px-1 py-2 text-center text-[11px] leading-tight sm:h-12 sm:w-auto sm:px-5 sm:py-2 sm:text-sm ${isSelected
                     ? "bg-crawlguard-primary text-white hover:bg-crawlguard-primary/90"
                     : "border-crawlguard-primary bg-white text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
                   }`}
