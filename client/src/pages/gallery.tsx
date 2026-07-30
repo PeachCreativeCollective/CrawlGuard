@@ -3,7 +3,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "wouter";
-import { Youtube } from "lucide-react";
+import { Facebook } from "lucide-react";
 import cg1Image from "@assets/CG1_1755280257030.webp";
 import cg2Image from "@assets/CG2_1755280257030.webp";
 import cg3Image from "@assets/CG3_1755280257029.webp";
@@ -147,7 +147,12 @@ const galleryImages = [
   }
 ];
 
-const featuredVideoEmbedUrl = "https://www.youtube.com/embed/tBGqj22J7FI?rel=0";
+const featuredFacebookReels = [
+  { id: "1062278912803305", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1062278912803305&show_text=false&width=500" },
+  { id: "1517118753181746", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1517118753181746&show_text=false&width=500" },
+  { id: "954581030771601", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F954581030771601&show_text=false&width=500" },
+  { id: "912295750875837", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F912295750875837&show_text=false&width=500" },
+];
 const transformationVideoEmbedUrl = "https://www.youtube.com/embed/tBGqj22J7FI?rel=0";
 
 const categories = [
@@ -299,8 +304,8 @@ export default function Gallery() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <div>
               <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
-                <Youtube className="h-5 w-5" aria-hidden="true" />
-                <span>Featured Video</span>
+                <Facebook className="h-5 w-5" aria-hidden="true" />
+                <span>Featured Reels</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold" data-testid="featured-reels-title">
                 See CrawlGuard in Action
@@ -311,25 +316,27 @@ export default function Gallery() {
             </p>
           </div>
 
-          <div className="flex justify-center md:justify-start">
-            <article className="w-full max-w-[280px]" data-testid="gallery-video-1">
-              <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
-                <iframe
-                  src={featuredVideoEmbedUrl}
-                  title="CrawlGuard LLC YouTube video"
-                  className="block aspect-[9/16] w-full"
-                  scrolling="no"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
-              <div className="mt-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-crawlguard-primary">YouTube Video</span>
-                <h3 className="font-semibold text-white mt-1">CrawlGuard LLC on YouTube</h3>
-                <p className="text-white/60 text-sm mt-1">Watch this project video from our team</p>
-              </div>
-            </article>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredFacebookReels.map((reel, index) => (
+              <article key={reel.id} className="w-full max-w-[280px] mx-auto" data-testid={`gallery-video-${index + 1}`}>
+                <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
+                  <iframe
+                    src={reel.embedUrl}
+                    title={`CrawlGuard LLC Facebook Reel ${index + 1}`}
+                    className="block aspect-[9/16] w-full"
+                    scrolling="no"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+                <div className="mt-4">
+                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-crawlguard-primary">Facebook Reel</span>
+                  <h3 className="font-semibold text-white mt-1">CrawlGuard LLC on Facebook</h3>
+                  <p className="text-white/60 text-sm mt-1">Watch this project Reel from our team</p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
