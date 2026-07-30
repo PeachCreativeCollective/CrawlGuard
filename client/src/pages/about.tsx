@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SEOHead } from "@/components/seo-head";
 import { BUSINESS_INFO } from "@/lib/constants";
 import { Link } from "wouter";
-import aboutImage from "@assets/CG2_1755280257030.webp";
+const aboutImage = "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/ce4b811478bb46e399dc91c10ca483fe?format=jpg&width=800&height=1200";
 
 export default function About() {
   return (
@@ -65,7 +65,7 @@ export default function About() {
             <div className="relative">
               <img 
                 src={aboutImage} 
-                alt="Professional CrawlGuard LLC waterproofing work on Asheville area home foundation" 
+                alt="CrawlGuard full crawl space protection project with continuous floor and wall coverage" 
                 className="rounded-xl shadow-lg w-full h-auto"
                 data-testid="about-hero-image"
               />
