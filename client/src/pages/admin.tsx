@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle, CalendarDays, Clock, ExternalLink } from "lucide-react";
+import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle, CalendarDays, Clock, ExternalLink, Images } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -38,7 +38,6 @@ import { DailyCalendar } from "@/components/daily-calendar";
 import { AvailabilityManager } from "@/components/availability-manager";
 import { AppointmentBooking } from "@/components/appointment-booking";
 import { CustomAppointmentModal } from "@/components/custom-appointment-modal";
-import { GoogleCalendarIntegration } from "@/components/google-calendar-integration";
 import { GalleryManagement } from "@/components/gallery-management";
 import { SEOHead } from "@/components/seo-head";
 import type { Lead, ContactSubmission, User, TimeBlock } from "@shared/schema";
@@ -119,7 +118,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                 {lead.name}
               </CardTitle>
             </div>
-            <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
+            <div className="hidden sm:flex flex-col sm:flex-row gap-1 flex-shrink-0">
               <Select value={lead.priority} onValueChange={handlePriorityChange}>
                 <SelectTrigger 
                   className={`h-6 text-xs border-0 px-2 py-0 ${priorityColors[lead.priority as keyof typeof priorityColors]} hover:opacity-80`}
@@ -140,7 +139,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
         </CardHeader>
         <CardContent className="px-3 sm:px-4 pt-0">
           <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="hidden sm:flex items-center gap-2 min-w-0">
               <Mail className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
               <span className="truncate text-gray-700">{lead.email}</span>
             </div>
@@ -150,24 +149,28 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                 <span className="text-gray-700">{lead.phone}</span>
               </div>
             )}
+            <div className="flex items-center gap-2 text-xs text-crawlguard-dark/70">
+              <Calendar className="h-3.5 w-3.5 text-crawlguard-primary flex-shrink-0" />
+              <span>Submitted: {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "Unknown"}</span>
+            </div>
             {lead.address && (
-              <div className="flex items-start gap-2 min-w-0">
+              <div className="hidden sm:flex items-start gap-2 min-w-0">
                 <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0 mt-0.5" />
                 <span className="text-gray-700 leading-tight break-words">{lead.address}</span>
               </div>
             )}
             {lead.zipCode && (
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="hidden sm:flex items-center gap-2 min-w-0">
                 <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0" />
                 <span className="text-gray-700">Zip: {lead.zipCode}</span>
               </div>
             )}
             {lead.service && (
-              <div className="bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs">
+              <div className="hidden sm:block bg-crawlguard-primary/10 px-2 py-1 rounded text-crawlguard-primary font-medium text-xs">
                 Service: {lead.service}
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <span className="text-xs text-crawlguard-dark/70">Value: $</span>
               <input
                 type="number"
@@ -178,10 +181,12 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                 step="100"
               />
             </div>
-            {lead.notes && (
+            {lead.notes ? (
               <div className="bg-gray-50 p-2 rounded text-gray-700 text-xs leading-relaxed">
                 {lead.notes.length > 100 ? `${lead.notes.substring(0, 100)}...` : lead.notes}
               </div>
+            ) : (
+              <div className="sm:hidden text-gray-500 text-xs italic">No message provided</div>
             )}
             {lead.scheduledDate && (
               <button
@@ -189,7 +194,7 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                   e.stopPropagation();
                   onOpenCalendar();
                 }}
-                className="flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs hover:bg-purple-100 transition-colors cursor-pointer"
+                className="hidden sm:flex items-center gap-2 text-purple-700 bg-purple-50 px-2 py-1 rounded text-xs hover:bg-purple-100 transition-colors cursor-pointer"
                 data-testid={`scheduled-date-${lead.id}`}
               >
                 <Calendar className="h-3 w-3 flex-shrink-0" />
@@ -572,11 +577,7 @@ export default function Admin() {
   // Archive submission
   const archiveSubmissionMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const response = await fetch(`/api/contact-submissions/${submissionId}/archive`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" }
-      });
-      if (!response.ok) throw new Error("Failed to archive submission");
+      const response = await apiRequest("PATCH", `/api/contact-submissions/${submissionId}/archive`);
       return response.json();
     },
     onSuccess: () => {
@@ -735,20 +736,19 @@ export default function Admin() {
       <div className="min-h-screen bg-crawlguard-light">
         <div className="bg-white shadow-sm border-b border-crawlguard-primary/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-crawlguard-dark" data-testid="admin-title">
+                <h1 className="text-lg sm:text-xl font-bold text-crawlguard-dark" data-testid="admin-title">
                   CrawlGuard Admin Dashboard
                 </h1>
-                <p className="text-crawlguard-dark/70 mt-2">Manage leads, track opportunities, and schedule appointments</p>
               </div>
-              <div className="flex items-center gap-3">
-                <Button 
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+                <Button
+                  className="col-span-2 bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white sm:col-span-1"
                   onClick={() => {
                     setSelectedLeadForAppointment(null);
                     setIsAppointmentBookingOpen(true);
-                  }}
-                  className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" 
+                  }} 
                   data-testid="button-book-appointment-header"
                 >
                   <CalendarDays className="h-4 w-4 mr-2" />
@@ -789,48 +789,50 @@ export default function Admin() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-6">
             {getStatusStats().map((stat) => (
               <Card key={stat.label} data-testid={`stat-${stat.label.toLowerCase().replace(' ', '-')}`} 
-                    className="border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
-                <CardContent className={`p-4 sm:p-6 ${stat.bgColor || 'bg-white'}`}>
-                  <div className={`text-xl sm:text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                  <div className="text-xs sm:text-sm text-crawlguard-dark/70 mt-1">{stat.label}</div>
+                    className="min-w-0 border-crawlguard-primary/10 hover:border-crawlguard-primary/30 transition-all duration-200">
+                <CardContent className={`p-2 sm:p-3 ${stat.bgColor || 'bg-white'}`}>
+                  <div className={`text-lg sm:text-xl font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs leading-tight text-crawlguard-dark/70 mt-1">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           <Tabs defaultValue="submissions" className="w-full">
-            <TabsList className={`grid w-full ${currentUser?.isAdmin ? 'grid-cols-7' : 'grid-cols-6'} bg-white border border-crawlguard-primary/20`}>
-              <TabsTrigger value="leads" data-testid="leads-tab" 
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Lead Management
+            <TabsList className={`grid h-auto min-h-10 w-full grid-cols-5 gap-1 bg-white p-1 border border-crawlguard-primary/20 ${currentUser?.isAdmin ? 'md:grid-cols-6' : ''}`}>
+              <TabsTrigger value="leads" data-testid="leads-tab" title="Lead Management" aria-label="Lead Management"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Users className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Leads</span>
               </TabsTrigger>
-              <TabsTrigger value="submissions" data-testid="submissions-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Contact Submissions
+              <TabsTrigger value="submissions" data-testid="submissions-tab" title="Contact Submissions" aria-label="Contact Submissions"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Submissions</span>
               </TabsTrigger>
-              <TabsTrigger value="calendar" data-testid="calendar-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Calendar
+              <TabsTrigger value="calendar" data-testid="calendar-tab" title="Calendar" aria-label="Calendar"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <CalendarDays className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Calendar</span>
               </TabsTrigger>
-              <TabsTrigger value="availability" data-testid="availability-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Availability
+              <TabsTrigger value="availability" data-testid="availability-tab" title="Availability" aria-label="Availability"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Availability</span>
               </TabsTrigger>
-              <TabsTrigger value="google-calendar" data-testid="google-calendar-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Google Calendar
-              </TabsTrigger>
-              <TabsTrigger value="gallery" data-testid="gallery-tab"
-                           className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Gallery
+              <TabsTrigger value="gallery" data-testid="gallery-tab" title="Gallery" aria-label="Gallery"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Images className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Gallery</span>
               </TabsTrigger>
               {currentUser?.isAdmin && (
-                <TabsTrigger value="users" data-testid="users-tab"
-                             className="data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                  User Management
+                <TabsTrigger value="users" data-testid="users-tab" title="User Management" aria-label="User Management"
+                             className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                  <Settings className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="hidden sm:inline">Users</span>
                 </TabsTrigger>
               )}
             </TabsList>
@@ -1379,13 +1381,6 @@ export default function Admin() {
               <div className="bg-white p-6 rounded-lg border border-crawlguard-primary/10">
                 <AvailabilityManager userId={currentUser?.id || ''} />
               </div>
-            </TabsContent>
-
-            <TabsContent value="google-calendar" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-crawlguard-dark">Google Calendar Integration</h2>
-              </div>
-              <GoogleCalendarIntegration />
             </TabsContent>
 
             <TabsContent value="gallery" className="space-y-6">

@@ -90,7 +90,7 @@ export default function ServiceDetail() {
               </div>
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-lg border border-crawlguard-primary/10">
-              <h2 className="text-2xl font-semibold text-crawlguard-dark mb-4">Why Asheville homeowners choose us</h2>
+              <h2 className="text-2xl font-semibold text-crawlguard-dark mb-4">Why Asheville-area homeowners choose us</h2>
               <ul className="space-y-3 text-gray-600">
                 {service.benefits.slice(0, 3).map((benefit, index) => (
                   <li key={index} className="flex items-start space-x-3">

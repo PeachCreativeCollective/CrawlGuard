@@ -139,9 +139,9 @@ const detailLookup: Record<string, ServiceDetailContent> = {
     name: "Sump Pump Installation",
     headline: "Reliable Sump Pump Systems with Backup Protection",
     metaDescription:
-      "Professional sump pump installation with battery backups, discharge routing, and maintenance plans to keep crawl spaces and basements dry.",
+      "Professional sump pump installation in Greater Asheville and Western North Carolina, with battery backups, discharge routing, and maintenance plans to keep crawl spaces and basements dry. Select projects statewide.",
     intro:
-      "We size and install primary and backup sump pumps, integrate drainage piping, and provide maintenance to make sure water is removed before it reaches your floor.",
+      "We size and install primary and backup sump pumps for Asheville-area homes, integrate drainage piping, and provide maintenance to remove water before it reaches your floor. We also consider select projects throughout North Carolina.",
     benefits: [
       "Automates groundwater removal during storms",
       "Protects finished areas from sudden flooding",

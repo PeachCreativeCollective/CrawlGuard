@@ -52,16 +52,16 @@ export function GalleryManagement() {
   });
 
   const { data: images = [], isLoading } = useQuery<GalleryImage[]>({
-    queryKey: ["/api/admin/gallery"],
+    queryKey: ["/api/gallery"],
   });
 
   const createImageMutation = useMutation({
     mutationFn: async (imageData: InsertGalleryImage) => {
-      const response = await apiRequest("POST", "/api/admin/gallery", imageData);
+      const response = await apiRequest("POST", "/api/gallery", imageData);
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
       toast({
         title: "Success",
         description: "Image added to gallery successfully",
@@ -80,11 +80,11 @@ export function GalleryManagement() {
 
   const updateImageMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateGalleryImage }) => {
-      const response = await apiRequest("PATCH", `/api/admin/gallery/${id}`, updates);
+      const response = await apiRequest("PATCH", `/api/gallery/${id}`, updates);
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
       toast({
         title: "Success",
         description: "Image updated successfully",
@@ -103,11 +103,11 @@ export function GalleryManagement() {
 
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId: string) => {
-      const response = await apiRequest("DELETE", `/api/admin/gallery/${imageId}`);
+      const response = await apiRequest("DELETE", `/api/gallery/${imageId}`);
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/gallery"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/gallery"] });
       toast({
         title: "Success",
         description: "Image deleted successfully",
@@ -123,7 +123,7 @@ export function GalleryManagement() {
   });
 
   const handleGetUploadParameters = async () => {
-    const response = await apiRequest("POST", "/api/admin/gallery/upload");
+    const response = await apiRequest("POST", "/api/gallery/upload");
     const { uploadURL } = await response.json();
     return {
       method: "PUT" as const,

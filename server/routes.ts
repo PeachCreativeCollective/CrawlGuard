@@ -463,6 +463,16 @@ export function registerRoutes(app: Express): void {
     }
   });
 
+  apiRouter.post("/gallery/upload", requireAuth, async (_req, res) => {
+    try {
+      const uploadURL = await new ObjectStorageService().getGalleryImageUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error creating gallery upload URL:", error);
+      res.status(500).json({ message: "Failed to prepare gallery upload" });
+    }
+  });
+
   apiRouter.get("/gallery", requireAuth, async (_req, res) => {
     try {
       const gallery = await storage.getGalleryImages();

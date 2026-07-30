@@ -101,7 +101,7 @@ export default function Home() {
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-white mb-4 sm:mb-6 md:mb-8 leading-relaxed hero-description-fade" data-testid="hero-description">
                 Protect your home from water damage, mold, and moisture with our professional waterproofing solutions.
-                Serving Asheville and surrounding areas with reliable, long-lasting results.
+                Serving Greater Asheville and Western North Carolina with reliable, long-lasting results, and taking on select waterproofing projects across the state.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 hero-buttons-fade">
                 <Button
@@ -129,7 +129,8 @@ export default function Home() {
                 {[
                   "Free Consultations",
                   "Licensed & Insured",
-                  "Local Experts"
+                  "Local Experts",
+                  "Based in North Carolina"
                 ].map((feature, index) => (
                   <div
                     key={feature}
@@ -192,7 +193,7 @@ export default function Home() {
               Serving the Greater Asheville Metro
             </h2>
             <p className="text-lg text-gray-600" data-testid="areas-description">
-              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties
+              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties, with select projects available throughout North Carolina.
             </p>
           </div>
           

@@ -47,8 +47,8 @@ export default function Services() {
     <>
       <SEOHead
         title="Waterproofing Services - CrawlGuard LLC Asheville, NC"
-        description="Professional crawl space encapsulation, basement waterproofing, mold remediation, and moisture control services in Asheville, NC. Free estimates available."
-        keywords="crawl space encapsulation, basement waterproofing, mold remediation, vapor barriers, sump pumps, French drains, Asheville NC"
+        description="Professional crawl space encapsulation, basement waterproofing, mold remediation, and moisture control for Greater Asheville and Western North Carolina, with select projects statewide. Free estimates available."
+        keywords="crawl space encapsulation Asheville NC, basement waterproofing Asheville, mold remediation Western North Carolina, vapor barriers, sump pumps, French drains, North Carolina waterproofing"
         canonicalUrl="https://crawlguardllc.com/services"
         structuredData={structuredData}
       />
@@ -61,7 +61,7 @@ export default function Services() {
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8" data-testid="services-hero-description">
             Comprehensive waterproofing solutions to protect your home from water damage, mold, and moisture issues. 
-            Serving Asheville, NC and surrounding areas with expert craftsmanship and reliable results.
+            Serving Greater Asheville and Western North Carolina with expert craftsmanship and reliable results, while taking on select waterproofing projects throughout North Carolina.
           </p>
           <Button 
             asChild
