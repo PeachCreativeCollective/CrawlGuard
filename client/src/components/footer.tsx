@@ -18,7 +18,7 @@ export function Footer() {
             />
             <p className="text-gray-300 mb-4">
               Professional waterproofing and crawl space solutions serving Asheville, NC and surrounding areas. 
-              Protecting homes from water damage since 2008.
+              Protecting homes from water damage since 2023.
             </p>
             <div className="flex space-x-4">
               <a 

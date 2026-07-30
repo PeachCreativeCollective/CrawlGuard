@@ -129,7 +129,8 @@ export default function Home() {
                 {[
                   "Free Consultations",
                   "Licensed & Insured",
-                  "Local Experts"
+                  "Local Experts",
+                  "Founded in 2023"
                 ].map((feature, index) => (
                   <div
                     key={feature}

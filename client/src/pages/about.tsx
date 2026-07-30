@@ -11,7 +11,7 @@ export default function About() {
     <>
       <SEOHead
         title="About CrawlGuard LLC - Asheville, NC Waterproofing Experts"
-        description="Learn about CrawlGuard LLC's mission, expertise, and commitment to protecting homes in Asheville, NC. Professional waterproofing services since 2008."
+        description="Learn about CrawlGuard LLC's mission, expertise, and commitment to protecting homes in Asheville, NC. Founded in 2023, we provide professional waterproofing services across Western North Carolina."
         keywords="CrawlGuard LLC, about us, waterproofing company, Asheville NC, local business, professional contractors"
         canonicalUrl="https://crawlguardllc.com/about"
       />
@@ -26,8 +26,7 @@ export default function About() {
               </h1>
               <p className="text-xl text-gray-600 mb-6" data-testid="about-hero-description">
                 At CrawlGuard LLC, we are committed to protecting homes throughout Asheville, NC, and neighboring communities. 
-                From wet basements to crawl space moisture and foundation issues, we deliver expert waterproofing services to 
-                keep your home dry, safe, and mold-free.
+                Founded in 2023, CrawlGuard LLC delivers expert waterproofing services for wet basements, crawl space moisture, and foundation issues. We keep your home dry, safe, and mold-free.
               </p>
               <div className="space-y-4">
                 {[
