@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle, CalendarDays, Clock, ExternalLink } from "lucide-react";
+import { Plus, Search, Calendar, Phone, Mail, MapPin, Edit2, Trash2, UserPlus, GripVertical, LogOut, Settings, Key, Users, AlertTriangle, CalendarDays, Clock, ExternalLink, Images } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -801,31 +801,37 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="submissions" className="w-full">
-            <TabsList className={`grid h-auto min-h-10 w-full grid-cols-2 gap-1 bg-white p-1 border border-crawlguard-primary/20 sm:grid-cols-3 ${currentUser?.isAdmin ? 'md:grid-cols-6' : 'md:grid-cols-5'}`}>
-              <TabsTrigger value="leads" data-testid="leads-tab" 
-                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Lead Management
+            <TabsList className={`grid h-auto min-h-10 w-full grid-cols-5 gap-1 bg-white p-1 border border-crawlguard-primary/20 ${currentUser?.isAdmin ? 'md:grid-cols-6' : ''}`}>
+              <TabsTrigger value="leads" data-testid="leads-tab" title="Lead Management" aria-label="Lead Management"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Users className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Leads</span>
               </TabsTrigger>
-              <TabsTrigger value="submissions" data-testid="submissions-tab"
-                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Contact Submissions
+              <TabsTrigger value="submissions" data-testid="submissions-tab" title="Contact Submissions" aria-label="Contact Submissions"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Submissions</span>
               </TabsTrigger>
-              <TabsTrigger value="calendar" data-testid="calendar-tab"
-                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Calendar
+              <TabsTrigger value="calendar" data-testid="calendar-tab" title="Calendar" aria-label="Calendar"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <CalendarDays className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Calendar</span>
               </TabsTrigger>
-              <TabsTrigger value="availability" data-testid="availability-tab"
-                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Availability
+              <TabsTrigger value="availability" data-testid="availability-tab" title="Availability" aria-label="Availability"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Availability</span>
               </TabsTrigger>
-              <TabsTrigger value="gallery" data-testid="gallery-tab"
-                           className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                Gallery
+              <TabsTrigger value="gallery" data-testid="gallery-tab" title="Gallery" aria-label="Gallery"
+                           className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                <Images className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">Gallery</span>
               </TabsTrigger>
               {currentUser?.isAdmin && (
-                <TabsTrigger value="users" data-testid="users-tab"
-                             className="h-auto min-h-9 whitespace-normal px-2 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
-                  User Management
+                <TabsTrigger value="users" data-testid="users-tab" title="User Management" aria-label="User Management"
+                             className="h-auto min-h-9 min-w-0 gap-1 px-1 py-2 text-center text-xs leading-tight data-[state=active]:bg-crawlguard-primary data-[state=active]:text-white">
+                  <Settings className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="hidden sm:inline">Users</span>
                 </TabsTrigger>
               )}
             </TabsList>
