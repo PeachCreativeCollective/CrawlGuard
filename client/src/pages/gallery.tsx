@@ -368,15 +368,19 @@ export default function Gallery() {
                 ))}
               </div>
             </div>
-            <div>
-              <img
-                src={cg9Image}
-                alt="Completed CrawlGuard waterproofing project showing protected crawl space"
-                className="rounded-xl shadow-lg w-full h-auto"
-                data-testid="transformation-image"
-                loading="lazy"
-                decoding="async"
-              />
+            <div className="mx-auto w-full max-w-md">
+              <div className="overflow-hidden rounded-xl bg-black shadow-lg ring-1 ring-crawlguard-dark/10">
+                <iframe
+                  src={facebookReelEmbedUrl}
+                  title="CrawlGuard LLC Facebook Reel showing the CrawlGuard difference"
+                  className="block aspect-[9/16] w-full"
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                  data-testid="transformation-video"
+                />
+              </div>
             </div>
           </div>
         </div>
