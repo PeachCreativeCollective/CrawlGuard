@@ -3,7 +3,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "wouter";
-import { Facebook, Play } from "lucide-react";
+import { Facebook } from "lucide-react";
 import cg1Image from "@assets/CG1_1755280257030.webp";
 import cg2Image from "@assets/CG2_1755280257030.webp";
 import cg3Image from "@assets/CG3_1755280257029.webp";
@@ -160,10 +160,12 @@ const categories = [
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+  const [showAllImages, setShowAllImages] = useState(false);
 
-  const filteredImages = selectedCategory === "all" 
-    ? galleryImages 
+  const filteredImages = selectedCategory === "all"
+    ? galleryImages
     : galleryImages.filter(image => image.category === selectedCategory);
+  const displayedImages = showAllImages ? filteredImages : filteredImages.slice(0, 9);
 
   return (
     <>
@@ -209,12 +211,26 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* Gallery Grid */}
-      <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
+      <section className="py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <article className="group" data-testid="gallery-video-1">
-              <div className="overflow-hidden rounded-lg bg-black shadow-md">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
+                <Facebook className="h-5 w-5" aria-hidden="true" />
+                <span>Featured Reels</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold" data-testid="featured-reels-title">
+                See CrawlGuard in Action
+              </h2>
+            </div>
+            <p className="text-white/70 max-w-md md:text-right">
+              Watch real project updates and waterproofing tips from the CrawlGuard team.
+            </p>
+          </div>
+
+          <div className="flex justify-center md:justify-start">
+            <article className="w-full max-w-[280px]" data-testid="gallery-video-1">
+              <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
                 <iframe
                   src={facebookReelEmbedUrl}
                   title="CrawlGuard LLC Facebook Reel"
@@ -225,13 +241,25 @@ export default function Gallery() {
                   loading="lazy"
                 />
               </div>
-              <div className="mt-3">
-                <h3 className="font-semibold text-crawlguard-dark">CrawlGuard LLC on Facebook</h3>
-                <p className="text-gray-600 text-sm">Watch this project Reel from our team</p>
+              <div className="mt-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-crawlguard-primary">Facebook Reel</span>
+                <h3 className="font-semibold text-white mt-1">CrawlGuard LLC on Facebook</h3>
+                <p className="text-white/60 text-sm mt-1">Watch this project Reel from our team</p>
               </div>
             </article>
+          </div>
+        </div>
+      </section>
 
-            {filteredImages.map((image) => (
+      {/* Gallery Grid */}
+      <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
+            <p className="text-gray-600 mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
                   <div 
@@ -278,8 +306,22 @@ export default function Gallery() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <Button 
+          {filteredImages.length > 9 && (
+            <div className="text-center mt-12">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowAllImages((isShowingAll) => !isShowingAll)}
+                className="border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
+                data-testid="gallery-view-more"
+              >
+                {showAllImages ? "Show Fewer Photos" : "View More Photos"}
+              </Button>
+            </div>
+          )}
+
+          <div className="text-center mt-6">
+            <Button
               asChild
               size="lg"
               className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white font-semibold"
@@ -288,32 +330,6 @@ export default function Gallery() {
               <Link href="/contact">View More Projects</Link>
             </Button>
           </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-crawlguard-dark text-white" data-testid="facebook-reels-section">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
-            <Facebook className="h-5 w-5" aria-hidden="true" />
-            <span>Follow Along</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-5" data-testid="facebook-reels-title">
-            See CrawlGuard in Action
-          </h2>
-          <p className="text-lg text-white/75 max-w-2xl mx-auto mb-8" data-testid="facebook-reels-description">
-            Our Facebook Reels show the people, projects, and waterproofing solutions behind the photos. Visit our page to watch the latest videos from CrawlGuard LLC.
-          </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-crawlguard-secondary hover:bg-red-600 text-white font-semibold"
-            data-testid="facebook-reels-button"
-          >
-            <a href="https://www.facebook.com/CrawlGuardLLC/reels/" target="_blank" rel="noreferrer">
-              Watch Our Reels
-              <Play className="ml-2 h-4 w-4 fill-current" aria-hidden="true" />
-            </a>
-          </Button>
         </div>
       </section>
 
