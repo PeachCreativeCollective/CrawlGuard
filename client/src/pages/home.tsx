@@ -8,7 +8,7 @@ import { ServiceCard } from "@/components/service-card";
 import { TestimonialCard } from "@/components/testimonial-card";
 import { BUSINESS_INFO, SERVICES, SERVICE_AREAS, TESTIMONIALS } from "@/lib/constants";
 import * as Icons from "lucide-react";
-import heroImage from "@assets/CG3_1755280257029.webp";
+const heroImage = "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/a4886367430f431e96fcbbdffab7971b?format=jpg&width=1600&height=1000";
 
 export default function Home() {
   const structuredData = {
