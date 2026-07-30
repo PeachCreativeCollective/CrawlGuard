@@ -571,11 +571,7 @@ export default function Admin() {
   // Archive submission
   const archiveSubmissionMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const response = await fetch(`/api/contact-submissions/${submissionId}/archive`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" }
-      });
-      if (!response.ok) throw new Error("Failed to archive submission");
+      const response = await apiRequest("PATCH", `/api/contact-submissions/${submissionId}/archive`);
       return response.json();
     },
     onSuccess: () => {
