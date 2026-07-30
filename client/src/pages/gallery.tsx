@@ -232,13 +232,13 @@ export default function Gallery() {
             <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
             <p className="text-gray-600 mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
           </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
             {displayedImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
                   <button
                     type="button"
-                    className="group w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crawlguard-primary focus-visible:ring-offset-4 rounded-lg"
+                    className="group w-[82vw] max-w-[340px] shrink-0 snap-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crawlguard-primary focus-visible:ring-offset-4 rounded-lg sm:w-full sm:max-w-none"
                     onClick={() => setSelectedImage(image)}
                     data-testid={`gallery-image-${image.id}`}
                   >
