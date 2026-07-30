@@ -149,6 +149,10 @@ function DraggableLeadCard({ lead, onEdit, onDelete, onUpdateLead, onOpenCalenda
                 <span className="text-gray-700">{lead.phone}</span>
               </div>
             )}
+            <div className="flex items-center gap-2 text-xs text-crawlguard-dark/70">
+              <Calendar className="h-3.5 w-3.5 text-crawlguard-primary flex-shrink-0" />
+              <span>Submitted: {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "Unknown"}</span>
+            </div>
             {lead.address && (
               <div className="hidden sm:flex items-start gap-2 min-w-0">
                 <MapPin className="h-4 w-4 text-crawlguard-primary flex-shrink-0 mt-0.5" />
