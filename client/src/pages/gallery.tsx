@@ -148,7 +148,7 @@ const galleryImages = [
 ];
 
 const featuredVideoEmbedUrl = "https://www.youtube.com/embed/tBGqj22J7FI?rel=0";
-const transformationReelEmbedUrl = "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1342201174431240&show_text=false&width=500";
+const transformationVideoEmbedUrl = "https://www.youtube.com/embed/tBGqj22J7FI?rel=0";
 
 const categories = [
   { id: "all", name: "All Projects" },
@@ -372,9 +372,9 @@ export default function Gallery() {
             <div className="mx-auto w-full max-w-md">
               <div className="overflow-hidden rounded-xl bg-black shadow-lg ring-1 ring-crawlguard-dark/10">
                 <iframe
-                  src={transformationReelEmbedUrl}
-                  title="CrawlGuard LLC Facebook video showing the CrawlGuard difference"
-                  className="block aspect-[9/16] w-full"
+                  src={transformationVideoEmbedUrl}
+                  title="CrawlGuard LLC YouTube video showing the CrawlGuard difference"
+                  className="block aspect-video w-full"
                   scrolling="no"
                   allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                   allowFullScreen
