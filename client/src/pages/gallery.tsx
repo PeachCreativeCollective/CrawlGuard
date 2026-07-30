@@ -232,7 +232,7 @@ export default function Gallery() {
             <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark">Project Photos</h2>
             <p className="text-gray-600 mt-2">Browse completed CrawlGuard waterproofing and encapsulation projects.</p>
           </div>
-          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
             {displayedImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
@@ -325,7 +325,7 @@ export default function Gallery() {
             </p>
           </div>
 
-          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
             {featuredFacebookReels.map((reel, index) => (
               <article
                 key={reel.id}
