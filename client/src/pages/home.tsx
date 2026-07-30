@@ -130,7 +130,7 @@ export default function Home() {
                   "Free Consultations",
                   "Licensed & Insured",
                   "Local Experts",
-                  "Founded in 2023"
+                  "Based in North Carolina"
                 ].map((feature, index) => (
                   <div
                     key={feature}
