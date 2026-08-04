@@ -1,12 +1,12 @@
 import { Link } from "wouter";
-import { CheckCircle, Phone, Star } from "lucide-react";
+import { useEffect } from "react";
+import { CheckCircle, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/contact-form";
 import { LocationSection } from "@/components/location-section";
 import { SEOHead } from "@/components/seo-head";
 import { ServiceCard } from "@/components/service-card";
-import { TestimonialCard } from "@/components/testimonial-card";
-import { BUSINESS_INFO, SERVICES, SERVICE_AREAS, TESTIMONIALS } from "@/lib/constants";
+import { BUSINESS_INFO, SERVICES, SERVICE_AREAS } from "@/lib/constants";
 import * as Icons from "lucide-react";
 const heroImage = "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/a4886367430f431e96fcbbdffab7971b?format=jpg&width=1600&height=1000";
 
@@ -65,7 +65,16 @@ export default function Home() {
     return iconMap[iconName] || Icons.Home;
   };
 
-  const reviewsUrl = `${BUSINESS_INFO.socialMedia.facebook}/reviews/`;
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.jotform.com/website-widgets/embed/019fcd3f75a07000857e91b2538c3dcd1064";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      script.remove();
+    };
+  }, []);
 
   return (
     <>
@@ -206,38 +215,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Google Reviews Section */}
       <section className="py-20 bg-white" data-testid="testimonials-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark mb-4" data-testid="testimonials-title">
-              What Our Customers Say
-            </h2>
-            <p className="text-xl text-gray-600" data-testid="testimonials-description">
-              Read reviews from satisfied homeowners across Western North Carolina
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((testimonial) => (
-              <TestimonialCard
-                key={testimonial.name}
-                {...testimonial}
-              />
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <a
-              href={reviewsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-crawlguard-primary font-semibold text-lg hover:underline"
-              data-testid="testimonials-cta"
-            >
-              Read Verified Reviews →
-            </a>
-          </div>
+          <div id="JFWebsiteWidget-019fcd3f75a07000857e91b2538c3dcd1064" />
         </div>
       </section>
 
