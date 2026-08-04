@@ -140,10 +140,10 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-crawlguard-dark mb-4" data-testid="service-areas-title">
-              Serving These Areas
+              Serving North Carolina
             </h2>
             <p className="text-lg text-gray-600" data-testid="service-areas-description">
-              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties
+              Based in Asheville and available for residential waterproofing projects throughout North Carolina
             </p>
           </div>
 

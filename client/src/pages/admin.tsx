@@ -731,6 +731,7 @@ export default function Admin() {
       <SEOHead
         title="Admin Dashboard - CrawlGuard LLC Lead Management"
         description="Private admin dashboard for managing leads and customer inquiries"
+        noindex
       />
 
       <div className="min-h-screen bg-crawlguard-light">

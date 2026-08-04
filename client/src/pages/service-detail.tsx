@@ -29,16 +29,14 @@ export default function ServiceDetail() {
       "@type": "LocalBusiness",
       name: BUSINESS_INFO.name,
       telephone: BUSINESS_INFO.phone,
-      areaServed: BUSINESS_INFO.address.full,
+      areaServed: {
+        "@type": "State",
+        name: "North Carolina",
+      },
     },
     areaServed: {
-      "@type": "GeoCircle",
-      geoMidpoint: {
-        "@type": "GeoCoordinates",
-        latitude: "35.5951",
-        longitude: "-82.5515",
-      },
-      geoRadius: "50000",
+      "@type": "State",
+      name: "North Carolina",
     },
   };
 

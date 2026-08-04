@@ -94,11 +94,7 @@ export default function About() {
 
           <div className="bg-crawlguard-light p-8 rounded-xl">
             <p className="text-lg text-gray-700 leading-relaxed" data-testid="mission-statement">
-              At <strong>CrawlGuard LLC</strong>, we are committed to protecting homes throughout <strong>Asheville, NC</strong>, 
-              and neighboring towns including Marshall, Mars Hill, Weaverville, Candler, Hendersonville, Maggie Valley, 
-              Burnsville, Leicester, Hot Springs, Enka, Woodfin, Fairview, Walnut Creek, Fletcher, and Arden. 
-              From wet basements to crawl space moisture and foundation issues, we deliver expert waterproofing services 
-              to keep your home dry, safe, and mold-free.
+              At <strong>CrawlGuard LLC</strong>, we are committed to protecting homes throughout <strong>North Carolina</strong>, with a focus and home base in <strong>Asheville, NC</strong>. Our team travels statewide for residential waterproofing, crawl space, basement, and moisture-control projects. From wet basements to crawl space moisture and foundation issues, we deliver expert services to keep your home dry, safe, and mold-free.
             </p>
           </div>
         </div>
@@ -197,9 +193,7 @@ export default function About() {
               Complete Waterproofing Solutions
             </h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto" data-testid="service-areas-description">
-              At CrawlGuard LLC, we deliver comprehensive and affordable waterproofing services across Asheville and 
-              surrounding towns. Protect your home with trusted experts who understand the local climate, soil, 
-              and building conditions—and who are always just a call away.
+              At CrawlGuard LLC, we deliver comprehensive and affordable waterproofing services throughout North Carolina, with deep local expertise in Asheville and Western NC. Protect your home with trusted experts who understand regional climate, soil, and building conditions—and who are ready to travel to your project.
             </p>
           </div>
 

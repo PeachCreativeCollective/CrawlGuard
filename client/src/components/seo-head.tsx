@@ -10,6 +10,7 @@ interface SEOHeadProps {
   ogDescription?: string;
   ogImage?: string;
   structuredData?: object;
+  noindex?: boolean;
 }
 
 export function SEOHead({
@@ -20,7 +21,8 @@ export function SEOHead({
   ogTitle,
   ogDescription,
   ogImage = defaultOgImage,
-  structuredData
+  structuredData,
+  noindex = false
 }: SEOHeadProps) {
   return (
     <Helmet>
@@ -29,6 +31,7 @@ export function SEOHead({
       <meta name="keywords" content={keywords} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="canonical" href={canonicalUrl} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
       
       {/* Open Graph */}
       <meta property="og:title" content={ogTitle || title} />

@@ -31,14 +31,9 @@ export default function Home() {
       "longitude": "-82.5515"
     },
     "openingHours": ["Mo-Fr 09:00-17:00"],
-    "serviceArea": {
-      "@type": "GeoCircle",
-      "geoMidpoint": {
-        "@type": "GeoCoordinates",
-        "latitude": "35.5951",
-        "longitude": "-82.5515"
-      },
-      "geoRadius": "50000"
+    "areaServed": {
+      "@type": "State",
+      "name": "North Carolina"
     },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
@@ -101,7 +96,7 @@ export default function Home() {
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-white mb-4 sm:mb-6 md:mb-8 leading-relaxed hero-description-fade" data-testid="hero-description">
                 Protect your home from water damage, mold, and moisture with our professional waterproofing solutions.
-                Serving Greater Asheville and Western North Carolina with reliable, long-lasting results, and taking on select waterproofing projects across the state.
+                Based in Asheville and traveling statewide across North Carolina with reliable, long-lasting results.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 hero-buttons-fade">
                 <Button
@@ -190,10 +185,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-crawlguard-dark mb-4" data-testid="areas-title">
-              Serving the Greater Asheville Metro
+              Based in Asheville, Serving All of North Carolina
             </h2>
             <p className="text-lg text-gray-600" data-testid="areas-description">
-              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties, with select projects available throughout North Carolina.
+              Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties - with service available throughout North Carolina.
             </p>
           </div>
           

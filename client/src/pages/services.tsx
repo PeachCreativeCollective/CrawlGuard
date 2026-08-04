@@ -61,7 +61,7 @@ export default function Services() {
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8" data-testid="services-hero-description">
             Comprehensive waterproofing solutions to protect your home from water damage, mold, and moisture issues. 
-            Serving Greater Asheville and Western North Carolina with expert craftsmanship and reliable results, while taking on select waterproofing projects throughout North Carolina.
+            Serving Greater Asheville and all of North Carolina with expert craftsmanship and reliable results.
           </p>
           <Button 
             asChild
