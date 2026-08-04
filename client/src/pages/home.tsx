@@ -216,7 +216,7 @@ export default function Home() {
       </section>
 
       {/* Google Reviews Section */}
-      <section className="py-20 bg-white" data-testid="testimonials-section">
+      <section className="py-8 md:py-10 bg-white" data-testid="testimonials-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div id="JFWebsiteWidget-019fcd4355d070008cd70a5e13ce132eced5" />
         </div>
