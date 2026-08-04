@@ -66,15 +66,15 @@ export function LocationSection({ className }: LocationSectionProps) {
             <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-lg border border-gray-200" data-testid="location-map">
               <iframe
                 title="CrawlGuard LLC service area map"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-82.85%2C35.3%2C-82.25%2C35.9&layer=mapnik&marker=35.5951%2C-82.5515"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d415622.2241905679!2d-82.70570694999999!3d35.527795999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8849f22d8ef06a37%3A0xba9a57bbf0ee7ae0!2sCrawl%20Guard!5e0!3m2!1sen!2sus!4v1785856576632!5m2!1sen!2sus"
                 className="w-full h-full border-0"
                 loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
             <div className="mt-3 text-sm text-gray-500">
               <a
-                href="https://www.openstreetmap.org/?mlat=35.5951&mlon=-82.5515#map=11/35.5951/-82.5515"
+                href="https://www.google.com/maps/search/?api=1&query=CrawlGuard"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-crawlguard-primary hover:underline"
