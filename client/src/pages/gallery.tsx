@@ -3,6 +3,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "wouter";
+import { Facebook } from "lucide-react";
 import cg1Image from "@assets/CG1_1755280257030.webp";
 import cg2Image from "@assets/CG2_1755280257030.webp";
 import cg3Image from "@assets/CG3_1755280257029.webp";
@@ -95,8 +96,64 @@ const galleryImages = [
     title: "Dehumidification System",
     description: "Advanced moisture control with professional dehumidifier installation",
     category: "crawl-space"
+  },
+  {
+    id: 11,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/c32aeb85993b4310a79bf856b55a127b?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space encapsulation project",
+    title: "Crawl Space Encapsulation",
+    description: "Moisture-protected crawl space with a sealed vapor barrier",
+    category: "crawl-space"
+  },
+  {
+    id: 12,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/d881659c4ceb4e4abdc731e79b8bea39?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space waterproofing project",
+    title: "Encapsulation Project",
+    description: "Completed crawl space moisture control installation",
+    category: "crawl-space"
+  },
+  {
+    id: 13,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/115ea431186d4e2d99dc608fc254f8b4?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space with sealed walls and insulated ductwork",
+    title: "Sealed Crawl Space",
+    description: "Finished crawl space with sealed walls and protected ductwork",
+    category: "crawl-space"
+  },
+  {
+    id: 14,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/eacf3b9d2c914773aa0d8b169eb0c7df?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard crawl space encapsulation with HVAC equipment",
+    title: "HVAC-Ready Encapsulation",
+    description: "Clean encapsulated space surrounding HVAC and drainage systems",
+    category: "crawl-space"
+  },
+  {
+    id: 15,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/ce4b811478bb46e399dc91c10ca483fe?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard wide crawl space encapsulation project",
+    title: "Full Crawl Space Protection",
+    description: "Wide-view project photo showing continuous floor and wall coverage",
+    category: "crawl-space"
+  },
+  {
+    id: 16,
+    src: "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/a4886367430f431e96fcbbdffab7971b?format=jpg&width=800&height=1200",
+    alt: "CrawlGuard finished crawl space vapor barrier installation",
+    title: "Finished Vapor Barrier",
+    description: "Completed vapor barrier installation across the crawl space",
+    category: "crawl-space"
   }
 ];
+
+const featuredFacebookReels = [
+  { id: "1062278912803305", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1062278912803305&show_text=false&width=500" },
+  { id: "1517118753181746", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1517118753181746&show_text=false&width=500" },
+  { id: "954581030771601", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F954581030771601&show_text=false&width=500" },
+  { id: "912295750875837", embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F912295750875837&show_text=false&width=500" },
+];
+const transformationVideoEmbedUrl = "https://www.youtube.com/embed/tBGqj22J7FI?rel=0";
 
 const categories = [
   { id: "all", name: "All Projects" },
@@ -109,10 +166,12 @@ const categories = [
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+  const [showAllImages, setShowAllImages] = useState(false);
 
-  const filteredImages = selectedCategory === "all" 
-    ? galleryImages 
+  const filteredImages = selectedCategory === "all"
+    ? galleryImages
     : galleryImages.filter(image => image.category === selectedCategory);
+  const displayedImages = showAllImages ? filteredImages : filteredImages.slice(0, 9);
 
   return (
     <>
@@ -124,12 +183,12 @@ export default function Gallery() {
       />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-20" data-testid="gallery-hero">
+      <section className="bg-gradient-to-br from-crawlguard-primary/10 to-blue-50 py-6 md:py-20" data-testid="gallery-hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-crawlguard-dark mb-6" data-testid="gallery-hero-title">
+          <h1 className="text-3xl md:text-5xl font-bold text-crawlguard-dark mb-2 md:mb-6" data-testid="gallery-hero-title">
             See Our Work
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="gallery-hero-description">
+          <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto" data-testid="gallery-hero-description">
             Browse our photo gallery to see the difference professional waterproofing can make for homes 
             throughout Asheville and Western North Carolina.
           </p>
@@ -137,43 +196,52 @@ export default function Gallery() {
       </section>
 
       {/* Category Filter */}
-      <section className="py-8 bg-white border-b" data-testid="gallery-filter">
+      <section className="py-4 md:py-8 bg-white border-b" data-testid="gallery-filter">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center gap-4">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category.id)}
-                className={selectedCategory === category.id 
-                  ? "bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white" 
-                  : "border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
-                }
-                data-testid={`filter-${category.id}`}
-              >
-                {category.name}
-              </Button>
-            ))}
+          <div className="grid grid-cols-5 gap-1 sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
+            {categories.map((category) => {
+              const isSelected = selectedCategory === category.id;
+
+              return (
+                <Button
+                  key={category.id}
+                  variant={isSelected ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedCategory(category.id);
+                    setShowAllImages(false);
+                  }}
+                  aria-pressed={isSelected}
+                  className={`h-auto min-h-9 w-full whitespace-normal rounded-lg px-1 py-1.5 text-center text-[11px] leading-tight sm:h-12 sm:w-auto sm:px-5 sm:py-2 sm:text-sm ${isSelected
+                    ? "bg-crawlguard-primary text-white hover:bg-crawlguard-primary/90"
+                    : "border-crawlguard-primary bg-white text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
+                  }`}
+                  data-testid={`filter-${category.id}`}
+                >
+                  {category.name}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* Gallery Grid */}
-      <section className="py-20 bg-crawlguard-light" data-testid="gallery-grid">
+      <section className="py-4 md:py-20 bg-crawlguard-light" data-testid="gallery-grid">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredImages.map((image) => (
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+            {displayedImages.map((image) => (
               <Dialog key={image.id}>
                 <DialogTrigger asChild>
-                  <div 
-                    className="group cursor-pointer"
+                  <button
+                    type="button"
+                    className="group w-[82vw] max-w-[340px] shrink-0 snap-center text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-crawlguard-primary focus-visible:ring-offset-4 rounded-lg sm:w-full sm:max-w-none"
                     onClick={() => setSelectedImage(image)}
                     data-testid={`gallery-image-${image.id}`}
                   >
                     <img
                       src={image.src}
                       alt={image.alt}
-                      className="w-full h-64 object-cover rounded-lg shadow-md group-hover:shadow-xl transition-shadow"
+                      className="aspect-[4/3] w-full object-cover rounded-lg shadow-md transition-shadow group-hover:shadow-xl sm:aspect-auto sm:h-64"
                       data-testid={`image-${image.id}`}
                       loading="lazy"
                       decoding="async"
@@ -186,7 +254,7 @@ export default function Gallery() {
                         {image.description}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[90vh]" data-testid={`modal-${image.id}`}>
                   <div className="space-y-4">
@@ -209,15 +277,57 @@ export default function Gallery() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <Button 
-              asChild
-              size="lg"
-              className="bg-crawlguard-primary hover:bg-crawlguard-primary/90 text-white font-semibold"
-              data-testid="gallery-cta"
-            >
-              <Link href="/contact">View More Projects</Link>
-            </Button>
+          {filteredImages.length > 9 && (
+            <div className="text-center mt-12">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowAllImages((isShowingAll) => !isShowingAll)}
+                className="border-crawlguard-primary text-crawlguard-primary hover:bg-crawlguard-primary hover:text-white"
+                data-testid="gallery-view-more"
+              >
+                {showAllImages ? "Show Fewer Photos" : "View More Photos"}
+              </Button>
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      <section className="py-10 md:py-16 bg-crawlguard-dark text-white" data-testid="featured-reels-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6 mb-6 md:mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-crawlguard-primary font-semibold uppercase tracking-[0.2em] text-sm mb-4">
+                <Facebook className="h-5 w-5" aria-hidden="true" />
+                <span>Featured Reels</span>
+              </div>
+            </div>
+            <p className="text-white/70 max-w-md md:text-right">
+              Watch real project updates and waterproofing tips from the CrawlGuard team.
+            </p>
+          </div>
+
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+            {featuredFacebookReels.map((reel, index) => (
+              <article
+                key={reel.id}
+                className="w-[78vw] max-w-[300px] shrink-0 snap-center sm:w-full sm:max-w-[280px] sm:justify-self-center"
+                data-testid={`gallery-video-${index + 1}`}
+              >
+                <div className="overflow-hidden rounded-2xl bg-black shadow-xl ring-1 ring-white/10">
+                  <iframe
+                    src={reel.embedUrl}
+                    title={`CrawlGuard LLC Facebook Reel ${index + 1}`}
+                    className="block aspect-[9/16] w-full"
+                    scrolling="no"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -257,15 +367,19 @@ export default function Gallery() {
                 ))}
               </div>
             </div>
-            <div>
-              <img
-                src={cg9Image}
-                alt="Completed CrawlGuard waterproofing project showing protected crawl space"
-                className="rounded-xl shadow-lg w-full h-auto"
-                data-testid="transformation-image"
-                loading="lazy"
-                decoding="async"
-              />
+            <div className="mx-auto w-full max-w-md">
+              <div className="overflow-hidden rounded-xl bg-black shadow-lg ring-1 ring-crawlguard-dark/10">
+                <iframe
+                  src={transformationVideoEmbedUrl}
+                  title="CrawlGuard LLC YouTube video showing the CrawlGuard difference"
+                  className="block aspect-video w-full"
+                  scrolling="no"
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                  data-testid="transformation-video"
+                />
+              </div>
             </div>
           </div>
         </div>

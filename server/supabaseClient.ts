@@ -202,8 +202,15 @@ function configureHttpsGlobalAgent(bundle: string) {
 
 function ensureCustomDispatcher(bundle: string): Agent {
   if (!customDispatcher) {
-    customDispatcher = new Agent({ connect: { ca: bundle } });
-    console.log("[tls] Custom undici agent created for Supabase requests");
+    const bundledCertificates = splitCertificateBundle(bundle);
+    const trustBundle = dedupeCertificates([
+      ...tls.rootCertificates,
+      ...bundledCertificates,
+    ]).join("\n");
+    customDispatcher = new Agent({ connect: { ca: trustBundle } });
+    console.log("[tls] Custom undici agent created for Supabase requests", {
+      certificates: bundledCertificates.length,
+    });
   }
   configureHttpsGlobalAgent(bundle);
   configureGlobalUndiciDispatcher(customDispatcher);
@@ -320,18 +327,18 @@ function resolveSupabaseUrl(): string {
 }
 
 function resolveAuthKey(): string {
-  const serviceRoleKey = readEnv("SUPABASE_SERVICE_ROLE_KEY");
-  if (serviceRoleKey) {
-    return serviceRoleKey;
-  }
-
   const anonKey = readEnv("SUPABASE_ANON_KEY") ?? readEnv("VITE_SUPABASE_ANON_KEY");
   if (anonKey) {
     return anonKey;
   }
 
+  const serviceRoleKey = readEnv("SUPABASE_SERVICE_ROLE_KEY");
+  if (serviceRoleKey) {
+    return serviceRoleKey;
+  }
+
   throw new Error(
-    "Supabase authentication requires SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY to be configured",
+    "Supabase authentication requires SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY to be configured",
   );
 }
 

@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: Record<string, any> | undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -44,7 +44,6 @@ app.use((req, res, next) => {
   registerRoutes(app);
   const server = createServer(app);
 
-  // Seed admin user from environment after DB is ready
   try {
     const hasServiceRole = Boolean(readEnv("SUPABASE_SERVICE_ROLE_KEY"));
     if (!hasServiceRole) {
@@ -53,18 +52,17 @@ app.use((req, res, next) => {
       try {
         const supabase = getSupabaseServiceClient();
         await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
+        const { seedAdminFromEnv } = await import("./seed");
+        await seedAdminFromEnv();
+        log("admin seed completed");
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         log(`admin seed skipped: unable to reach Supabase admin API (${message})`);
-        return;
       }
-
-      const { seedAdminFromEnv } = await import("./seed");
-      await seedAdminFromEnv();
-      log("admin seed completed");
     }
-  } catch (e: any) {
-    log(`admin seed skipped: ${e?.message || e}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`admin seed skipped: ${message}`);
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -75,20 +73,13 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
+  const port = parseInt(process.env.PORT || "5000", 10);
   server.listen({
     port,
     host: "0.0.0.0",

@@ -9,7 +9,7 @@ export default function Contact() {
     <>
       <SEOHead
         title="Contact CrawlGuard LLC - Free Waterproofing Estimates in Asheville, NC"
-        description="Contact CrawlGuard LLC for free waterproofing estimates in Asheville, NC. Call (828) 206-5924 or fill out our contact form. Professional service guaranteed."
+        description="Contact CrawlGuard LLC for free waterproofing estimates in Greater Asheville and Western North Carolina. We also consider select projects throughout North Carolina. Call (828) 206-5924 or fill out our contact form."
         keywords="contact CrawlGuard, free estimate, Asheville NC waterproofing, phone consultation, schedule service"
         canonicalUrl="https://crawlguardllc.com/contact"
       />
@@ -21,8 +21,7 @@ export default function Contact() {
             Get Your Free Estimate
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-testid="contact-hero-description">
-            Contact us today for professional waterproofing services in Asheville and surrounding areas. 
-            We provide free consultations and competitive estimates.
+            Contact us today for professional waterproofing services in Greater Asheville and surrounding Western North Carolina communities. We also consider select projects throughout the state and provide free consultations and competitive estimates.
           </p>
         </div>
       </section>
