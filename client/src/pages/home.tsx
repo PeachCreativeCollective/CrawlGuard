@@ -1,12 +1,13 @@
 import { Link } from "wouter";
-import { CheckCircle, Phone, Star } from "lucide-react";
+import { useEffect } from "react";
+import { CheckCircle, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/contact-form";
 import { LocationSection } from "@/components/location-section";
 import { SEOHead } from "@/components/seo-head";
 import { ServiceCard } from "@/components/service-card";
-import { TestimonialCard } from "@/components/testimonial-card";
-import { BUSINESS_INFO, SERVICES, SERVICE_AREAS, TESTIMONIALS } from "@/lib/constants";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { BUSINESS_INFO, SERVICES, SERVICE_AREAS } from "@/lib/constants";
 import * as Icons from "lucide-react";
 const heroImage = "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f9667d57bf160df89/a4886367430f431e96fcbbdffab7971b?format=jpg&width=1600&height=1000";
 
@@ -65,7 +66,16 @@ export default function Home() {
     return iconMap[iconName] || Icons.Home;
   };
 
-  const reviewsUrl = `${BUSINESS_INFO.socialMedia.facebook}/reviews/`;
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.jotform.com/website-widgets/embed/019fcd4355d070008cd70a5e13ce132eced5";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      script.remove();
+    };
+  }, []);
 
   return (
     <>
@@ -76,7 +86,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section 
-        className="relative min-h-[85vh] sm:min-h-screen bg-black p-4 sm:p-6 lg:p-8 flex items-center" 
+        className="relative min-h-0 sm:min-h-screen bg-black p-3 sm:p-6 lg:p-8 flex items-center" 
         data-testid="hero-section"
         style={{
           backgroundImage: `url(${heroImage})`,
@@ -120,7 +130,7 @@ export default function Home() {
                   </a>
                 </Button>
               </div>
-              <div className="mt-6 sm:mt-8 flex flex-wrap gap-4 sm:gap-6 text-sm text-white hero-features-fade">
+              <div className="mt-6 sm:mt-8 hidden sm:flex flex-wrap gap-4 sm:gap-6 text-sm text-white hero-features-fade">
                 {[
                   "Free Consultations",
                   "Licensed & Insured",
@@ -142,8 +152,8 @@ export default function Home() {
               </div>
             </div>
             <div className="hero-content-slide-right">
-              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-5 sm:p-6 border border-white/40 w-full">
-                <h2 className="text-2xl font-bold text-crawlguard-dark mb-4">Request Your Inspection</h2>
+              <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-4 sm:p-6 border border-white/40 w-full">
+                <h2 className="text-xl sm:text-2xl font-bold text-crawlguard-dark mb-3 sm:mb-4">Request Your Inspection</h2>
                 <ContactForm variant="compact" />
               </div>
             </div>
@@ -154,7 +164,7 @@ export default function Home() {
       {/* Services Section */}
       <section className="py-20 bg-white" data-testid="services-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 md:mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark mb-4" data-testid="services-title">
               Our Waterproofing Services
             </h2>
@@ -163,7 +173,34 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="md:hidden">
+            <Accordion type="single" collapsible className="rounded-xl border border-border bg-crawlguard-light px-4">
+              {SERVICES.map((service) => {
+                const IconComponent = getServiceIcon(service.icon);
+                return (
+                  <AccordionItem key={service.id} value={service.id}>
+                    <AccordionTrigger className="text-left text-base text-crawlguard-dark">
+                      <span className="flex items-center gap-3">
+                        <IconComponent className="h-5 w-5 shrink-0 text-crawlguard-primary" />
+                        {service.name}
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mb-3 text-gray-600">{service.description}</p>
+                      <Link
+                        href={`/services/${service.id}`}
+                        className="font-semibold text-crawlguard-primary hover:underline"
+                      >
+                        Learn More →
+                      </Link>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          </div>
+
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-8">
             {SERVICES.map((service) => {
               const IconComponent = getServiceIcon(service.icon);
               return (
@@ -181,18 +218,18 @@ export default function Home() {
       </section>
 
       {/* Service Areas Section */}
-      <section className="py-16 bg-crawlguard-light" data-testid="service-areas-section">
+      <section className="py-10 md:py-16 bg-crawlguard-light" data-testid="service-areas-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-crawlguard-dark mb-4" data-testid="areas-title">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-crawlguard-dark mb-4" data-testid="areas-title">
               Based in Asheville, Serving All of North Carolina
             </h2>
-            <p className="text-lg text-gray-600" data-testid="areas-description">
+            <p className="text-base md:text-lg text-gray-600" data-testid="areas-description">
               Professional waterproofing services across Buncombe, Henderson, Haywood, and Madison counties - with service available throughout North Carolina.
             </p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+          <div className="hidden md:grid grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
             {SERVICE_AREAS.map((area) => (
               <div 
                 key={area}
@@ -206,38 +243,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-white" data-testid="testimonials-section">
+      {/* Google Reviews Section */}
+      <section className="py-8 md:py-10 bg-white" data-testid="testimonials-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-crawlguard-dark mb-4" data-testid="testimonials-title">
-              What Our Customers Say
-            </h2>
-            <p className="text-xl text-gray-600" data-testid="testimonials-description">
-              Read reviews from satisfied homeowners across Western North Carolina
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((testimonial) => (
-              <TestimonialCard
-                key={testimonial.name}
-                {...testimonial}
-              />
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <a
-              href={reviewsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-crawlguard-primary font-semibold text-lg hover:underline"
-              data-testid="testimonials-cta"
-            >
-              Read Verified Reviews →
-            </a>
-          </div>
+          <div id="JFWebsiteWidget-019fcd4355d070008cd70a5e13ce132eced5" />
         </div>
       </section>
 
