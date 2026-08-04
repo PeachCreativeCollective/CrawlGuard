@@ -51,6 +51,7 @@ export default function AuthPage() {
       <Helmet>
         <title>Admin Login - CrawlGuard LLC</title>
         <meta name="description" content="Admin login portal for CrawlGuard LLC waterproofing services management system." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       
       <div className="min-h-screen flex">

@@ -60,8 +60,8 @@ export default function Services() {
             Professional Waterproofing Services
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8" data-testid="services-hero-description">
-            Comprehensive waterproofing solutions to protect your home from water damage, mold, and moisture issues. 
-            Serving Asheville, NC and surrounding areas with expert craftsmanship and reliable results.
+            Comprehensive waterproofing solutions to protect your home from water damage, mold, and moisture issues.
+            Based in Asheville, NC, our team travels throughout the state with expert craftsmanship and reliable results.
           </p>
           <Button 
             asChild
