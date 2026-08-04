@@ -84,10 +84,10 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className={cn("space-y-6", variant === "compact" && "space-y-4")}
+          className={cn("space-y-6", variant === "compact" && "space-y-3 sm:space-y-4")}
           data-testid="contact-form"
         >
-          <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", variant === "compact" && "gap-4")}>
+          <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", variant === "compact" && "gap-3 sm:gap-4")}>
             <FormField
               control={form.control}
               name="name"
@@ -125,7 +125,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
             />
           </div>
 
-          <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", variant === "compact" && "gap-4")}>
+          <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", variant === "compact" && "gap-3 sm:gap-4")}>
             <FormField
               control={form.control}
               name="zipCode"

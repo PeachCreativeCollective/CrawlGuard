@@ -5,18 +5,18 @@ import logoPath from "@assets/CRAWLGUARD LOGO 25_1755279513803.png";
 
 export function Footer() {
   return (
-    <footer className="bg-crawlguard-dark text-white py-16" data-testid="footer">
+    <footer className="bg-crawlguard-dark text-white py-10 md:py-16" data-testid="footer">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {/* Company Info */}
           <div data-testid="footer-company">
             <img 
               src={logoPath} 
               alt="CrawlGuard LLC Logo" 
-              className="h-12 w-auto mb-4 brightness-0 invert"
+              className="h-12 w-auto mb-3 md:mb-4 brightness-0 invert"
               data-testid="footer-logo"
             />
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 mb-3 md:mb-4">
               Professional waterproofing and crawl space solutions serving Greater Asheville and Western North Carolina, with select projects throughout North Carolina. 
               Protecting homes from water damage since 2023.
             </p>
@@ -36,8 +36,8 @@ export function Footer() {
           
           {/* Services */}
           <div data-testid="footer-services">
-            <h3 className="text-lg font-semibold mb-4">Our Services</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold mb-3 md:mb-4">Our Services</h3>
+            <ul className="space-y-1.5 md:space-y-2">
               {SERVICES.slice(0, 6).map((service) => (
                 <li key={service.id}>
                   <Link 
@@ -54,8 +54,8 @@ export function Footer() {
           
           {/* Service Areas */}
           <div data-testid="footer-areas">
-            <h3 className="text-lg font-semibold mb-4">Service Areas</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold mb-3 md:mb-4">Service Areas</h3>
+            <ul className="space-y-1.5 md:space-y-2">
               {SERVICE_AREAS.slice(0, 6).map((area) => (
                 <li key={area}>
                   <span className="text-gray-300">{area}, NC</span>
@@ -66,8 +66,8 @@ export function Footer() {
           
           {/* Contact Info */}
           <div data-testid="footer-contact">
-            <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
-            <div className="space-y-3">
+            <h3 className="text-lg font-semibold mb-3 md:mb-4">Contact Info</h3>
+            <div className="space-y-2 md:space-y-3">
               <div>
                 <a 
                   href={`tel:${BUSINESS_INFO.phone.replace(/\D/g, '')}`}
@@ -95,7 +95,7 @@ export function Footer() {
         </div>
         
         {/* Copyright */}
-        <div className="border-t border-gray-700 mt-12 pt-8 text-center" data-testid="footer-copyright">
+        <div className="border-t border-gray-700 mt-8 md:mt-12 pt-6 md:pt-8 text-center" data-testid="footer-copyright">
           <p className="text-gray-300">
             © 2025 {BUSINESS_INFO.name}. All rights reserved. Licensed and insured waterproofing contractor serving Western North Carolina.
           </p>
