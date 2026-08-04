@@ -137,16 +137,16 @@ const detailLookup: Record<string, ServiceDetailContent> = {
   "sump-pump": {
     id: "sump-pump",
     name: "Sump Pump Installation",
-    headline: "Sump Pump Installation in Asheville and Throughout North Carolina",
+    headline: "Sump Pump Installation for Crawl Spaces and Basements",
     metaDescription:
-      "Professional sump pump installation in Asheville and throughout North Carolina, with battery backups, discharge routing, and maintenance plans for dry crawl spaces and basements.",
+      "Professional sump pump installation in Asheville and throughout North Carolina as part of complete crawl space and basement moisture control, including battery backups, discharge routing, and maintenance.",
     intro:
-      "We size and install primary and backup sump pumps, integrate drainage piping, and provide maintenance to make sure water is removed before it reaches your floor.",
+      "We design and install primary and backup sump pumps as part of a complete crawl space or basement moisture-control plan, integrating drainage piping and maintenance so groundwater is removed before it reaches your floor.",
     benefits: [
+      "Supports dry, protected crawl spaces and basements",
       "Automates groundwater removal during storms",
-      "Protects finished areas from sudden flooding",
       "Includes battery backup to keep working during outages",
-      "Extends life of waterproofing systems and foundations",
+      "Extends the life of drainage, waterproofing, and foundation systems",
     ],
     warningSigns: [
       "Existing pump cycling constantly or failing",
