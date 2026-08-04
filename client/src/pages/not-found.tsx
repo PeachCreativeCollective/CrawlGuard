@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+
 import { SEOHead } from "@/components/seo-head";
 
 export default function NotFound() {
