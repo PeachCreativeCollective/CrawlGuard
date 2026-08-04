@@ -67,7 +67,7 @@ export default function Home() {
 
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = "https://www.jotform.com/website-widgets/embed/019fcd3f75a07000857e91b2538c3dcd1064";
+    script.src = "https://www.jotform.com/website-widgets/embed/019fcd4355d070008cd70a5e13ce132eced5";
     script.async = true;
     document.body.appendChild(script);
 
@@ -218,7 +218,7 @@ export default function Home() {
       {/* Google Reviews Section */}
       <section className="py-20 bg-white" data-testid="testimonials-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div id="JFWebsiteWidget-019fcd3f75a07000857e91b2538c3dcd1064" />
+          <div id="JFWebsiteWidget-019fcd4355d070008cd70a5e13ce132eced5" />
         </div>
       </section>
 
