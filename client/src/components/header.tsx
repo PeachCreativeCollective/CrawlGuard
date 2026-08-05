@@ -42,7 +42,7 @@ export function Header() {
               src={logoPath} 
               alt="CrawlGuard LLC Logo" 
               className={`w-auto transition-transform duration-300 ease-out ${
-                hasScrolled ? "h-20 scale-105" : "h-16"
+                hasScrolled ? "h-24 scale-105" : "h-20"
               }`}
               data-testid="logo-image"
             />
