@@ -41,8 +41,8 @@ export function Header() {
             <img 
               src={logoPath} 
               alt="CrawlGuard LLC Logo" 
-              className={`w-auto transition-transform duration-300 ease-out ${
-                hasScrolled ? "h-28 scale-105" : "h-24"
+              className={`h-24 w-auto origin-left transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                hasScrolled ? "scale-110" : "scale-100"
               }`}
               data-testid="logo-image"
             />
