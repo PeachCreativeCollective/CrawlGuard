@@ -35,14 +35,14 @@ export function Header() {
       data-testid="header"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-3 sm:py-4">
+        <div className="flex h-20 justify-between items-center">
           {/* Logo */}
           <Link href="/" data-testid="logo-link">
             <img 
               src={logoPath} 
               alt="CrawlGuard LLC Logo" 
               className={`w-auto transition-transform duration-300 ease-out ${
-                hasScrolled ? "h-24 scale-105" : "h-20"
+                hasScrolled ? "h-28 scale-105" : "h-24"
               }`}
               data-testid="logo-image"
             />
