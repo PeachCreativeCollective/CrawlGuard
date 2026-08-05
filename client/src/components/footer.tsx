@@ -13,7 +13,7 @@ export function Footer() {
             <img 
               src={logoPath} 
               alt="CrawlGuard LLC Logo" 
-              className="h-12 w-auto mb-3 md:mb-4 brightness-0 invert"
+              className="h-16 w-auto mb-4 md:mb-5 brightness-0 invert"
               data-testid="footer-logo"
             />
             <p className="text-gray-300 mb-3 md:mb-4">
