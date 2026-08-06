@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,17 +17,33 @@ const navigation = [
 export function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setHasScrolled(window.scrollY > 24);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50" data-testid="header">
+    <header
+      className={`bg-white sticky top-0 z-50 transition-shadow duration-300 ${
+        hasScrolled ? "shadow-md" : "shadow-sm"
+      }`}
+      data-testid="header"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex h-20 justify-between items-center">
           {/* Logo */}
           <Link href="/" data-testid="logo-link">
             <img 
               src={logoPath} 
               alt="CrawlGuard LLC Logo" 
-              className="h-12 w-auto"
+              className={`h-24 w-auto origin-left transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                hasScrolled ? "scale-110" : "scale-100"
+              }`}
               data-testid="logo-image"
             />
           </Link>

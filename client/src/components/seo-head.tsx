@@ -14,8 +14,8 @@ interface SEOHeadProps {
 }
 
 export function SEOHead({
-  title = "CrawlGuard LLC - Expert Crawl Space & Basement Waterproofing in Asheville, NC",
-  description = "Professional crawl space waterproofing, encapsulation, and mold remediation services in Asheville, NC. Free estimates. Serving Marshall, Weaverville, and surrounding areas.",
+  title = "Crawl Space & Basement Waterproofing in Asheville, NC | CrawlGuard",
+  description = "Crawl space and basement waterproofing, encapsulation, mold remediation, and drainage solutions in Asheville and Western North Carolina. Get a free estimate from CrawlGuard LLC.",
   keywords = "crawl space waterproofing, basement waterproofing, mold remediation, Asheville NC, Marshall NC, vapor barriers, encapsulation",
   canonicalUrl = "https://crawlguardllc.com",
   ogTitle,
