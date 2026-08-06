@@ -14,12 +14,14 @@ const heroImage = "https://cdn.builder.io/api/v1/image/assets/34bf9dd4adbe478f96
 export default function Home() {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "CrawlGuard LLC",
+    "@type": "HomeAndConstructionBusiness",
+    "name": BUSINESS_INFO.name,
     "description": "Professional crawl space waterproofing, basement waterproofing, and mold remediation services in Asheville, NC and surrounding areas.",
-    "url": "https://crawlguardllc.com",
-    "telephone": "+1-828-206-5924",
-    "email": "CrawlguardLLC@gmail.com",
+    "url": "https://crawlguardllc.com/",
+    "telephone": BUSINESS_INFO.phone,
+    "email": BUSINESS_INFO.email,
+    "priceRange": "$$",
+    "sameAs": [BUSINESS_INFO.socialMedia.facebook],
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Asheville",
@@ -31,11 +33,16 @@ export default function Home() {
       "latitude": "35.5951",
       "longitude": "-82.5515"
     },
-    "openingHours": ["Mo-Fr 09:00-17:00"],
-    "areaServed": {
-      "@type": "State",
-      "name": "North Carolina"
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "17:00"
     },
+    "areaServed": SERVICE_AREAS.map((area) => ({
+      "@type": "Place",
+      "name": `${area}, NC`
+    })),
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Waterproofing Services",
@@ -43,14 +50,13 @@ export default function Home() {
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
-          "name": service.name
+          "name": service.name,
+          "provider": {
+            "@type": "HomeAndConstructionBusiness",
+            "name": BUSINESS_INFO.name
+          }
         }
       }))
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "5.0",
-      "reviewCount": "50"
     }
   };
 
