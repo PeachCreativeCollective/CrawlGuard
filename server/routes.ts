@@ -33,6 +33,13 @@ export function registerRoutes(app: Express): void {
 
   app.post("/api/contact", async (req, res) => {
     try {
+      if (typeof req.body?.website === "string" && req.body.website.trim() !== "") {
+        return res.json({
+          success: true,
+          message: "Thank you for your inquiry! We'll contact you within 24 hours.",
+        });
+      }
+
       const validatedData = insertContactSubmissionSchema.parse(req.body);
       const submission = await storage.createContactSubmission(validatedData);
 
