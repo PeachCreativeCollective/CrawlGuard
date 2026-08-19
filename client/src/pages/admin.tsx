@@ -1014,8 +1014,8 @@ export default function Admin() {
                             </div>
                             {submission.message && (
                               <div className="mt-3 bg-crawlguard-primary/5 p-3 rounded-lg border border-crawlguard-primary/10">
-                                <p className="text-sm text-crawlguard-dark/80 leading-relaxed">
-                                  {submission.message.length > 200 ? `${submission.message.substring(0, 200)}...` : submission.message}
+                                <p className="text-sm text-crawlguard-dark/80 leading-relaxed whitespace-pre-wrap break-words">
+                                  {submission.message}
                                 </p>
                               </div>
                             )}

@@ -21,6 +21,7 @@ const contactFormSchema = z.object({
   zipCode: z.string().min(5, "Zip code must be at least 5 characters"),
   service: z.string().optional(),
   message: z.string().optional(),
+  website: z.string().optional(),
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -44,6 +45,7 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
       zipCode: "",
       service: "",
       message: "",
+      website: "",
     },
   });
 
@@ -231,6 +233,19 @@ export function ContactForm({ variant = "default" }: ContactFormProps) {
               </FormItem>
             )}
           />
+
+          <div
+            className="absolute -left-[9999px] h-px w-px overflow-hidden"
+            aria-hidden="true"
+          >
+            <label htmlFor="contact-website">Website</label>
+            <Input
+              id="contact-website"
+              tabIndex={-1}
+              autoComplete="off"
+              {...form.register("website")}
+            />
+          </div>
 
           <Button
             type="submit"
